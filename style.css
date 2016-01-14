@@ -1,0 +1,111 @@
+@import url(https://fonts.googleapis.com/css?family=Merriweather);
+
+body {
+	font-family: 'Merriweather';
+	background-color: #232323;
+	color: white;
+}
+
+.frontpage header {
+	text-align: center;
+	margin-top: 15rem;
+	padding-top: 2rem;
+	margin-bottom: 4rem;
+}
+
+.frontpage img {
+	width: 8em;
+	border-radius: 4em;
+}
+
+.datebox {
+	width: 5rem;
+	border-radius: 0.5rem;
+	background-color: white;
+	color: black;
+	display: block;
+	text-align: center;
+	padding: 0.5rem;
+	float: left;
+	margin-right: 2rem;
+}
+
+.datebox > span {
+	display: block;
+	padding: 0;
+	margin: 0;
+	line-height: 1;
+}
+
+.datebox>span.day { font-size: 4rem;}
+
+.article-listing {max-width: 80rem; margin: auto;}
+
+.article-listing a {
+	color: #A00;
+}
+
+.article-listing p {padding: 0;}
+
+header {
+	width: 100%;
+	background-color: #550000;
+}
+
+header h1 {
+	padding: 1rem;
+	padding-bottom: 0;
+}
+
+.frontpage header h1 {
+	margin-bottom: 0;
+}
+
+.byline {
+	width: 100%;
+	background-color: #600;
+}
+
+.byline p {
+	padding-bottom:0;
+}
+article {
+	padding-top: 2em;
+}
+
+p, ul, h4 {
+	padding: 1rem;
+}
+
+ul {
+	list-style:none;
+}
+
+code {
+	background-color: black;
+	color: #00FF00;
+}
+
+a {
+	color: #E00;
+}
+
+a:hover {
+	color: white;
+	text-decoration: underline;
+	transition-duration: 0.4s;
+}
+
+a.footnote-link {
+	vertical-align: super;
+}
+
+footer.page-footer {
+	background-color: #500;
+	width: 100%;
+	color: white;
+	padding: 3rem;
+	margin-top: 4rem;
+}
+
+footer.page-footer a { color: white;}

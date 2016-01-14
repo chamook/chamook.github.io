@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>How do I even git?</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+		<link rel="stylesheet" href="../style.css">
+  </head>
+  <body>
+	  	<header>
+			<div class="container">
+				<h1>
+					How do I even git?<br />
+					<small>Without sucking at it and annoying everyone</small>
+				</h1>
+			</div>
+			<div class="byline">
+				<div class="container">
+					<p>
+						By 
+						<a href="https://twitter.com/chamooktweets">Adam 
+						Guest</a> - 11 October 2015 
+					</p>
+				</div>
+			</div>
+		</header>
+		<article class="container">
+			<section>
+				<p>
+					Git is a really cool source control system that can 
+					do loads of things and works really well and stuff.
+					But if you've never used it before and haven't really
+					learned how to use it right it sucks and is shit and 
+					seems like a massive chore for very little benefit.
+					This article should help to give you some tiny level 
+					of understanding of how to use basic git stuff in a
+					way that doesn't suck and lets you reap some of the 
+					benefits of using it.
+				</p>
+				<h3>
+					Stop using sucky tools and do things properly
+				</h3>
+				<p>
+					There are a lot of applications that are designed to 
+					give you a shiny interface for working with Git, and 
+					they probably made you think "oh hay cool, pres butan
+					ftw lol!!1" but they are BAD and WRONG!
+					<a href="#footnote-1" class="footnote-link">1</a>
+					If you want to have a proper understanding of what 
+					you're doing  and you want access to all the tools it 
+					provides, you should run it from the command prompt
+					because that's what it was made for. This is not as 
+					scary and difficult as it sounds. Plus you'll look 
+					<b>really</b> pro.
+				</p>
+				<p>
+					To get started, you will obviously need to download and install 
+					<a href="https://git-scm.com/downloads">git</a> and then 
+					you'll want to install <a href="http://conemu.github.io/">
+					ConEmu</a> because it makes working on the command line 
+					not terrible. That's it for software setup.
+				</p>
+				<h3>Type words, make things happen</h3>
+				<p>
+					There are a few bash commands that it's worth being familiar with:
+				</p>
+				<ul>
+					<li>
+						<code>cd &lt;path&gt;</code> - Change directory just 
+						like in a windows command prompt, so 
+						<code>cd c/development/my-dumb-project/</code>	would 
+						take you to	c:\development\my-dumb-project
+					</li>
+					<li>
+						<code>ls</code> - lists the contents of a directory
+					</li>
+					<li>
+						<code>rm &lt;filename&gt;</code> - deletes a file,
+						I only use this when I type something wrong and 
+						end up making an empty file called sqhel
+					</li>
+				</ul>
+				<p>
+					Then you'll also need git commands for doing actual git things:
+				</p>
+				<ul>
+					<li>
+						<code>git init</code> - creates a repository in the 
+						current folder (gosh that was easy)
+					</li>
+					<li>
+						<code>git branch &lt;branchname&gt;</code> - makes a new 
+						branch with the given name
+					</li>
+					<li>
+						<code>git checkout &lt;branchname&gt;</code> - switches 
+						branch to the one specified
+					</li>
+					<li>
+						<code>git add -A</code> - adds all your pending changes to
+						staging
+					</li>
+					<li>
+						<code>git add &lt;file&gt;</code> - adds just the specified 
+						file's changes to staging
+					</li>
+					<li>
+						<code>git commit -m "&lt;message&gt;"</code> - makes a commit 
+						with all the changes in staging and gives it the specified
+						message
+					</li>	
+					<li>
+						<code>git log</code> - lists the commit history, most recent
+						first (press <code>q</code> to make it stop)
+					</li>	
+					<li>
+						<code>git merge &lt;branchname&gt;</code> - merges the
+						specified branch onto your current branch
+					</li>	
+					<li>
+						<code>git rebase &lt;branchname&gt;</code> - rewrite history 
+						in your own image
+					</li>	
+				</ul>
+				<p>
+					That covers the basics for working with your local repository, but 
+					when you're working with other people you'll also need a remote 
+					repository somewhere to sync against. And that involves a few more 
+					commands:
+				</p>
+				<ul>
+					<li>
+						<code>git remote add origin &lt;url&gt;</code> - Adds a remote 
+						called origin with the specified url (like that url that 
+						<a href="http://www.github.com/">github</a> gives you for your 
+						repository<a href="#footnote-2" class="footnote-link">2</a>) 
+					</li>
+					<li>
+						<code>git pull</code> - pulls down any changes on the remote to 
+						your local copy
+					</li>
+					<li>
+						<code>git push origin HEAD</code> - pushes any new commits you 
+						have made on your current branch up to the remote origin (HEAD 
+						refers to the tip of your branch)
+					</li>
+				</ul>
+				<h3>Git as you go</h3>
+				<p>
+					Knowing the commands is one thing (one very important thing, but still)
+					but the really important part is using them well and fitting them into 
+					your workflow. So what is a good approach with all this stuff?
+				</p>
+				<h4>Always work on branches</h4>
+				<p>
+					Importantly, not the master branch. Branches are good because they 
+					keep all your work on a particular thing isolated - if you're half
+					way through something and you find a bug in your main build that 
+					<em>needs</em> to be fixed <em>now</em> it's really good that you 
+					can just commit any changes to your branch, make a new bugfix branch 
+					from master and get that fix in, without having to undo any of your
+					in-progress work. 
+				</p>
+				<p>
+					It's also nice that your master branch can be a rock solid pillar of
+					stability, until any code you're working on really is done and ready
+					to join it. When you're starting a new line of development, either a 
+					feature or bugfix, you should start a new branch from master
+					<a href="#footnote-3" class="footnote-link">3</a>:
+				</p>
+				<ul>
+					<li><code>git checkout master</code></li>
+					<li><code>git pull</code></li>
+					<li><code>git branch my-awesome-new-branch</code></li>
+					<li><code>git checkout my-awesome-new-branch</code></li>
+				</ul>
+				<p>
+					First change to the master branch and pull any changes from origin 
+					to ensure that your local copy of master is up to date with any 
+					remote changes. Then create a new branch - here creatively titled 
+					my-awesome-new-branch but it's probably a good idea to go with a 
+					more descriptive name - and then check it out ready to be worked on.
+				</p>
+				<h4>Commit often, push less often</h4>
+				<p>
+					Make a <em>lot</em> of commits. Each commit should be the smallest 
+					change you could've made without breaking everything. If you add a
+					line inside a method that doesn't change the outcome (so everything
+					still builds and tests still pass) that's a commit. If you change 
+					the signature of a method, then you would also need to change all the
+					callers before commiting.
+				</p> 
+				<p>
+					Before you push your branch and share your commits with everyone else,
+					it's a lot easier for you to change them (and it won't mess up 
+					anyone else's flow) - so don't push until you're happy with the state 
+					of a branch. If it's a particularly long lived branch, you might want 
+					to push periodically just to have it backed up, but generally try to 
+					avoid long lived branches anyways because they are a pain to work with.
+				</p>	
+				<h4>Write good commit messages</h4>
+				<p>
+					Every commit in your history should have a descriptive, easy to 
+					understand message that says what it changes and in a lot of cases
+					why it makes that change. It should be a note to a future 
+					developer (or just as likely future you) that explains the 
+					reasoning for changing the code in a clear, concise way so that
+					you're not baffled by a change in 6 months with no one to turn to 
+					for answers.
+				</p>			
+				<p>
+					It's a good rule of thumb to have all your commit messages finish this 
+					sentence:
+				</p>			
+				<blockquote>If applied, this commit will...</blockquote>
+				<p>
+					All of this is explained much better than I can manage in
+					<a href="http://chris.beams.io/posts/git-commit/">this very good
+					article</a>.
+				</p>
+				<h4>If not now, then at least later</h4>
+				<p>
+					Sometimes you're in the middle of changing a bunch of things, got a 
+					mad good flow going on and really don't wanna break it up by writing 
+					beautiful, poetic commit messages. Fortunately, you can use a temporary
+					message for now and then fix it up later with the secret voodoo of
+					interactive rebasing (<code>git rebase -i</code>)
+				</p>
+				<p>
+					An interactive rebase lets you go through all the commits after a 
+					starting point of your choosing and fuck around with them. You 
+					can split them apart into more commits, squash them together into
+					fewer, even add and remove changes from each one or get rid of a 
+					commit entirely. But a very handy thing to do if you suck at 
+					writing commit messages first time, is that you can change the commit 
+					messages.
+				</p>
+				<p>
+					So code away, get your flow on real good and make nice small commits 
+					with temporary messages just for you. Then, when you're done rebase 
+					interactively from the commit before your changes and make all those 
+					messages beautiful:
+				</p>
+				<ul>
+					<li>
+						<code>git rebase -i &lt;commit id&gt;</code>
+					</li>
+				</ul> 
+				<h3>Share with others</h3>
+				<p>
+					When you've finished a feature (or part of a feature depending on
+					the size of it) it's time to make a pull request and get your work 
+					merged into the rest of the code. Making a good pull request helps 
+					other developers review your code and make sure you didn't do 
+					something dumb. Read 
+					<a href="http://blog.ploeh.dk/2015/01/15/10-tips-for-better-pull-requests/">
+					this cool article</a> for some pointers on how to make your pull request
+					the best it can be, and help everyone out by making it easier to review.
+				</p>
+			</section>
+			<footer>
+				<h3>Footnotes</h3>
+				<ol class="footnotes">
+					<li id="footnote-1">Mostly.</li>
+					<li id="footnote-2">
+						Of course instead of doing it this way, you 
+						could've started by making your repository in github or whatever 
+						and then used <code>git clone &lt;url&gt;</code> which would've 
+						been easier.
+					</li>
+					<li id="footnote-3">
+						Sometimes, you'll be in the middle of a big change on a branch 
+						and have a change you want to make that isn't really related, but 
+						builds on the change you're making. It's perfectly ok in that case
+						to just make a new branch from the one you're currently working on
+						ready to make a pull request for it after your current feature is
+						done and merged.
+					</li>
+				</ol>
+			</footer>
+		</article>
+		<footer class="page-footer">
+			<div class="container">
+				<a href="../index.html">&lt;- More Words About Code
+			</div>
+		</footer>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+  </body>
+</html>
