@@ -25,6 +25,7 @@
 						By 
 						<a href="https://twitter.com/chamooktweets">Adam 
 						Guest</a> - 11 October 2015 
+                        <small>(Updated 17 February 2016)</small>
 					</p>
 				</div>
 			</div>
@@ -89,6 +90,12 @@
 					Then you'll also need git commands for doing actual git things:
 				</p>
 				<ul>
+                    <li>
+						<code>git status</code> - tells you the current status of 
+                        the repository (changes in your working copy, staged changes, 
+                        other stuff) also tends to tell you what you can do next, so it's
+                        super handy if you get stuck
+					</li>
 					<li>
 						<code>git init</code> - creates a repository in the 
 						current folder (gosh that was easy)
@@ -150,6 +157,18 @@
 						refers to the tip of your branch)
 					</li>
 				</ul>
+                <h3>Don't panic if you end up in vim!</h3>
+                <p>
+                    Vim is some fancy text editor thing that people who are way nerdier 
+                    than me think is awesome - the shell will possibly dump you there 
+                    when you do things with git and it needs you to type a message or 
+                    something. It looks weird and scary, but don't panic! It's built 
+                    around having a lot of flashy keyboard shortcuts, but if you press
+                    the <code>insert</code> key on your keyboard you'll go into regular 
+                    text editing mode (like how other editors are) and when you're done
+                    making changes press <code>escape</code> and then type <code>:wq</code> 
+                    which means Write and Quit and you're outta there.
+                </p>
 				<h3>Git as you go</h3>
 				<p>
 					Knowing the commands is one thing (one very important thing, but still)
@@ -179,13 +198,20 @@
 					<li><code>git branch my-awesome-new-branch</code></li>
 					<li><code>git checkout my-awesome-new-branch</code></li>
 				</ul>
-				<p>
+                <p>
 					First change to the master branch and pull any changes from origin 
 					to ensure that your local copy of master is up to date with any 
 					remote changes. Then create a new branch - here creatively titled 
 					my-awesome-new-branch but it's probably a good idea to go with a 
 					more descriptive name - and then check it out ready to be worked on.
 				</p>
+                <p>Or if you're a super fast speedy person, you could just go:</p>
+                <ul>
+					<li><code>git checkout master</code></li>
+					<li><code>git pull</code></li>
+					<li><code>git checkout -b my-awesome-new-branch</code></li>
+				</ul>
+                <p>The -b switch on checkout will make a new branch if it doesn't already exist</p>
 				<h4>Commit often, push less often</h4>
 				<p>
 					Make a <em>lot</em> of commits. Each commit should be the smallest 
@@ -195,6 +221,13 @@
 					the signature of a method, then you would also need to change all the
 					callers before commiting.
 				</p> 
+                <p>
+                    If you make a commit, then realise you forgot to add something to it 
+                    (because sometimes you're silly like that) you can add that change with
+                    <code>git add &lt;file&gt;</code> and then use <code>git commit --amend</code>
+                    to sneakily add it to the last commit, instead of cluttering things up
+                    with 3 commits for the same thing.
+                </p>
 				<p>
 					Before you push your branch and share your commits with everyone else,
 					it's a lot easier for you to change them (and it won't mess up 

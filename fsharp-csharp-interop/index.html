@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>F# and C# being bros</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+		<link rel="stylesheet" href="../style.css">
+  </head>
+  <body>
+	  	<header>
+			<div class="container">
+				<h1>
+					F# and C# being bros<br />
+					<small>All chill and working together and stuff</small>
+				</h1>
+			</div>
+			<div class="byline">
+				<div class="container">
+					<p>
+						By 
+						<a href="https://twitter.com/chamooktweets">Adam 
+						Guest</a> - 21 January 2016 
+					</p>
+				</div>
+			</div>
+		</header>
+		<article class="container">
+			<section>
+				<p>
+                    Sometimes, you're just coding away in C# trying to be productive 
+                    and stuff, and then you realise that this would all be easier in F#.
+                    But you can't just switch your whole project over to F# (probably 
+                    because some Project Manager would get mad or something) - but maybe
+                    with a bit of interop magic you can get these two .NET languages 
+                    to be bros and work together nicely. That way, you get to write 
+                    glorious F# code, but use a bunch of the C# stuff that's already 
+                    been done.
+                </p>
+                <h3>F# can use all those objects</h3>
+                <p>
+                    Like, yeah, in case you were wondering f# <em>can</em> interact 
+                    with the rest of the .NET world through objects and stuff. Also, 
+                    since F# 4.0 object constructors are now grown up functions like
+                    everything else which means you can use them in pipe chains (I was
+                    really excited when I learned this part).
+                </p>
+                <script src="https://gist.github.com/chamook/e22c875a8860793eda1b.js"></script>
+                <h3>F# can make pretty C# classes</h3>
+                <p>
+                    This one is obvious given that it can talk to the rest of the .NET 
+                    world pretty easily, but yes F# can make classes that C# can understand.
+                    Interfaces too! This is how you can make some snazzy F# functions and 
+                    call them from C# code.
+                </p>
+                <script src="https://gist.github.com/chamook/7463196f606ad55f704a.js"></script>
+                <p>
+                    These are full fledged classes and interfaces, so you could also implement 
+                    an interface defined in F# with a class in C# or vice versa. The big 
+                    difference is when making static classes - there isn't a proper attribute for 
+                    that (turns out C# has just been lying to you all this time to make things 
+                    easier) - but you can still make a static class(ish), just make a sealed 
+                    class with a private constructor and no instance members:
+                </p>
+                <script src="https://gist.github.com/chamook/cb920a680c346a806b9f.js"></script>
+                <h3>C# can give F# functions</h3>
+                <p>
+                    This is possibly the least elegant part of the whole shebang, but if you 
+                    have some C# code that you would like to pass to an object created in F# 
+                    as a Func (which is totally 
+                    <a href="http://mikehadlow.blogspot.dk/2015/08/c-program-entirely-with-static-methods.html">
+                    a thing you want to do</a>) you will soon come to notice that a C# Func
+                    and an F# function are different things. Fortunately, with some fancy 
+                    F# plumbing that I found <a href="http://blogs.msdn.com/b/jaredpar/archive/2010/07/27/converting-system-func-lt-t1-tn-gt-to-fsharpfunc-lt-t-tresult-gt.aspx">over here</a> you can convert your C# 
+                    trash into glorious F# functions with a tiny little extension method.
+                </p>
+                <script src="https://gist.github.com/chamook/48a5481ec7428a29a8fc.js"></script>
+                <p>
+                    This then means that you can define a class in F# that would take an F# 
+                    function:
+                </p>
+                <script src="https://gist.github.com/chamook/aa1ff89dc46528d54f5e.js"></script>
+                <p>
+                    Then you can inject it from your C# code:
+                </p>
+                <script src="https://gist.github.com/chamook/7eca4df4dd5852aeab49.js"></script>
+                <h3>Async is also awesome</h3>
+                <p>
+                    If you've added async methods to your code, you might've noticed how it 
+                    spreads itself around like a virus and now everything returns a Task.
+                    F# has a different way of working with async compared to C#, but handily 
+                    it also provides a neat set of functions for moving between Async&lt;'a&gt;
+                    and Task&lt;T&gt;.
+                </p>
+                <script src="https://gist.github.com/chamook/93eebe1c484ecee5c3db.js"></script>
+                <p>
+                    And so they both lived happily ever after...
+                </p>
+			</section>
+		</article>
+		<footer class="page-footer">
+			<div class="container">
+				<a href="../index.html">&lt;- More Words About Code
+			</div>
+		</footer>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+  </body>
+</html>

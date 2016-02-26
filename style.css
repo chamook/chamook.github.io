@@ -109,3 +109,16 @@ footer.page-footer {
 }
 
 footer.page-footer a { color: white;}
+
+.gist .gist-file { border-color: #666 !IMPORTANT;}
+.gist .blob-wrapper>table.highlight { background-color: #343434;}
+.gist>.gist-file>.gist-data {border-color: #666;}
+.gist>.gist-file>.gist-meta {background-color: #666; color: black;}
+.gist>.gist-file>.gist-meta>a {color: black;}
+.gist .blob-num {border-color: #666 !IMPORTANT; color: #DDD !IMPORTANT;}
+.gist .blob-code-inner {color: white !IMPORTANT;}
+.gist .blob-code-inner .pl-k {color: #E00 !IMPORTANT;}
+.gist .blob-code-inner .pl-en {color: #D0F !IMPORTANT;}
+.gist .blob-code-inner .pl-smi {color: #C00 !IMPORTANT;}
+.gist .blob-code-inner .pl-s {color: darkorange !IMPORTANT;}
+.gist .blob-code-inner .pl-pds {color: darkorange !IMPORTANT;}
