@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Adam Guest : Awesome Developer</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+		<link rel="stylesheet" href="cv.css">
+  </head>
+  <body>
+	  	<header>
+            <div>
+                <h1>Adam Guest<br/>
+                <span class="small">Awesome Developer</span></h1>
+                <p>
+                    Pushing forward with new techniques and insights | 
+                    Striving for best practices and higher quality |
+                    Making smart and usable solutions
+                </p>
+            </div>
+		</header>
+		<article class="container">
+			<section>
+                <h2>Skills &amp; Qualifications</h2>
+                <h3>Skills</h3>
+                <p>
+                    Full stack web development. Excellent knowledge of: C#, HTML5, ASP.NET, WebApi, Dependency 
+                    Injection, xUnit unit testing, Javascript, Git. Good knowledge of: F#, CSS3, Razor, jQuery, 
+                    Knockout JS, Angular JS, Sitecore, AutoFixture. Experience and basic knowledge of a wide range of web technologies and development tools and techniques.
+                </p>
+                <h3>Languages</h3>
+                <p>
+                    Fluent in both English and Danish
+                </p>
+                <h3>Education</h3>
+                <p>
+                    Certifications in Sitecore 6 and Umbraco 5.
+                </p>
+                <p>
+                    HND Computing (Software Engineering) – Wigan & Leigh College, 10 GCSEs A-B (Including Maths, English and IT) – Cansfield High School,Young Enterprise UK Certificate
+                </p>
+			</section>
+            <section>
+                <h2>Employment History</h2>
+                <section>
+                    <h3>
+                        Frontend Developer
+                        <span class="small">
+                            <a href="http://247entertainment.com/">24/7 Entertainment</a> | April 2015 - Present
+                        </span>
+                    </h3>
+                    <p>
+                        Working across Frontend and Backend teams with a range of technologies.
+                        On the frontend building a web application with features including music streaming and 
+                        the purchase of movies and e-books built using C#, WebApi and Angular JS; on the
+                        backend working to build a Level 3 ReST Hypermedia API using C#, F# and WebApi.
+                        Both solutions including comprehensive testing with xUnit and AutoFixture.
+                        Additionally, driving a more functional coding style in C# including developing a 
+                        shared library to enable easy use of some functional concepts, primarily via the 
+                        introduction of Maybe and Result (Either) Monads.
+                    </p>
+                </section>
+                <section>
+                    <h3>
+                        Developer
+                        <span class="small">
+                            <a href="http://www.eksponent.com/">Eksponent</a> | September 2013 - April 2015
+                        </span>
+                    </h3>
+                    <p>
+                        Projects included a large site upgrade from Sitecore 6 to 7, and a large media site built on ASP.NET MVC, integrated with several data providers and funnelling data into a responsive, JavaScript based front end. Also worked on developing internal tools including a bot for HipChat that provides integration with the project planning system.
+                    </p>
+                </section>
+                <section>
+                    <h3>
+                        Sitecore Developer
+                        <span class="small">
+                            <a href="http://www.gfforsikring.dk/">GF Forsikring</a> | December 2012 - August 2013
+                        </span>
+                    </h3>
+                    <p>
+                        Refactored the entire codebase for two separate solutions running on different versions of Sitecore into a unified solution, running on Sitecore 6.5, with a more clearly defined and logical structure. Involved in the implementation of TFS from the development team. Developed several landing pages and other smaller projects. 
+                    </p>
+                </section>
+                 <section>
+                    <h3>
+                        Developer
+                        <span class="small">
+                            <a href="https://www.cabana.dk/">Cabana</a> | August 2011 - December 2012
+                        </span>
+                    </h3>
+                    <p>
+                        Worked on a variety of new or existing Sitecore solutions, often in collaboration with other developers. Gained comprehensive knowledge of Sitecore and experience using a variety of technologies to meet goals across a range of scenarios within stringent deadlines.
+                    </p>
+                </section>
+                <section>
+                    <h3>
+                        International CRM Developer
+                        <span class="small">
+                            <a href="http://foss.dk/">FOSS</a> | October 2007 - August 2011
+                        </span>
+                    </h3>
+                    <p>
+                        Responsible for development of FOSS’s CRM system, including User Interface design and usability assessments. Also developed solutions for integration with both internal and external applications.
+                    </p>
+                </section>
+            </section>
+            <section>
+                <h2>Other Projects</h2>
+                <h3><a href="http://www.farumgospel.dk/">Farum Gospel</a></h3>
+                <p>A simple, responsive website built using Umbraco and Bootstrap.</p>
+                <h3><a href="http://www.chamook.com/">Words about Code</a></h3>
+                <p>My own blog made with a focus on being lightweight and providing high quality content, styling built on Bootstrap, and hand-coded HTML made using Visual Studio Code.</p>
+			</section>
+		</article>
+        <footer>
+            <div class="container">
+                <h2>Contact Info</h2>
+                <p>
+                    E-Mail: <a href="mailto:chamook@live.dk">chamook@live.dk</a>
+                </p>
+            </div>
+        </footer>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            function setHeight() {
+                windowHeight = $(window).innerHeight();
+                windowWidth = $(window).innerWidth();
+                //$('header').css('min-height', windowHeight);
+                $('header').css('width', windowWidth);
+                $('article').css('margin-top', $('header').height());
+            };
+            setHeight();
+            
+            $(window).resize(function() {
+                setHeight();
+            });
+        });
+    </script>
+  </body>
+</html>
