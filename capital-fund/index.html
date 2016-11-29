@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Refactoring factories</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+		<link rel="stylesheet" href="../style.css">
+  </head>
+  <body>
+	  	<header>
+			<div class="container">
+				<h1>
+					Get rid of unneeded factories with one weird trick<br />
+					<small>The gang of four don't want you to know</small>
+				</h1>
+			</div>
+			<div class="byline">
+				<div class="container">
+					<p>
+						By 
+						<a href="https://twitter.com/chamooktweets">Adam 
+						Guest</a> - 29 November 2016
+					</p>
+				</div>
+			</div>
+		</header>
+		<article class="container">
+			<section>
+				<p>
+					Object oriented developers love patterns. 
+					<abbr title="Every once in a while, I suppose">Sometimes</abbr>
+					these patterns are useful and make code easier to understand, 
+					<abbr title="Most of the time">other times</abbr> they are 
+					just included for the sake of using patterns. The overuse is 
+					probably because they have goofy sounding names. One of the 
+					patterns that often has the most dubious value is the 
+					<a href="https://en.wikipedia.org/wiki/Factory_method_pattern">
+					Factory Pattern</a>, wherein we create a whole different object
+					that can then create the object we actually wanted for us. 
+					This pattern does have some merit in that it can aid in making 
+					code reusable, or can abstract away some concerns - however, 
+					over eager <abbr title="Object Oriented Programming">OOP</abbr>
+					practitioners will sometimes make a factory that effectively 
+					just calls a constructor for one type, and takes all the 
+					parameters that that constructor needs - which makes it just 
+					an annoying piece of indirection.
+				</p>
+				<p>
+					To counter patterns with goofy names, we must use 
+					refactorings with equally goofy names (it's the only way).
+					So, to aid in removing pointless factories we have:
+				</p>
+				<h3>
+					The Capital Fund Refactoring
+				</h3>
+				<p>
+					Wherein, we extract the value from a factory and leave it 
+					defunct. Just like a real capital fund, we also ignore the plight
+					of the workers in that factory who now struggle to feed their 
+					families.
+				</p>
+				<h3>An exciting and representative example</h3>
+				<p>Consider this super useful factory:</p>
+				<script src="https://gist.github.com/chamook/a4520308344b68fe72f2762409e7a342.js"></script>
+				<p>
+					It looks trivial, but it's honestly not far from a factory I
+					really saw out in the wild recently - you're welcome to imagine 
+					a slightly more useful example if it helps though.
+				</p>
+				<p>
+					The example I found was used only twice and both of those in 
+					the same <code>ApiController</code>, both called like this:
+				</p>
+				<script src="https://gist.github.com/chamook/0e8fd32e0f830b0c28c30d86ced5abb8.js"></script>
+				<p>
+					So it was trivial to apply the <em>Capital Fund</em> refactoring, 
+					and move the object creation to a private static method nearby:
+				</p>
+				<script src="https://gist.github.com/chamook/9cc5bfd02c381b4ea3836faafc61ddf5.js"></script>
+				<h3>What even is the point of that?</h3>
+				<p>
+					It's easy to dismiss this change as pointless, and in such a 
+					trivial example it mostly is - but, for factories that are 
+					only used in one place it's a good way to remove an unnecessary 
+					and potentially confusing abstraction so that you can find a 
+					better one.
+				</p>
+				<p>
+					To be clear, I am not saying the factory pattern is 
+					<em>always</em> a bad idea, but often it is used without 
+					considering the value that it adds and can often be the 
+					wrong thing to use in a given circumstance - just removing 
+					the factory often isn't enough to improve the readability of
+					the code, but by moving the methods it provides closer to 
+					where they are used it can be much easier to reason about the 
+					code and find a better abstraction. So, it is worth considering 
+					these points before mindlessly applying this refactoring:
+				</p>
+				<h3>Guidelines</h3>
+				<h4>Good times to apply this:</h4>
+				<ul>
+					<li>When a factory is used very few times</li>
+					<li>When a factory can trivially be replaced with a constructor call</li>
+					<li>When a factory very clearly returns a concrete type</li>
+				</ul>
+				<h4>Bad times to apply this:</h4>
+				<ul>
+					<li>When a factory is used in a bunch of places</li>
+					<li>When a factory nicely separates out logic about creating 
+						something that would otherwise be boring and repetitive</li>
+				</ul>
+				<h3>Is this the end?</h3>
+				<p>
+					The <em>Capital Fund</em> refactoring helps remove an unnecessary
+					indirection from your code, but it's important to note that 
+					this refactoring alone doesn't necessarily leave you with 
+					<em>better</em> code. The aim of this refactoring is to make 
+					things clearer so that you can continue on to develop an 
+					abstraction that makes more sense. Unless the use of a factory 
+					was <em>completely</em> pointless, in which case you might just
+					want to offer <del>mean</del> kind words of support to whoever
+					added it in the first place, in the hope that you don't have 
+					to apply this refactoring too many times.
+				</p>
+		</article>
+		<footer class="page-footer">
+			<div class="container">
+				<a href="../index.html">&lt;- More Words About Code
+			</div>
+		</footer>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+  </body>
+</html>
