@@ -9,59 +9,81 @@
 
     <!-- Bootstrap -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-		<link rel="stylesheet" href="cv.css">
+	<link rel="stylesheet" href="cv.css">
   </head>
   <body>
 	  	<header>
             <div>
+                <div>
                 <h1>Adam Guest<br/>
                 <span class="small">Awesome Developer</span></h1>
-                <p>
-                    Pushing forward with new techniques and insights | 
-                    Striving for best practices and higher quality |
-                    Making smart and usable solutions
-                </p>
+                </div>
+                <img src="../me.jpg" alt="It's me!'" />
             </div>
 		</header>
 		<article class="container">
 			<section>
                 <h2>Skills &amp; Qualifications</h2>
-                <h3>Skills</h3>
-                <p>
-                    Full stack web development. Excellent knowledge of: C#, HTML5, ASP.NET, WebApi, Dependency 
-                    Injection, xUnit unit testing, Javascript, Git. Good knowledge of: F#, CSS3, Razor, jQuery, 
-                    Knockout JS, Angular JS, Sitecore, AutoFixture. Experience and basic knowledge of a wide range of web technologies and development tools and techniques.
-                </p>
-                <h3>Languages</h3>
-                <p>
-                    Fluent in both English and Danish
-                </p>
-                <h3>Education</h3>
-                <p>
-                    Certifications in Sitecore 6 and Umbraco 5.
-                </p>
-                <p>
-                    HND Computing (Software Engineering) – Wigan & Leigh College, 10 GCSEs A-B (Including Maths, English and IT) – Cansfield High School,Young Enterprise UK Certificate
-                </p>
+
+                <div class="col-xs-12 col-sm-6">
+                    <div class="skills-box">
+                        <h3>Skills</h3>
+                        <p>
+                            C#, F#, Web API, Git, Unit Testing (including TDD and 
+                            property based testing), Functional programming.
+                        </p>
+                        <p>
+                            Angular JS, Knockout JS, CSS3, HTML5.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6">
+                    <div class="skills-box">
+                        <h3>Education</h3>
+                        <p>
+                            Certifications in Sitecore 6 and Umbraco 5.
+                        </p>
+                        <p>
+                            HND Computing (Software Engineering) – Wigan &amp; Leigh College, 
+                            10 GCSEs A-B (Including Maths, English and IT) – Cansfield 
+                            High School
+                        </p>
+                    </div>
+                </div>
+
 			</section>
             <section>
                 <h2>Employment History</h2>
                 <section>
                     <h3>
-                        Frontend Developer
+                        Developer
                         <span class="small">
                             <a href="http://247entertainment.com/">24/7 Entertainment</a> | April 2015 - Present
                         </span>
                     </h3>
                     <p>
-                        Working across Frontend and Backend teams with a range of technologies.
-                        On the frontend building a web application with features including music streaming and 
-                        the purchase of movies and e-books built using C#, WebApi and Angular JS; on the
-                        backend working to build a Level 3 ReST Hypermedia API using C#, F# and WebApi.
-                        Both solutions including comprehensive testing with xUnit and AutoFixture.
-                        Additionally, driving a more functional coding style in C# including developing a 
-                        shared library to enable easy use of some functional concepts, primarily via the 
-                        introduction of Maybe and Result (Either) Monads.
+
+                        Working in both frontend and backend teams to deliver 
+                        a range of solutions for media streaming platforms.
+                    </p>
+                    <p>
+                        On the frontend team working with C#, MVC, WebAPI, and 
+                        Angular JS to build a single page media streaming application.
+                    </p>
+                    <p>
+                        On the backend team working on a range of APIs using:
+                        C#, F#, WebAPI and more to deliver a level 3 REST Hypermedia
+                        API with a comprehensive test suite including xUnit unit tests,
+                        property-based tests with FsCheck; and a custom pure dependency
+                        injection setup and some use of Azure Service Bus to 
+                        communicate between different services.
+                    </p>
+                    <p>
+                        Additionally involved in the development of a functional
+                        programming library for C# to allow faster, more robust
+                        development - now open source and <a 
+                        href="https://github.com/247Entertainment/E247.Fun">
+                        available on GitHub</a>.
                     </p>
                 </section>
                 <section>
@@ -125,23 +147,5 @@
                 </p>
             </div>
         </footer>
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <script type="text/javascript">
-        $(document).ready(function() {
-            function setHeight() {
-                windowHeight = $(window).innerHeight();
-                windowWidth = $(window).innerWidth();
-                //$('header').css('min-height', windowHeight);
-                $('header').css('width', windowWidth);
-                $('article').css('margin-top', $('header').height());
-            };
-            setHeight();
-            
-            $(window).resize(function() {
-                setHeight();
-            });
-        });
-    </script>
   </body>
 </html>

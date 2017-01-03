@@ -6,52 +6,78 @@ body {
 
 header {
     background-image: url(bg.jpg);
-    background-size: contain;
+    width: 100%;
     padding: 0;
     margin: 0;
     background-repeat: no-repeat;
-    position: absolute;
+    display: inline-block;
     left: 0;
     top: 0;
     text-align: right;
+    max-height: 40rem;
+    background-size: cover;
+    background-position: center top;
 }
 
 header>div {
     color: white;
     background: #006;
     display:block;
-    margin:50px auto;
-    margin-top: 38%;
-    width:100%;
-    padding:0 5%;
-        transform:skew(0deg,-5deg);
-    -ms-transform:skew(0deg,-10deg);
-    -webkit-transform:skew(0deg,-5deg); 
+    margin: auto;
+    margin-top: 40rem;
     box-sizing: border-box;
     border-top: 20px solid #337ab7;
     border-bottom: 20px solid #337ab7;
+    padding: 2% 5%;
+    -webkit-box-shadow: 2px 2px 5px 0px rgba(191,191,191,1);
+    -moz-box-shadow: 2px 2px 5px 0px rgba(191,191,191,1);
+    box-shadow: 2px 2px 5px 0px rgba(191,191,191,1);
 }
 
-header>div>h1 {
+header>div>div {
+    margin-right: 4em;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+header>div>div>h1 {
     font-size: 400%;
-    display: block;
-      transform:skew(0deg,5deg);
-    -ms-transform:skew(0deg,10deg);
-    -webkit-transform:skew(0deg,5deg);
+    display: inline-block;
+    margin:0;
+}
+
+header>div>img {
+    width: 8em;
+    border-radius: 4em;
+    display: inline-block;
+    margin: 0;
 }
 
 header>div>h1>.small {color: #337ab7;}
 
 header>div p{ 
-    
     color: white;
-    padding-bottom: 8%;
-          transform:skew(0deg,5deg);
-    -ms-transform:skew(0deg,10deg);
-    -webkit-transform:skew(0deg,5deg);
 }
 
+article { margin-top: 11rem;}
+
 article>section>h2 {color: #003;}
+
+.skills-box {
+    background-color: #337ab7;
+    color: white;
+    border-radius: 0.2rem;
+    padding: 3%;
+    padding-top: 0.5%;
+    -webkit-box-shadow: 2px 2px 5px 0px rgba(191,191,191,1);
+    -moz-box-shadow: 2px 2px 5px 0px rgba(191,191,191,1);
+    box-shadow: 2px 2px 5px 0px rgba(191,191,191,1);
+}
+
+article>section {
+    clear:both;
+    padding-top: 2rem;
+}
 
 footer {
     color: white;
@@ -59,4 +85,9 @@ footer {
     padding-bottom: 10em;
     border-top: 20px solid #337ab7;
     margin-top: 5em;
+}
+
+@media screen and (max-width: 767px) {
+    section>h3>span.small { display: inline-block; clear: both;}
+    header>div>img {display:none;}
 }
