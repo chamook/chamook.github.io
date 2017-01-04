@@ -1,4 +1,5 @@
 @import url(https://fonts.googleapis.com/css?family=Merriweather);
+@import url('https://fonts.googleapis.com/css?family=Lobster');
 
 body {
 	font-family: 'Merriweather';
@@ -14,7 +15,7 @@ header {
     left: 0;
     top: 0;
     text-align: right;
-    max-height: 40rem;
+    max-height: 38rem;
     background-size: cover;
     background-position: center top;
 }
@@ -24,7 +25,7 @@ header>div {
     background: #006;
     display:block;
     margin: auto;
-    margin-top: 40rem;
+    margin-top: 38rem;
     box-sizing: border-box;
     border-top: 20px solid #337ab7;
     border-bottom: 20px solid #337ab7;
@@ -32,6 +33,12 @@ header>div {
     -webkit-box-shadow: 2px 2px 5px 0px rgba(191,191,191,1);
     -moz-box-shadow: 2px 2px 5px 0px rgba(191,191,191,1);
     box-shadow: 2px 2px 5px 0px rgba(191,191,191,1);
+}
+
+@media print {
+    header>div {
+        margin-top: 0;
+    }
 }
 
 header>div>div {
@@ -45,12 +52,16 @@ header>div>div>h1 {
     display: inline-block;
     margin:0;
 }
+@media print {header>div>div {font-size: 60%;}}
 
 header>div>img {
     width: 8em;
     border-radius: 4em;
     display: inline-block;
     margin: 0;
+    -webkit-box-shadow: 2px 2px 5px 0px rgba(191,191,191,0.1);
+    -moz-box-shadow: 2px 2px 5px 0px rgba(191,191,191,0.1);
+    box-shadow: 2px 2px 5px 0px rgba(191,191,191,0.1);
 }
 
 header>div>h1>.small {color: #337ab7;}
@@ -60,8 +71,18 @@ header>div p{
 }
 
 article { margin-top: 11rem;}
+@media print {
+    article {
+        margin-top: 0;
+    }
+}
+
 
 article>section>h2 {color: #003;}
+@media print { 
+    article>section>h2 {font-size: 125%; margin-top: 0;}
+    article section>h3 {font-size: 120%; margin-top: 0;}
+}
 
 .skills-box {
     background-color: #337ab7;
@@ -86,6 +107,35 @@ footer {
     border-top: 20px solid #337ab7;
     margin-top: 5em;
 }
+@media print { footer {margin-top: 0;}}
+
+#farum {
+    color: white;
+    background-color: #6c009a;
+    padding: 3%;
+    -webkit-box-shadow: 2px 2px 5px 0px rgba(191,191,191,1);
+    -moz-box-shadow: 2px 2px 5px 0px rgba(191,191,191,1);
+    box-shadow: 2px 2px 5px 0px rgba(191,191,191,1);
+    padding-bottom: 4em;
+}
+#farum>h3 {margin-top:0;}
+#farum>h3>a { 
+    color: white;
+    font-family: 'Lobster', cursive;
+}
+
+#blog {
+    color: white;
+    background-color: #550000;
+    padding: 3%;
+    -webkit-box-shadow: 2px 2px 5px 0px rgba(191,191,191,1);
+    -moz-box-shadow: 2px 2px 5px 0px rgba(191,191,191,1);
+    box-shadow: 2px 2px 5px 0px rgba(191,191,191,1);
+}
+#blog>h3 {margin-top:0;}
+#blog>h3>a{color:white;}
+
+@media print { #farum, #blog {padding: 1%; margin: 0;}}
 
 @media screen and (max-width: 767px) {
     section>h3>span.small { display: inline-block; clear: both;}
