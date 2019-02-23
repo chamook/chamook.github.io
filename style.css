@@ -1,16 +1,21 @@
-@import url(https://fonts.googleapis.com/css?family=Merriweather);
+@import url('https://fonts.googleapis.com/css?family=PT+Sans');
+@import url('https://cdn.rawgit.com/lonekorean/gist-syntax-themes/b737b139/stylesheets/terminal.css');
 
 body {
-	font-family: 'Merriweather';
+	  font-family: 'PT Sans';
+    font-size: 1.8rem;
 	background-color: #232323;
 	color: white;
 }
 
 .frontpage header {
-	text-align: center;
-	margin-top: 15rem;
-	padding-top: 2rem;
-	margin-bottom: 4rem;
+    padding-bottom: 1rem;
+	margin-bottom: 2rem;
+  background-color: #234172;
+}
+
+.frontpage header:first-child {
+	  padding-top: 2rem;
 }
 
 .frontpage img {
@@ -20,7 +25,6 @@ body {
 
 .datebox {
 	width: 6rem;
-	border-radius: 0.5rem;
 	background-color: white;
 	color: black;
 	display: block;
@@ -39,22 +43,22 @@ body {
 
 .datebox>span.day { font-size: 4rem;}
 
-.article-listing {max-width: 80rem; margin: auto;}
-
-.article-listing a {
-	color: #A00;
-}
-
+.article-listing { padding-bottom: 2rem; }
 .article-listing p {padding: 0;}
 
 header {
 	width: 100%;
-	background-color: #550000;
+	background-color: #234172;
 }
 
 header h1 {
 	padding: 1rem;
 	padding-bottom: 0;
+}
+
+header h1 small {
+    background-color: #232323;
+    color: white;
 }
 
 .frontpage header h1 {
@@ -63,7 +67,7 @@ header h1 {
 
 .byline {
 	width: 100%;
-	background-color: #600;
+	background-color: #234172;
 }
 
 .byline p {
@@ -82,43 +86,35 @@ ul {
 }
 
 code {
-	background-color: black;
-	color: #00FF00;
+	  background-color: #343434;
+    color: #98baf2;
 }
 
 a {
-	color: #E00;
+	  background-color: #234172;
+	  color: white;
 }
 
 a:hover {
-	color: white;
-	text-decoration: underline;
-	transition-duration: 0.4s;
+	  background-color: white;
+    color: #234172;
+    transition-duration: 0.4s;
+    text-decoration: none;
 }
+
+h2 > a { padding: 0.2rem; }
 
 a.footnote-link {
 	vertical-align: super;
 }
 
 footer.page-footer {
-	background-color: #500;
+	background-color: #234172;
 	width: 100%;
 	color: white;
 	padding: 3rem;
 	margin-top: 4rem;
 }
 
-footer.page-footer a { color: white;}
-
-.gist .gist-file { border-color: #666 !IMPORTANT;}
-.gist .blob-wrapper>table.highlight { background-color: #343434;}
-.gist>.gist-file>.gist-data {border-color: #666;}
-.gist>.gist-file>.gist-meta {background-color: #666; color: black;}
-.gist>.gist-file>.gist-meta>a {color: black;}
-.gist .blob-num {border-color: #666 !IMPORTANT; color: #DDD !IMPORTANT;}
-.gist .blob-code-inner {color: white !IMPORTANT;}
-.gist .blob-code-inner .pl-k {color: #E00 !IMPORTANT;}
-.gist .blob-code-inner .pl-en {color: #D0F !IMPORTANT;}
-.gist .blob-code-inner .pl-smi {color: #C00 !IMPORTANT;}
-.gist .blob-code-inner .pl-s {color: darkorange !IMPORTANT;}
-.gist .blob-code-inner .pl-pds {color: darkorange !IMPORTANT;}
+.gist>.gist-file>.gist-meta {background-color: #121212; color: white;}
+.gist>.gist-file>.gist-meta a {color: white;}
