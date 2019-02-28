@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Choose Your Own Representation</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+		<link rel="stylesheet" href="../style.css">
+  </head>
+  <body>
+	  	<header>
+			<div class="container">
+				<h1>
+					  Choose Your Own Representation<br />
+					  <small>
+                HTTP APIs can be friendlier to clients by providing multiple
+                representations of the same data
+            </small>
+				</h1>
+			</div>
+			<div class="byline">
+				<div class="container">
+					<p>
+						By <a href="https://twitter.com/chamooktweets">Adam Guest</a> - 28 February 2019
+					</p>
+				</div>
+			</div>
+		</header>
+		<article class="container">
+			<section>
+				  <p>
+              When a client requests data from an API it may only want a subset of
+              available fields, but many APIs only offer a single representation of
+              available data. We can use
+              <a href="https://en.wikipedia.org/wiki/Content_negotiation">Content Negotiation</a>
+              for more than just choosing between json or xml (or whatever)
+              and provide exactly what a client asks for.
+          </p>
+          <h3>A Sample API</h3>
+          <p>
+              Many applications use the concept of a collection of items that
+              belong to a user, so here we'll use a collection of favourite
+              colours<a href="#footnote-1" class="footnote-link">1</a>.
+          </p>
+          <p>
+              We can define a simple <code>my-colours</code> endpoint in F# using
+              <a href="https://github.com/giraffe-fsharp/giraffe">Giraffe</a>:
+          </p>
+          <script src="https://gist.github.com/chamook/88fd1442a69350e5eec382110b1ae902.js"></script>
+          <p>
+              This defines a <code>Colour</code> type that contains a few different
+              properties, and makes a collection of them available via <code>GET</code>
+              request. It returns a hardcoded list of values, but it's just an
+              example so that's ok.
+          </p>
+          <p>
+              We can also create a simple client to retrieve the data from the endpoint
+              and display it to an end user. The sample swift code is part of an iOS app
+              using <code>URLSession</code> and the <code>Decodable</code> protocol to
+              make things easy:
+          </p>
+          <script src="https://gist.github.com/chamook/ba052a104197023689095ac29ea9581b.js"></script>
+          <p>
+              This works pretty well, but we can already see that there's a mismatch
+              between the data that the API provides and the data that the client
+              actually needs. For this sample API it's not much of an issue, but
+              if we had a lot of entries in the list or our colour object was more
+              complex it could become a problem. Fortunately, we have some ways to
+              match our API to the needs of the client.
+          </p>
+          <h3>A New Media Type</h3>
+          <p>
+              We can't <em>just</em> remove values from our API response because
+              there may be other clients relying on that data, but if we provide
+              a way for a client to ask for a different response then we can
+              give each client a response containing the data that it needs.
+          </p>
+          <p>
+              First, we need to configure Giraffe to support custom media types.
+              We don't need any custom serialization for this, so we can just
+              use the json serializer that's already configured.
+          </p>
+          <script src="https://gist.github.com/chamook/4f7fdb4a2257d6ae89027dfd2f374abf.js"></script>
+          <p>
+              Then we can create a custom representation of <code>Colours</code>
+              and return it from our endpoint for clients that request the mini
+              version.
+          </p>
+          <script src="https://gist.github.com/chamook/6561ca0b26e9053a050b144d69eb0ceb.js"></script>
+          <p>
+              With our API configured to return the mini colour response to
+              clients that request it, we can update our app client to send the
+              new <code>Accept</code> header. Handily, for our swift client it's
+              trivial to set an extra header:
+          </p>
+          <script src="https://gist.github.com/chamook/b793d64db5558dd4dcea24d922bada71.js"></script>
+          <p>
+              Now our client requests a specific response and our API provides it,
+              which is great...for now. However, this does leave our API and client
+              coupled together - if our clients needs change in the future, then
+              our API will also need to be updated even if it could already
+              provide the field, our only options are all or nothing.
+          </p>
+          <h3>Asking For What We Need</h3>
+          <p>
+              We want to find a way that our client can adjust the data it gets
+              from the API as it needs <em>without us needing to make changes to
+              the API</em>. This means that we'll need some way for a client to
+              describe the data that it wishes to recieve from the API.
+          </p>
+          <p>
+              There are a few existing ways of describing the shape of data an
+              API should return to a client, notably
+              <a href="https://graphql.org/">GraphQL</a> and
+              <a href="https://jsonapi.org/format/#fetching-sparse-fieldsets">JSON:API</a>,
+              so it might be worth considering how to implement this in a way
+              that doesn't necessarily tie us to any particular implementation
+              in the future in case we change preference later on, or especially
+              in the case that we have different API clients with differing needs.
+          </p>
+          <p>
+              <a href="https://introspected.rest/#92-microtypes-reusable-modules-composing-a-media-type">
+                  Introspected ReST
+              </a> suggests using <em>MicroTypes</em> as a way of composing a media
+              type. Using that approach, we can add one method of filtering now and
+              then add support for different approaches later without breaking any
+              clients. So we'll need to make the following changes:
+          </p>
+          <dl>
+              <dt>
+                  Switch our API to use a media type that can support filtering
+              </dt>
+              <dd>
+                  We'll use a general api media type: <code>application/vnd.chamook.api+json</code>
+                  that could work across any apis connected with this one.
+                  We don't use something like <code>application/json</code> because
+                  we can't guarantee that an API returning plain old json will
+                  support filtering (or any other features we wanted to add).
+              </dd>
+              <dt>
+                  Define a filtering syntax that our client can use
+              </dt>
+              <dd>
+                  We could use one of the fancy options mentioned earlier. But for
+                  now we only want a very simple filter, so a custom field list
+                  will probably be easier to implement. Because we're using
+                  MicroTypes we could always add support for something fancy
+                  like GraphQL later if it turned out we needed it.
+              </dd>
+              <dt>Update our client to use the new filtering method</dt>
+              <dd>
+                  Once this update is done, our client and API should be nicely
+                  decoupled for any future changes to filtering.
+              </dd>
+          </dl>
+          <p>
+              We could potentially add on ways for the API to describe available
+              filtering options to a client, but if we don't want to go <em>all in</em>
+              on a ReSTful approach with this API we could just leave that as
+              something to be included in documentation - as long as we follow
+              common conventions across our API surface it shouldn't be too
+              problematic.
+          </p>
+          <h3>The Final Form(s)</h3>
+          <p>
+              With that decided, we can update our API with the following code
+              (using the simplest filtering approach, by specifying which fields
+              should be included in the response as a parameter to the media type):
+          </p>
+          <script src="https://gist.github.com/chamook/e3eddb01718aae12c3348e23c409d6f7.js"></script>
+          <p>
+              Our client needs only minor changes to use the new version:
+          </p>
+          <script src="https://gist.github.com/chamook/4e4e3a5400e8aea9c51239a625bead2c.js"></script>
+          <p>
+              Now our client can specify exactly the fields it wants, and our API
+              will respond appropriately. There are still things that could be
+              improved, but this is enough for now.
+          </p>
+          <p>
+              The source code for the
+              <a href="https://github.com/chamook/ChooseYourOwnRepresentation.Api">API</a>
+              and the
+              <a href="https://github.com/chamook/ChooseYourOwnRepresentation.App">app client</a>
+              are available on GitHub.
+          </p>
+      </section>
+			<footer>
+				  <h3>Footnotes</h3>
+				  <ol class="footnotes">
+					    <li id="footnote-1">
+                  This is mostly an excuse for me to write <em>colour</em> with
+                  the british spelling a bunch, because I normally don't get to
+                  do that
+              </li>
+          </ol>
+      </footer>
+		</article>
+		<footer class="page-footer">
+			<div class="container">
+				<a href="../index.html">&lt;- mmmM Delicious cOntent
+			</div>
+		</footer>
+  </body>
+</html>
