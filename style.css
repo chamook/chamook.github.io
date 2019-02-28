@@ -85,6 +85,15 @@ ul {
 	list-style:none;
 }
 
+dt {
+    font-style: bold;
+}
+
+dd {
+    font-size: 90%;
+    padding: 1rem;
+}
+
 code {
 	  background-color: #343434;
     color: #98baf2;
