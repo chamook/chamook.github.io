@@ -1,0 +1,26 @@
+@import url(https://fonts.googleapis.com/css?family=Merriweather);
+
+body {
+	font-family: 'Merriweather';
+ }
+
+header>div>h1 {
+    font-size: 400%;
+    display: inline-block;
+    color: #006;
+}
+@media print {header>div>div {font-size: 60%;}}
+
+header>div>div>img {
+    width: 10em;
+    float: left;
+    margin-right: 2em;
+    border-radius: 1em;
+}
+
+header>div>h1>span.small {color: #337ab7;}
+
+@media screen and (max-width: 767px) {
+    section>h3>span.small { display: inline-block; clear: both;}
+    header>div>img {display:none;}
+}
