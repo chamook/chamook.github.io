@@ -9,7 +9,6 @@ header>div>h1 {
     display: inline-block;
     color: #006;
 }
-@media print {header>div>div {font-size: 60%;}}
 
 header>div>div>img {
     width: 10em;
