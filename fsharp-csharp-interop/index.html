@@ -5,16 +5,19 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>F# and C# being bros</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 		<link rel="stylesheet" href="../style.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+    <link rel="manifest" href="../site.webmanifest">
   </head>
-  <body>
+  <body class="article-page">
 	  	<header>
 			<div class="container">
-				<h1>
-					F# and C# being bros<br />
-					<small>All chill and working together and stuff</small>
+				<h1 class="glitch-text" data-text="F# and C# being bros">
+					F# and C# being bros
 				</h1>
+				<span class="subtitle">All chill and working together and stuff</span>
 			</div>
 			<div class="byline">
 				<div class="container">
@@ -38,7 +41,7 @@
                     glorious F# code, but use a bunch of the C# stuff that's already 
                     been done.
                 </p>
-                <h3>F# can use all those objects</h3>
+                <h2>F# can use all those objects</h2>
                 <p>
                     Like, yeah, in case you were wondering f# <em>can</em> interact 
                     with the rest of the .NET world through objects and stuff. Also, 
@@ -46,15 +49,24 @@
                     everything else which means you can use them in pipe chains (I was
                     really excited when I learned this part).
                 </p>
-                <script src="https://gist.github.com/chamook/e22c875a8860793eda1b.js"></script>
-                <h3>F# can make pretty C# classes</h3>
+                <figure class="highlight"><pre><code class="language-fsharp" data-lang="fsharp"><span class="k">open</span> <span class="nc">System</span>
+
+<span class="k">let</span> <span class="n">makeUri</span> <span class="n">s</span> <span class="p">=</span> <span class="s2">"http://"</span> <span class="o">+</span> <span class="n">s</span> <span class="p">|&gt;</span> <span class="nc">Uri</span></code></pre></figure>
+                <h2>F# can make pretty C# classes</h2>
                 <p>
                     This one is obvious given that it can talk to the rest of the .NET 
                     world pretty easily, but yes F# can make classes that C# can understand.
                     Interfaces too! This is how you can make some snazzy F# functions and 
                     call them from C# code.
                 </p>
-                <script src="https://gist.github.com/chamook/7463196f606ad55f704a.js"></script>
+<figure class="highlight"><pre><code class="language-fsharp" data-lang="fsharp"><span class="k">type</span> <span class="nc">ISomeInterface</span> <span class="p">=</span>
+    <span class="k">abstract</span> <span class="nc">DoAnInterfaceyThing</span> <span class="p">:</span> <span class="kt">string</span> <span class="p">-&gt;</span> <span class="kt">string</span>
+    
+<span class="k">type</span> <span class="nc">SomeClassThatImplementsAnInterface</span> <span class="bp">()</span> <span class="p">=</span>
+    <span class="k">interface</span> <span class="nc">ISomeInterface</span> <span class="k">with</span>
+        <span class="k">member</span> <span class="n">x</span><span class="p">.</span><span class="nc">DoAnInterfaceyThing</span> <span class="n">msg</span> <span class="p">=</span>
+            <span class="s2">"Interface!"</span> <span class="o">+</span> <span class="n">msg</span>
+    <span class="k">member</span> <span class="n">x</span><span class="p">.</span><span class="nc">DoAClassThing</span> <span class="n">a</span> <span class="p">=</span> <span class="n">a</span> <span class="o">+</span> <span class="mi">1</span></code></pre></figure>
                 <p>
                     These are full fledged classes and interfaces, so you could also implement 
                     an interface defined in F# with a class in C# or vice versa. The big 
@@ -63,8 +75,10 @@
                     easier) - but you can still make a static class(ish), just make a sealed 
                     class with a private constructor and no instance members:
                 </p>
-                <script src="https://gist.github.com/chamook/cb920a680c346a806b9f.js"></script>
-                <h3>C# can give F# functions</h3>
+                <figure class="highlight"><pre><code class="language-fsharp" data-lang="fsharp"><span class="p">[&lt;</span><span class="nc">Sealed</span><span class="p">&gt;]</span>
+<span class="k">type</span> <span class="nc">StaticishClass</span> <span class="k">private</span> <span class="bp">()</span> <span class="p">=</span>
+    <span class="k">static</span> <span class="k">member</span> <span class="nc">DoThing</span> <span class="n">a</span> <span class="p">=</span> <span class="n">a</span> <span class="o">+</span> <span class="mi">1</span></code></pre></figure>
+                <h2>C# can give F# functions</h2>
                 <p>
                     This is possibly the least elegant part of the whole shebang, but if you 
                     have some C# code that you would like to pass to an object created in F# 
@@ -75,17 +89,59 @@
                     F# plumbing that I found <a href="http://blogs.msdn.com/b/jaredpar/archive/2010/07/27/converting-system-func-lt-t1-tn-gt-to-fsharpfunc-lt-t-tresult-gt.aspx">over here</a> you can convert your C# 
                     trash into glorious F# functions with a tiny little extension method.
                 </p>
-                <script src="https://gist.github.com/chamook/48a5481ec7428a29a8fc.js"></script>
+<figure class="highlight"><pre><code class="language-fsharp" data-lang="fsharp"><span class="k">open</span> <span class="nn">System</span><span class="p">.</span><span class="nn">Runtime</span><span class="p">.</span><span class="nc">CompilerServices</span>
+
+<span class="p">[&lt;</span><span class="nc">Extension</span><span class="p">&gt;]</span>
+<span class="k">type</span> <span class="k">public</span> <span class="nc">FSharpFuncUtil</span> <span class="p">=</span> 
+    
+    <span class="p">[&lt;</span><span class="nc">Extension</span><span class="p">&gt;]</span> 
+    <span class="k">static</span> <span class="k">member</span> <span class="nc">ToFSharpFunc</span><span class="p">&lt;</span><span class="k">'</span><span class="n">a</span><span class="p">&gt;</span> <span class="p">(</span><span class="n">func</span><span class="p">:</span><span class="nn">System</span><span class="p">.</span><span class="nc">Func</span><span class="p">&lt;</span><span class="k">'</span><span class="n">a</span><span class="o">&gt;)</span> <span class="p">=</span> <span class="k">fun</span> <span class="bp">()</span> <span class="p">-&gt;</span> <span class="n">func</span><span class="p">.</span><span class="nc">Invoke</span><span class="bp">()</span>
+
+    <span class="p">[&lt;</span><span class="nc">Extension</span><span class="p">&gt;]</span> 
+    <span class="k">static</span> <span class="k">member</span> <span class="nc">ToFSharpFunc</span><span class="p">&lt;</span><span class="k">'</span><span class="n">a</span><span class="p">,</span><span class="k">'</span><span class="n">b</span><span class="p">&gt;</span> <span class="p">(</span><span class="n">func</span><span class="p">:</span><span class="nn">System</span><span class="p">.</span><span class="nc">Converter</span><span class="p">&lt;</span><span class="k">'</span><span class="n">a</span><span class="p">,</span><span class="k">'</span><span class="n">b</span><span class="o">&gt;)</span> <span class="p">=</span> <span class="k">fun</span> <span class="n">x</span> <span class="p">-&gt;</span> <span class="n">func</span><span class="p">.</span><span class="nc">Invoke</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="p">[&lt;</span><span class="nc">Extension</span><span class="p">&gt;]</span> 
+    <span class="k">static</span> <span class="k">member</span> <span class="nc">ToFSharpFunc</span><span class="p">&lt;</span><span class="k">'</span><span class="n">a</span><span class="p">&gt;</span> <span class="p">(</span><span class="n">func</span><span class="p">:</span><span class="nn">System</span><span class="p">.</span><span class="nc">Action</span><span class="p">&lt;</span><span class="k">'</span><span class="n">a</span><span class="o">&gt;)</span> <span class="p">=</span> <span class="k">fun</span> <span class="n">x</span> <span class="p">-&gt;</span> <span class="n">func</span><span class="p">.</span><span class="nc">Invoke</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="p">[&lt;</span><span class="nc">Extension</span><span class="p">&gt;]</span> 
+    <span class="k">static</span> <span class="k">member</span> <span class="nc">ToFSharpFunc</span><span class="p">&lt;</span><span class="k">'</span><span class="n">a</span><span class="p">,</span><span class="k">'</span><span class="n">b</span><span class="p">&gt;</span> <span class="p">(</span><span class="n">func</span><span class="p">:</span><span class="nn">System</span><span class="p">.</span><span class="nc">Action</span><span class="p">&lt;</span><span class="k">'</span><span class="n">a</span><span class="p">,</span><span class="k">'</span><span class="n">b</span><span class="o">&gt;)</span> <span class="p">=</span> <span class="k">fun</span> <span class="n">x</span> <span class="p">-&gt;</span> <span class="n">func</span><span class="p">.</span><span class="nc">Invoke</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="p">[&lt;</span><span class="nc">Extension</span><span class="p">&gt;]</span> 
+    <span class="k">static</span> <span class="k">member</span> <span class="nc">ToFSharpFunc</span><span class="p">&lt;</span><span class="k">'</span><span class="n">a</span><span class="p">,</span><span class="k">'</span><span class="n">b</span><span class="p">&gt;</span> <span class="p">(</span><span class="n">func</span><span class="p">:</span><span class="nn">System</span><span class="p">.</span><span class="nc">Func</span><span class="p">&lt;</span><span class="k">'</span><span class="n">a</span><span class="p">,</span><span class="k">'</span><span class="n">b</span><span class="o">&gt;)</span> <span class="p">=</span> <span class="k">fun</span> <span class="n">x</span> <span class="p">-&gt;</span> <span class="n">func</span><span class="p">.</span><span class="nc">Invoke</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="p">[&lt;</span><span class="nc">Extension</span><span class="p">&gt;]</span> 
+    <span class="k">static</span> <span class="k">member</span> <span class="nc">ToFSharpFunc</span><span class="p">&lt;</span><span class="k">'</span><span class="n">a</span><span class="p">,</span><span class="k">'</span><span class="n">b</span><span class="p">,</span><span class="k">'</span><span class="n">c</span><span class="p">&gt;</span> <span class="p">(</span><span class="n">func</span><span class="p">:</span><span class="nn">System</span><span class="p">.</span><span class="nc">Func</span><span class="p">&lt;</span><span class="k">'</span><span class="n">a</span><span class="p">,</span><span class="k">'</span><span class="n">b</span><span class="p">,</span><span class="k">'</span><span class="n">c</span><span class="o">&gt;)</span> <span class="p">=</span> <span class="k">fun</span> <span class="n">x</span> <span class="n">y</span> <span class="p">-&gt;</span> <span class="n">func</span><span class="p">.</span><span class="nc">Invoke</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="p">[&lt;</span><span class="nc">Extension</span><span class="p">&gt;]</span> 
+    <span class="k">static</span> <span class="k">member</span> <span class="nc">ToFSharpFunc</span><span class="p">&lt;</span><span class="k">'</span><span class="n">a</span><span class="p">,</span><span class="k">'</span><span class="n">b</span><span class="p">,</span><span class="k">'</span><span class="n">c</span><span class="p">,</span><span class="k">'</span><span class="n">d</span><span class="p">&gt;</span> <span class="p">(</span><span class="n">func</span><span class="p">:</span><span class="nn">System</span><span class="p">.</span><span class="nc">Func</span><span class="p">&lt;</span><span class="k">'</span><span class="n">a</span><span class="p">,</span><span class="k">'</span><span class="n">b</span><span class="p">,</span><span class="k">'</span><span class="n">c</span><span class="p">,</span><span class="k">'</span><span class="n">d</span><span class="o">&gt;)</span> <span class="p">=</span> <span class="k">fun</span> <span class="n">x</span> <span class="n">y</span> <span class="n">z</span> <span class="p">-&gt;</span> <span class="n">func</span><span class="p">.</span><span class="nc">Invoke</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">)</span>
+
+    <span class="k">static</span> <span class="k">member</span> <span class="nc">Create</span><span class="p">&lt;</span><span class="k">'</span><span class="n">a</span><span class="p">&gt;</span> <span class="p">(</span><span class="n">func</span><span class="p">:</span><span class="nn">System</span><span class="p">.</span><span class="nc">Func</span><span class="p">&lt;</span><span class="kt">unit</span><span class="p">,</span> <span class="k">'</span><span class="n">a</span><span class="o">&gt;)</span> <span class="p">=</span> <span class="nn">FSharpFuncUtil</span><span class="p">.</span><span class="nc">ToFSharpFunc</span> <span class="n">func</span>
+
+    <span class="k">static</span> <span class="k">member</span> <span class="nc">Create</span><span class="p">&lt;</span><span class="k">'</span><span class="n">a</span><span class="p">,</span><span class="k">'</span><span class="n">b</span><span class="p">&gt;</span> <span class="p">(</span><span class="n">func</span><span class="p">:</span><span class="nn">System</span><span class="p">.</span><span class="nc">Func</span><span class="p">&lt;</span><span class="k">'</span><span class="n">a</span><span class="p">,</span><span class="k">'</span><span class="n">b</span><span class="o">&gt;)</span> <span class="p">=</span> <span class="nn">FSharpFuncUtil</span><span class="p">.</span><span class="nc">ToFSharpFunc</span> <span class="n">func</span>
+
+    <span class="k">static</span> <span class="k">member</span> <span class="nc">Create</span><span class="p">&lt;</span><span class="k">'</span><span class="n">a</span><span class="p">,</span><span class="k">'</span><span class="n">b</span><span class="p">,</span><span class="k">'</span><span class="n">c</span><span class="p">&gt;</span> <span class="p">(</span><span class="n">func</span><span class="p">:</span><span class="nn">System</span><span class="p">.</span><span class="nc">Func</span><span class="p">&lt;</span><span class="k">'</span><span class="n">a</span><span class="p">,</span><span class="k">'</span><span class="n">b</span><span class="p">,</span><span class="k">'</span><span class="n">c</span><span class="o">&gt;)</span> <span class="p">=</span> <span class="nn">FSharpFuncUtil</span><span class="p">.</span><span class="nc">ToFSharpFunc</span> <span class="n">func</span>
+
+    <span class="k">static</span> <span class="k">member</span> <span class="nc">Create</span><span class="p">&lt;</span><span class="k">'</span><span class="n">a</span><span class="p">,</span><span class="k">'</span><span class="n">b</span><span class="p">,</span><span class="k">'</span><span class="n">c</span><span class="p">,</span><span class="k">'</span><span class="n">d</span><span class="p">&gt;</span> <span class="p">(</span><span class="n">func</span><span class="p">:</span><span class="nn">System</span><span class="p">.</span><span class="nc">Func</span><span class="p">&lt;</span><span class="k">'</span><span class="n">a</span><span class="p">,</span><span class="k">'</span><span class="n">b</span><span class="p">,</span><span class="k">'</span><span class="n">c</span><span class="p">,</span><span class="k">'</span><span class="n">d</span><span class="o">&gt;)</span> <span class="p">=</span> <span class="nn">FSharpFuncUtil</span><span class="p">.</span><span class="nc">ToFSharpFunc</span> <span class="n">func</span></code></pre></figure>
                 <p>
                     This then means that you can define a class in F# that would take an F# 
                     function:
                 </p>
-                <script src="https://gist.github.com/chamook/aa1ff89dc46528d54f5e.js"></script>
+                <figure class="highlight"><pre><code class="language-fsharp" data-lang="fsharp"><span class="k">type</span> <span class="nc">SomeClassWithADependency</span> <span class="p">(</span><span class="n">funcThing</span> <span class="p">:</span> <span class="kt">string</span> <span class="p">-&gt;</span> <span class="kt">string</span><span class="p">)</span> <span class="p">=</span>
+    <span class="k">member</span> <span class="n">x</span><span class="p">.</span><span class="nc">DoThing</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="p">=</span> <span class="n">funcThing</span> <span class="n">s</span></code></pre></figure>
                 <p>
                     Then you can inject it from your C# code:
                 </p>
-                <script src="https://gist.github.com/chamook/7eca4df4dd5852aeab49.js"></script>
-                <h3>Async is also awesome</h3>
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="k">public</span> <span class="k">static</span> <span class="k">class</span> <span class="nc">FunctionContainer</span>
+<span class="p">{</span>
+  <span class="k">public</span> <span class="k">static</span> <span class="kt">string</span> <span class="nf">SomeStringFunction</span><span class="p">(</span><span class="kt">string</span> <span class="n">input</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="s">"So, gosh-darned creative:"</span> <span class="p">+</span> <span class="n">input</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">public</span> <span class="k">static</span> <span class="k">class</span> <span class="nc">Injector</span>
+<span class="p">{</span>
+  <span class="k">public</span> <span class="k">static</span> <span class="n">SomeClassWithADependency</span> <span class="nf">GetTheThing</span><span class="p">()</span> <span class="p">=&gt;</span>
+    <span class="k">new</span> <span class="nf">SomeClassWithADependency</span><span class="p">(</span><span class="n">FunctionContainer</span><span class="p">.</span><span class="n">SomeStringFunction</span><span class="p">.</span><span class="nf">ToFSharpFunc</span><span class="p">());</span>
+<span class="p">}</span></code></pre></figure>
+                <h2>Async is also awesome</h2>
                 <p>
                     If you've added async methods to your code, you might've noticed how it 
                     spreads itself around like a virus and now everything returns a Task.
@@ -93,7 +149,15 @@
                     it also provides a neat set of functions for moving between Async&lt;'a&gt;
                     and Task&lt;T&gt;.
                 </p>
-                <script src="https://gist.github.com/chamook/93eebe1c484ecee5c3db.js"></script>
+<figure class="highlight"><pre><code class="language-fsharp" data-lang="fsharp"><span class="k">let</span> <span class="n">anAsyncFunction</span> <span class="n">thing</span> <span class="p">=</span>
+  <span class="n">async</span> <span class="p">{</span>
+    <span class="c1">//a task becomes an async</span>
+    <span class="k">return</span><span class="o">!</span> <span class="nn">Task</span><span class="p">.</span><span class="nc">FromResult</span><span class="p">(</span><span class="n">thing</span><span class="p">)</span> <span class="p">|&gt;</span> <span class="nn">Async</span><span class="p">.</span><span class="nc">AwaitTask</span>
+  <span class="p">}</span>
+  
+<span class="c1">//and back again!</span>
+<span class="k">let</span> <span class="n">nowItsATask</span> <span class="p">=</span>
+  <span class="s2">"yo"</span> <span class="p">|&gt;</span> <span class="n">anAsyncFunction</span> <span class="p">|&gt;</span> <span class="nn">Async</span><span class="p">.</span><span class="nc">StartAsTask</span> </code></pre></figure>
                 <p>
                     And so they both lived happily ever after...
                 </p>

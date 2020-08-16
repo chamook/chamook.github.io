@@ -5,16 +5,19 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Refactoring factories</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 		<link rel="stylesheet" href="../style.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+    <link rel="manifest" href="../site.webmanifest">
   </head>
-  <body>
+  <body class="article-page">
 	  	<header>
 			<div class="container">
-				<h1>
-					Get rid of unneeded factories with one weird trick<br />
-					<small>The gang of four don't want you to know</small>
+				<h1 class="glitch-text" data-text="Get rid of unneeded factories with one weird trick">
+					Get rid of unneeded factories with one weird trick
 				</h1>
+				<span class="subtitle">The gang of four don't want you to know</span>
 			</div>
 			<div class="byline">
 				<div class="container">
@@ -52,18 +55,39 @@
 					refactorings with equally goofy names (it's the only way).
 					So, to aid in removing pointless factories we have:
 				</p>
-				<h3>
+				<h2>
 					The Capital Fund Refactoring
-				</h3>
+				</h2>
 				<p>
 					Wherein, we extract the value from a factory and leave it 
 					defunct. Just like a real capital fund, we also ignore the plight
 					of the workers in that factory who now struggle to feed their 
 					families.
 				</p>
-				<h3>An exciting and representative example</h3>
+				<h2>An exciting and representative example</h2>
 				<p>Consider this super useful factory:</p>
-				<script src="https://gist.github.com/chamook/a4520308344b68fe72f2762409e7a342.js"></script>
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="k">public</span> <span class="k">class</span> <span class="nc">ThingFactory</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="kt">string</span> <span class="n">ThingName</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="p">}</span>
+    <span class="k">public</span> <span class="kt">string</span> <span class="n">ThingValue</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="p">}</span>
+
+    <span class="k">public</span> <span class="nf">ThingFactory</span><span class="p">(</span><span class="kt">string</span> <span class="n">thingName</span><span class="p">,</span> <span class="kt">int</span> <span class="n">thingValue</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">thingName</span> <span class="p">==</span> <span class="k">null</span><span class="p">)</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">ArgumentNullException</span><span class="p">(</span><span class="k">nameof</span><span class="p">(</span><span class="n">thingName</span><span class="p">));</span>
+            
+        <span class="n">ThingName</span> <span class="p">=</span> <span class="n">thingName</span><span class="p">;</span>
+        <span class="n">ThingValue</span> <span class="p">=</span> <span class="n">thingValue</span><span class="p">;</span>
+    <span class="p">}</span>
+    
+    <span class="k">public</span> <span class="n">Thing</span> <span class="nf">MakeThing</span><span class="p">(</span><span class="kt">string</span> <span class="n">elusiveThirdParameter</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">elusiveThirdParameter</span> <span class="p">==</span> <span class="k">null</span><span class="p">)</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">ArgumentNullException</span><span class="p">(</span><span class="k">nameof</span><span class="p">(</span><span class="n">elusiveThirdParameter</span><span class="p">));</span>
+            
+        <span class="k">return</span> <span class="k">new</span> <span class="nf">Thing</span><span class="p">(</span><span class="n">ThingName</span><span class="p">,</span> <span class="n">ThingValue</span><span class="p">,</span> <span class="n">elusiveThirdParameter</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
 				<p>
 					It looks trivial, but it's honestly not far from a factory I
 					really saw out in the wild recently - you're welcome to imagine 
@@ -73,13 +97,27 @@
 					The example I found was used only twice and both of those in 
 					the same <code>ApiController</code>, both called like this:
 				</p>
-				<script src="https://gist.github.com/chamook/0e8fd32e0f830b0c28c30d86ced5abb8.js"></script>
+        <figure class="highlight">
+            <pre>
+<code class="language-csharp" data-lang="csharp"><span class="c1">//lurking within other code</span>
+
+<span class="kt">var</span> <span class="n">thingFac</span> <span class="p">=</span> <span class="k">new</span> <span class="nf">ThingFactory</span><span class="p">(</span><span class="n">myThingName</span><span class="p">,</span> <span class="n">myThingVal</span><span class="p">);</span>
+<span class="kt">var</span> <span class="n">thing</span> <span class="p">=</span> <span class="n">thingFac</span><span class="p">.</span><span class="nf">MakeThing</span><span class="p">(</span><span class="n">thirdParam</span><span class="p">);</span></code></pre>
+        </figure>
 				<p>
 					So it was trivial to apply the <em>Capital Fund</em> refactoring, 
 					and move the object creation to a private static method nearby:
 				</p>
-				<script src="https://gist.github.com/chamook/9cc5bfd02c381b4ea3836faafc61ddf5.js"></script>
-				<h3>What even is the point of that?</h3>
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="k">private</span> <span class="k">static</span> <span class="n">Thing</span> <span class="nf">MakeThing</span><span class="p">(</span><span class="kt">string</span> <span class="n">thingName</span><span class="p">,</span> <span class="kt">int</span> <span class="n">thingVal</span><span class="p">,</span> <span class="kt">string</span> <span class="n">thirdParam</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">thingName</span> <span class="p">==</span> <span class="k">null</span><span class="p">)</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">ArgumentNullException</span><span class="p">(</span><span class="k">nameof</span><span class="p">(</span><span class="n">thingName</span><span class="p">));</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">thirdParam</span> <span class="p">==</span> <span class="k">null</span><span class="p">)</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">ArgumentNullException</span><span class="p">(</span><span class="k">nameof</span><span class="p">(</span><span class="n">thirdParam</span><span class="p">));</span>
+        
+    <span class="k">return</span> <span class="k">new</span> <span class="nf">Thing</span><span class="p">(</span><span class="n">thingName</span><span class="p">,</span> <span class="n">thingVal</span><span class="p">,</span> <span class="n">thirdParam</span><span class="p">);</span>
+<span class="p">}</span></code></pre></figure>
+				<h2>What even is the point of that?</h2>
 				<p>
 					It's easy to dismiss this change as pointless, and in such a 
 					trivial example it mostly is - but, for factories that are 
@@ -98,20 +136,20 @@
 					code and find a better abstraction. So, it is worth considering 
 					these points before mindlessly applying this refactoring:
 				</p>
-				<h3>Guidelines</h3>
-				<h4>Good times to apply this:</h4>
+				<h2>Guidelines</h2>
+				<h3>Good times to apply this:</h3>
 				<ul>
 					<li>When a factory is used very few times</li>
 					<li>When a factory can trivially be replaced with a constructor call</li>
 					<li>When a factory very clearly returns a concrete type</li>
 				</ul>
-				<h4>Bad times to apply this:</h4>
+				<h3>Bad times to apply this:</h3>
 				<ul>
 					<li>When a factory is used in a bunch of places</li>
 					<li>When a factory nicely separates out logic about creating 
 						something that would otherwise be boring and repetitive</li>
 				</ul>
-				<h3>Is this the end?</h3>
+				<h2>Is this the end?</h2>
 				<p>
 					The <em>Capital Fund</em> refactoring helps remove an unnecessary
 					indirection from your code, but it's important to note that 

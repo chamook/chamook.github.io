@@ -5,19 +5,22 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Choose Your Own Representation</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 		<link rel="stylesheet" href="../style.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+    <link rel="manifest" href="../site.webmanifest">
   </head>
-  <body>
+  <body class="article-page">
 	  	<header>
 			<div class="container">
-				<h1>
-					  Choose Your Own Representation<br />
-					  <small>
-                HTTP APIs can be friendlier to clients by providing multiple
-                representations of the same data
-            </small>
+				<h1 class="glitch-text" data-text="Choose Your Own Representation">
+					  Choose Your Own Representation
 				</h1>
+        <span class="subtitle">
+            HTTP APIs can be friendlier to clients by providing multiple
+            representations of the same data
+        </span>
 			</div>
 			<div class="byline">
 				<div class="container">
@@ -37,7 +40,7 @@
               for more than just choosing between json or xml (or whatever)
               and provide exactly what a client asks for.
           </p>
-          <h3>A Sample API</h3>
+          <h2>A Sample API</h2>
           <p>
               Many applications use the concept of a collection of items that
               belong to a user, so here we'll use a collection of favourite
@@ -47,7 +50,34 @@
               We can define a simple <code>my-colours</code> endpoint in F# using
               <a href="https://github.com/giraffe-fsharp/giraffe">Giraffe</a>:
           </p>
-          <script src="https://gist.github.com/chamook/88fd1442a69350e5eec382110b1ae902.js"></script>
+<figure class="highlight"><pre><code class="language-fsharp" data-lang="fsharp"><span class="k">type</span> <span class="nc">Colour</span> <span class="p">=</span> <span class="p">{</span>
+    <span class="nc">Id</span>   <span class="p">:</span> <span class="kt">string</span>
+    <span class="nc">Name</span> <span class="p">:</span> <span class="kt">string</span>
+    <span class="nc">Hex</span>  <span class="p">:</span> <span class="kt">string</span>
+    <span class="nc">RGB</span>  <span class="p">:</span> <span class="nc">RGB</span>
+    <span class="nc">HSL</span>  <span class="p">:</span> <span class="nc">HSL</span>
+<span class="p">}</span>
+<span class="k">and</span> <span class="nc">RGB</span> <span class="p">=</span> <span class="p">{</span> <span class="nc">Red</span> <span class="p">:</span> <span class="kt">int</span><span class="p">;</span> <span class="nc">Green</span> <span class="p">:</span> <span class="kt">int</span><span class="p">;</span> <span class="nc">Blue</span> <span class="p">:</span> <span class="kt">int</span> <span class="p">}</span>
+<span class="k">and</span> <span class="nc">HSL</span> <span class="p">=</span> <span class="p">{</span> <span class="nc">Hue</span> <span class="p">:</span> <span class="kt">int</span><span class="p">;</span> <span class="nc">Saturation</span> <span class="p">:</span> <span class="kt">int</span><span class="p">;</span> <span class="nc">Lightness</span> <span class="p">:</span> <span class="kt">int</span> <span class="p">}</span>
+
+<span class="k">type</span> <span class="nc">MyColoursDto</span> <span class="p">=</span> <span class="p">{</span> <span class="nc">Colours</span> <span class="p">:</span> <span class="nc">Colour</span> <span class="kt">list</span> <span class="p">}</span>
+
+<span class="k">let</span> <span class="n">myColours</span> <span class="p">=</span> <span class="p">[</span>
+    <span class="p">{</span> <span class="nc">Id</span>   <span class="p">=</span> <span class="s2">"abc123"</span>
+      <span class="nc">Name</span> <span class="p">=</span> <span class="s2">"Red"</span>
+      <span class="nc">Hex</span>  <span class="p">=</span> <span class="s2">"#FF0000"</span>
+      <span class="nc">RGB</span>  <span class="p">=</span> <span class="p">{</span> <span class="nc">Red</span> <span class="p">=</span> <span class="mi">255</span><span class="p">;</span> <span class="nc">Green</span> <span class="p">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nc">Blue</span> <span class="p">=</span> <span class="mi">0</span> <span class="p">}</span>
+      <span class="nc">HSL</span>  <span class="p">=</span> <span class="p">{</span> <span class="nc">Hue</span> <span class="p">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nc">Saturation</span> <span class="p">=</span> <span class="mi">100</span><span class="p">;</span> <span class="nc">Lightness</span> <span class="p">=</span> <span class="mi">50</span> <span class="p">}</span> <span class="p">}</span>
+    <span class="p">{</span> <span class="nc">Id</span>   <span class="p">=</span> <span class="s2">"def456"</span>
+      <span class="nc">Name</span> <span class="p">=</span> <span class="s2">"Yellow"</span>
+      <span class="nc">Hex</span>  <span class="p">=</span> <span class="s2">"#FFFF00"</span>
+      <span class="nc">RGB</span>  <span class="p">=</span> <span class="p">{</span> <span class="nc">Red</span> <span class="p">=</span> <span class="mi">255</span><span class="p">;</span> <span class="nc">Green</span> <span class="p">=</span> <span class="mi">255</span><span class="p">;</span> <span class="nc">Blue</span> <span class="p">=</span> <span class="mi">0</span> <span class="p">}</span>
+      <span class="nc">HSL</span>  <span class="p">=</span> <span class="p">{</span> <span class="nc">Hue</span> <span class="p">=</span> <span class="mi">60</span><span class="p">;</span> <span class="nc">Saturation</span> <span class="p">=</span> <span class="mi">100</span><span class="p">;</span> <span class="nc">Lightness</span> <span class="p">=</span> <span class="mi">50</span> <span class="p">}</span> <span class="p">}</span>
+    <span class="p">]</span>
+
+<span class="k">let</span> <span class="n">webApp</span> <span class="p">=</span>
+    <span class="n">choose</span> <span class="p">[</span>
+        <span class="n">route</span> <span class="s2">"/my-colours"</span> <span class="o">&gt;=&gt;</span> <span class="nn">Successful</span><span class="p">.</span><span class="nc">OK</span> <span class="p">{</span> <span class="nc">Colours</span> <span class="p">=</span> <span class="n">myColours</span> <span class="p">}</span> <span class="p">]</span></code></pre></figure>
           <p>
               This defines a <code>Colour</code> type that contains a few different
               properties, and makes a collection of them available via <code>GET</code>
@@ -60,7 +90,42 @@
               using <code>URLSession</code> and the <code>Decodable</code> protocol to
               make things easy:
           </p>
-          <script src="https://gist.github.com/chamook/ba052a104197023689095ac29ea9581b.js"></script>
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="kd">struct</span> <span class="kt">Colour</span><span class="p">:</span> <span class="kt">Decodable</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">id</span><span class="p">:</span> <span class="kt">String</span>
+    <span class="k">var</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span>
+    <span class="k">var</span> <span class="nv">hex</span><span class="p">:</span> <span class="kt">String</span>
+<span class="p">}</span>
+
+<span class="k">var</span> <span class="nv">colours</span><span class="p">:</span> <span class="p">[</span><span class="kt">Colour</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="kd">private</span> <span class="kd">func</span> <span class="nf">loadColours</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">url</span> <span class="o">=</span> <span class="kt">URL</span><span class="p">(</span><span class="nv">string</span><span class="p">:</span> <span class="s">"http://localhost:5000/my-colours"</span><span class="p">)</span>
+
+    <span class="kt">URLSession</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="nf">dataTask</span><span class="p">(</span><span class="nv">with</span><span class="p">:</span> <span class="n">url</span><span class="o">!</span><span class="p">)</span> <span class="p">{</span> <span class="p">[</span><span class="k">weak</span> <span class="k">self</span><span class="p">]</span> <span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span> <span class="k">in</span>
+        <span class="k">guard</span> <span class="n">error</span> <span class="o">==</span> <span class="kc">nil</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nf">print</span><span class="p">(</span><span class="s">"Error getting colours"</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="p">}</span>
+        <span class="k">guard</span> <span class="k">let</span> <span class="nv">content</span> <span class="o">=</span> <span class="n">data</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nf">print</span><span class="p">(</span><span class="s">"Couldn't get any colours"</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="p">}</span>
+
+        <span class="k">do</span> <span class="p">{</span>
+            <span class="kd">struct</span> <span class="kt">ColourDto</span><span class="p">:</span> <span class="kt">Decodable</span> <span class="p">{</span>
+                <span class="k">var</span> <span class="nv">colours</span><span class="p">:</span> <span class="p">[</span><span class="kt">Colour</span><span class="p">]</span>
+            <span class="p">}</span>
+            <span class="k">let</span> <span class="nv">colourData</span> <span class="o">=</span> <span class="k">try</span> <span class="kt">JSONDecoder</span><span class="p">()</span><span class="o">.</span><span class="nf">decode</span><span class="p">(</span><span class="kt">ColourDto</span><span class="o">.</span><span class="k">self</span><span class="p">,</span> <span class="nv">from</span><span class="p">:</span> <span class="n">content</span><span class="p">)</span>
+            <span class="k">self</span><span class="p">?</span><span class="o">.</span><span class="n">colours</span> <span class="o">=</span> <span class="n">colourData</span><span class="o">.</span><span class="n">colours</span>
+
+            <span class="kt">DispatchQueue</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">async</span> <span class="p">{</span>
+                <span class="k">self</span><span class="p">?</span><span class="o">.</span><span class="n">tableView</span><span class="p">?</span><span class="o">.</span><span class="nf">reloadData</span><span class="p">()</span>
+            <span class="p">}</span>
+        <span class="p">}</span> <span class="k">catch</span> <span class="k">let</span> <span class="nv">err</span> <span class="p">{</span>
+            <span class="nf">print</span><span class="p">(</span><span class="s">"Error decoding json"</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span><span class="o">.</span><span class="nf">resume</span><span class="p">()</span>
+<span class="p">}</span></code></pre></figure>
           <p>
               This works pretty well, but we can already see that there's a mismatch
               between the data that the API provides and the data that the client
@@ -71,7 +136,7 @@
               complex it could become a problem. Fortunately, we have some ways to
               match our API to the needs of the client.
           </p>
-          <h3>A New Media Type</h3>
+          <h2>A New Media Type</h2>
           <p>
               We can't <em>just</em> remove values from our API response because
               there may be other clients relying on that data, but if we provide
@@ -83,20 +148,70 @@
               We don't need any custom serialization for this, so we can just
               use the json serializer that's already configured.
           </p>
-          <script src="https://gist.github.com/chamook/4f7fdb4a2257d6ae89027dfd2f374abf.js"></script>
+<figure class="highlight"><pre><code class="language-fsharp" data-lang="fsharp"><span class="k">let</span> <span class="n">customJsonContentType</span> <span class="n">mimeType</span> <span class="n">data</span> <span class="n">next</span> <span class="p">(</span><span class="n">ctx</span> <span class="p">:</span> <span class="nc">HttpContext</span><span class="p">)</span> <span class="p">=</span>
+    <span class="n">sprintf</span> <span class="s2">"%s; charset=utf-8"</span> <span class="n">mimeType</span> <span class="p">|&gt;</span> <span class="n">ctx</span><span class="p">.</span><span class="nc">SetContentType</span>
+    <span class="k">let</span> <span class="n">serializer</span> <span class="p">=</span> <span class="n">ctx</span><span class="p">.</span><span class="nc">GetJsonSerializer</span><span class="bp">()</span>
+    <span class="n">serializer</span><span class="p">.</span><span class="nc">SerializeToBytes</span> <span class="n">data</span>
+    <span class="p">|&gt;</span> <span class="n">ctx</span><span class="p">.</span><span class="nc">WriteBytesAsync</span>
+
+<span class="k">type</span> <span class="nc">CustomNegotiationConfig</span> <span class="p">(</span><span class="n">baseConfig</span> <span class="p">:</span> <span class="nc">INegotiationConfig</span><span class="p">)</span> <span class="p">=</span>
+    <span class="k">interface</span> <span class="nc">INegotiationConfig</span> <span class="k">with</span>
+        <span class="k">member</span> <span class="o">__.</span><span class="nc">UnacceptableHandler</span> <span class="p">=</span>
+            <span class="n">baseConfig</span><span class="p">.</span><span class="nc">UnacceptableHandler</span>
+        <span class="k">member</span> <span class="o">__.</span><span class="nc">Rules</span> <span class="p">=</span>
+            <span class="n">dict</span> <span class="p">[</span>
+                <span class="s2">"*/*"</span> <span class="p">,</span> <span class="n">json</span>
+                <span class="s2">"application/json"</span> <span class="p">,</span> <span class="n">json</span>
+                <span class="s2">"application/vnd.chamook.mini-colours+json"</span><span class="p">,</span>
+                <span class="n">customJsonContentType</span> <span class="s2">"application/vnd.chamook.mini-colours+json"</span>
+                <span class="p">]</span>
+
+<span class="k">let</span> <span class="n">configureServices</span> <span class="p">(</span><span class="n">services</span> <span class="p">:</span> <span class="nc">IServiceCollection</span><span class="p">)</span> <span class="p">=</span>
+    <span class="n">services</span><span class="p">.</span><span class="nc">AddGiraffe</span><span class="bp">()</span> <span class="p">|&gt;</span> <span class="n">ignore</span>
+
+    <span class="nc">CustomNegotiationConfig</span><span class="p">(</span><span class="nc">DefaultNegotiationConfig</span><span class="bp">()</span><span class="p">)</span>
+    <span class="p">|&gt;</span> <span class="n">services</span><span class="p">.</span><span class="nc">AddSingleton</span><span class="p">&lt;</span><span class="nc">INegotiationConfig</span><span class="p">&gt;</span>
+    <span class="p">|&gt;</span> <span class="n">ignore</span></code></pre></figure>
           <p>
               Then we can create a custom representation of <code>Colours</code>
               and return it from our endpoint for clients that request the mini
               version.
           </p>
-          <script src="https://gist.github.com/chamook/6561ca0b26e9053a050b144d69eb0ceb.js"></script>
+<figure class="highlight"><pre><code class="language-fsharp" data-lang="fsharp"><span class="k">type</span> <span class="nc">MiniColour</span> <span class="p">=</span> <span class="p">{</span>
+    <span class="nc">Id</span>   <span class="p">:</span> <span class="kt">string</span>
+    <span class="nc">Name</span> <span class="p">:</span> <span class="kt">string</span>
+    <span class="nc">Hex</span>  <span class="p">:</span> <span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="k">type</span> <span class="nc">MiniMyColoursDto</span> <span class="p">=</span> <span class="p">{</span> <span class="nc">Colours</span> <span class="p">:</span> <span class="nc">MiniColour</span> <span class="kt">list</span> <span class="p">}</span>
+
+<span class="k">let</span> <span class="n">toMiniColour</span> <span class="p">(</span><span class="n">c</span> <span class="p">:</span> <span class="nc">Colour</span><span class="p">)</span> <span class="p">=</span> <span class="p">{</span> <span class="nn">MiniColour</span><span class="p">.</span><span class="nc">Id</span> <span class="p">=</span> <span class="n">c</span><span class="p">.</span><span class="nc">Id</span><span class="p">;</span> <span class="nc">Name</span> <span class="p">=</span> <span class="n">c</span><span class="p">.</span><span class="nc">Name</span><span class="p">;</span> <span class="nc">Hex</span> <span class="p">=</span> <span class="n">c</span><span class="p">.</span><span class="nc">Hex</span> <span class="p">}</span>
+
+<span class="k">let</span> <span class="n">getMyColours</span><span class="p">:</span> <span class="nc">HttpHandler</span> <span class="p">=</span>
+    <span class="k">fun</span> <span class="n">next</span> <span class="n">ctx</span> <span class="p">-&gt;</span>
+        <span class="k">match</span> <span class="n">ctx</span><span class="p">.</span><span class="nc">TryGetRequestHeader</span> <span class="s2">"Accept"</span> <span class="k">with</span>
+        <span class="p">|</span> <span class="nc">Some</span> <span class="n">x</span> <span class="k">when</span> <span class="n">x</span><span class="p">.</span><span class="nc">Contains</span> <span class="s2">"application/vnd.chamook.mini-colours+json"</span> <span class="p">-&gt;</span>
+            <span class="nn">Successful</span><span class="p">.</span><span class="nc">OK</span>
+                <span class="p">{</span> <span class="nn">MiniMyColoursDto</span><span class="p">.</span><span class="nc">Colours</span> <span class="p">=</span> <span class="n">myColours</span> <span class="p">|&gt;</span> <span class="nn">List</span><span class="p">.</span><span class="n">map</span> <span class="n">toMiniColour</span> <span class="p">}</span>
+                <span class="n">next</span>
+                <span class="n">ctx</span>
+        <span class="p">|</span> <span class="p">_</span> <span class="p">-&gt;</span>
+            <span class="nn">Successful</span><span class="p">.</span><span class="nc">OK</span>
+                <span class="p">{</span> <span class="nn">MyColoursDto</span><span class="p">.</span><span class="nc">Colours</span> <span class="p">=</span> <span class="n">myColours</span> <span class="p">}</span>
+                <span class="n">next</span>
+                <span class="n">ctx</span></code></pre></figure>
           <p>
               With our API configured to return the mini colour response to
               clients that request it, we can update our app client to send the
               new <code>Accept</code> header. Handily, for our swift client it's
               trivial to set an extra header:
           </p>
-          <script src="https://gist.github.com/chamook/b793d64db5558dd4dcea24d922bada71.js"></script>
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="k">let</span> <span class="nv">url</span> <span class="o">=</span> <span class="kt">URL</span><span class="p">(</span><span class="nv">string</span><span class="p">:</span> <span class="s">"http://localhost:5000/my-colours"</span><span class="p">)</span><span class="o">!</span>
+<span class="k">var</span> <span class="nv">request</span> <span class="o">=</span> <span class="kt">URLRequest</span><span class="p">(</span><span class="nv">url</span><span class="p">:</span> <span class="n">url</span><span class="p">)</span>
+<span class="n">request</span><span class="o">.</span><span class="nf">setValue</span><span class="p">(</span><span class="s">"application/vnd.chamook.mini-colours+json"</span><span class="p">,</span> <span class="nv">forHTTPHeaderField</span><span class="p">:</span> <span class="s">"Accept"</span><span class="p">)</span>
+        
+<span class="kt">URLSession</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="nf">dataTask</span><span class="p">(</span><span class="nv">with</span><span class="p">:</span> <span class="n">request</span><span class="p">)</span> <span class="p">{</span> <span class="p">[</span><span class="k">weak</span> <span class="k">self</span><span class="p">]</span> <span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span> <span class="k">in</span>
+<span class="o">...</span></code></pre></figure>
           <p>
               Now our client requests a specific response and our API provides it,
               which is great...for now. However, this does leave our API and client
@@ -104,7 +219,7 @@
               our API will also need to be updated even if it could already
               provide the field, our only options are all or nothing.
           </p>
-          <h3>Asking For What We Need</h3>
+          <h2>Asking For What We Need</h2>
           <p>
               We want to find a way that our client can adjust the data it gets
               from the API as it needs <em>without us needing to make changes to
@@ -164,17 +279,91 @@
               common conventions across our API surface it shouldn't be too
               problematic.
           </p>
-          <h3>The Final Form(s)</h3>
+          <h2>The Final Form(s)</h2>
           <p>
               With that decided, we can update our API with the following code
               (using the simplest filtering approach, by specifying which fields
               should be included in the response as a parameter to the media type):
           </p>
-          <script src="https://gist.github.com/chamook/e3eddb01718aae12c3348e23c409d6f7.js"></script>
+<figure class="highlight"><pre><code class="language-fsharp" data-lang="fsharp"><span class="k">let</span> <span class="n">tryGetPropertyName</span><span class="p">&lt;</span><span class="k">'</span><span class="n">a</span><span class="p">&gt;</span> <span class="n">propertyName</span> <span class="p">=</span>
+    <span class="nn">FSharpType</span><span class="p">.</span><span class="nc">GetRecordFields</span> <span class="n">typeof</span><span class="p">&lt;</span><span class="k">'</span><span class="n">a</span><span class="p">&gt;</span>
+    <span class="p">|&gt;</span> <span class="nn">Array</span><span class="p">.</span><span class="n">tryFind</span>
+        <span class="p">(</span><span class="k">fun</span> <span class="n">x</span> <span class="p">-&gt;</span> <span class="nn">String</span><span class="p">.</span><span class="nc">Equals</span><span class="p">(</span><span class="n">x</span><span class="p">.</span><span class="nc">Name</span><span class="p">,</span> <span class="n">propertyName</span><span class="p">,</span> <span class="nn">StringComparison</span><span class="p">.</span><span class="nc">OrdinalIgnoreCase</span><span class="o">))</span>
+    <span class="p">|&gt;</span> <span class="nn">Option</span><span class="p">.</span><span class="n">map</span> <span class="p">(</span><span class="k">fun</span> <span class="n">x</span> <span class="p">-&gt;</span> <span class="n">x</span><span class="p">.</span><span class="nc">Name</span><span class="p">)</span>
+
+<span class="k">let</span> <span class="n">includingRegex</span> <span class="p">=</span> <span class="nc">Regex</span><span class="p">(</span><span class="s2">"including=(.*?)(</span><span class="err">\</span><span class="s2">Z|</span><span class="err">\</span><span class="s2">0)"</span><span class="p">)</span>
+
+<span class="k">let</span> <span class="o">(|</span><span class="nc">FilteredRepresentation</span><span class="o">|_|)</span> <span class="p">(</span><span class="n">accept</span> <span class="p">:</span> <span class="kt">string</span> <span class="n">option</span><span class="p">)</span> <span class="p">=</span>
+    <span class="k">match</span> <span class="n">accept</span> <span class="k">with</span>
+    <span class="p">|</span> <span class="nc">Some</span> <span class="n">a</span>
+        <span class="k">when</span> <span class="n">a</span><span class="p">.</span><span class="nc">StartsWith</span> <span class="s2">"application/vnd.chamook.api+json"</span>
+            <span class="p">&amp;&amp;</span> <span class="n">a</span><span class="p">.</span><span class="nc">Contains</span> <span class="s2">"including="</span> <span class="p">-&gt;</span>
+                <span class="n">includingRegex</span><span class="p">.</span><span class="nc">Match</span><span class="p">(</span><span class="n">a</span><span class="o">).</span><span class="nn">Groups</span><span class="p">.[</span><span class="mi">1</span><span class="o">].</span><span class="nn">Captures</span><span class="p">.[</span><span class="mi">0</span><span class="o">].</span><span class="nn">Value</span><span class="p">.</span><span class="nc">Split</span> <span class="k">'</span><span class="p">,</span><span class="k">'</span>
+                <span class="p">|&gt;</span> <span class="nn">Array</span><span class="p">.</span><span class="n">map</span> <span class="n">tryGetPropertyName</span><span class="p">&lt;</span><span class="nc">Colour</span><span class="p">&gt;</span>
+                <span class="p">|&gt;</span> <span class="nn">Array</span><span class="p">.</span><span class="n">choose</span> <span class="n">id</span>
+                <span class="p">|&gt;</span> <span class="nn">Array</span><span class="p">.</span><span class="n">toList</span>
+                <span class="p">|&gt;</span> <span class="nc">Some</span>
+    <span class="p">|</span> <span class="p">_</span> <span class="p">-&gt;</span> <span class="nc">None</span>
+
+<span class="k">let</span> <span class="n">filterJson</span> <span class="p">(</span><span class="n">includeFields</span> <span class="p">:</span> <span class="kt">string</span> <span class="kt">list</span><span class="p">)</span> <span class="p">(</span><span class="n">original</span> <span class="p">:</span> <span class="nc">JObject</span><span class="p">)</span> <span class="p">=</span>
+    <span class="k">let</span> <span class="n">json</span> <span class="p">=</span> <span class="nc">JObject</span><span class="bp">()</span>
+    <span class="n">includeFields</span>
+    <span class="p">|&gt;</span> <span class="nn">List</span><span class="p">.</span><span class="n">iter</span> <span class="p">(</span><span class="k">fun</span> <span class="n">name</span> <span class="p">-&gt;</span> <span class="n">json</span><span class="o">.[</span><span class="n">name</span><span class="p">]</span> <span class="p">&lt;-</span> <span class="n">original</span><span class="o">.[</span><span class="n">name</span><span class="o">])</span>
+    <span class="n">json</span>
+
+<span class="k">let</span> <span class="n">getMyColours</span><span class="p">:</span> <span class="nc">HttpHandler</span> <span class="p">=</span>
+    <span class="k">fun</span> <span class="n">next</span> <span class="n">ctx</span> <span class="p">-&gt;</span>
+        <span class="k">match</span> <span class="n">ctx</span><span class="p">.</span><span class="nc">TryGetRequestHeader</span> <span class="s2">"Accept"</span> <span class="k">with</span>
+        <span class="p">|</span> <span class="nc">FilteredRepresentation</span> <span class="n">filter</span> <span class="p">-&gt;</span>
+            <span class="k">let</span> <span class="n">response</span> <span class="p">=</span> <span class="nc">JObject</span><span class="bp">()</span>
+            <span class="k">let</span> <span class="n">colourArray</span> <span class="p">=</span>
+                <span class="n">myColours</span>
+                <span class="p">|&gt;</span> <span class="nn">List</span><span class="p">.</span><span class="n">map</span> <span class="p">(</span><span class="nn">JObject</span><span class="p">.</span><span class="nc">FromObject</span> <span class="o">&gt;&gt;</span> <span class="n">filterJson</span> <span class="n">filter</span><span class="p">)</span>
+            <span class="n">response</span><span class="o">.[</span><span class="s2">"colours"</span><span class="p">]</span> <span class="p">&lt;-</span> <span class="nc">JArray</span><span class="p">(</span><span class="n">colourArray</span><span class="p">)</span>
+            <span class="nn">Successful</span><span class="p">.</span><span class="nc">OK</span>
+                <span class="n">response</span>
+                <span class="n">next</span>
+                <span class="n">ctx</span>
+        <span class="p">|</span> <span class="p">_</span> <span class="p">-&gt;</span>
+            <span class="nn">Successful</span><span class="p">.</span><span class="nc">OK</span>
+                <span class="p">{</span> <span class="nc">Colours</span> <span class="p">=</span> <span class="n">myColours</span> <span class="p">}</span>
+                <span class="n">next</span>
+                <span class="n">ctx</span></code></pre></figure>
           <p>
               Our client needs only minor changes to use the new version:
           </p>
-          <script src="https://gist.github.com/chamook/4e4e3a5400e8aea9c51239a625bead2c.js"></script>
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="kd">struct</span> <span class="kt">RGB</span><span class="p">:</span> <span class="kt">Decodable</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">red</span><span class="p">:</span> <span class="kt">Int</span>
+    <span class="k">var</span> <span class="nv">green</span><span class="p">:</span> <span class="kt">Int</span>
+    <span class="k">var</span> <span class="nv">blue</span><span class="p">:</span> <span class="kt">Int</span>
+    
+    <span class="kd">enum</span> <span class="kt">CodingKeys</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="kt">CodingKey</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="n">red</span> <span class="o">=</span> <span class="s">"Red"</span>
+        <span class="k">case</span> <span class="n">green</span> <span class="o">=</span> <span class="s">"Green"</span>
+        <span class="k">case</span> <span class="n">blue</span> <span class="o">=</span> <span class="s">"Blue"</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">struct</span> <span class="kt">Colour</span><span class="p">:</span> <span class="kt">Decodable</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">id</span><span class="p">:</span> <span class="kt">String</span>
+    <span class="k">var</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span>
+    <span class="k">var</span> <span class="nv">hex</span><span class="p">:</span> <span class="kt">String</span>
+    <span class="k">var</span> <span class="nv">rgb</span><span class="p">:</span> <span class="kt">RGB</span>
+    
+    <span class="kd">enum</span> <span class="kt">CodingKeys</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="kt">CodingKey</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="n">id</span> <span class="o">=</span> <span class="s">"Id"</span>
+        <span class="k">case</span> <span class="n">name</span> <span class="o">=</span> <span class="s">"Name"</span>
+        <span class="k">case</span> <span class="n">hex</span> <span class="o">=</span> <span class="s">"Hex"</span>
+        <span class="k">case</span> <span class="n">rgb</span> <span class="o">=</span> <span class="s">"RGB"</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">private</span> <span class="kd">func</span> <span class="nf">loadColours</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">url</span> <span class="o">=</span> <span class="kt">URL</span><span class="p">(</span><span class="nv">string</span><span class="p">:</span> <span class="s">"http://localhost:5000/my-colours"</span><span class="p">)</span><span class="o">!</span>
+    <span class="k">var</span> <span class="nv">request</span> <span class="o">=</span> <span class="kt">URLRequest</span><span class="p">(</span><span class="nv">url</span><span class="p">:</span> <span class="n">url</span><span class="p">)</span>
+    <span class="n">request</span><span class="o">.</span><span class="nf">setValue</span><span class="p">(</span><span class="s">"application/vnd.chamook.api+json; including=id,name,hex,rgb"</span><span class="p">,</span> <span class="nv">forHTTPHeaderField</span><span class="p">:</span> <span class="s">"Accept"</span><span class="p">)</span>
+    <span class="o">...</span>
+<span class="p">}</span></code></pre></figure>
           <p>
               Now our client can specify exactly the fields it wants, and our API
               will respond appropriately. There are still things that could be
@@ -189,7 +378,7 @@
           </p>
       </section>
 			<footer>
-				  <h3>Footnotes</h3>
+				  <h2>Footnotes</h2>
 				  <ol class="footnotes">
 					    <li id="footnote-1">
                   This is mostly an excuse for me to write <em>colour</em> with
@@ -200,8 +389,10 @@
       </footer>
 		</article>
 		<footer class="page-footer">
-			<div class="container">
-				<a href="../index.html">&lt;- mmmM Delicious cOntent
+			  <div class="container">
+            <p>
+				        <a href="../index.html">&lt;- mmmM Delicious cOntent</a>
+            </p>
 			</div>
 		</footer>
   </body>
