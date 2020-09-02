@@ -178,6 +178,7 @@ h2 {
   grid-row-start: 1;
   grid-row-end: span 2;
   border-radius: 2rem;
+  position: relative;
 }
 
 .datebox::before, .datebox::after {
