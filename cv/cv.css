@@ -1,23 +1,134 @@
-@import url(https://fonts.googleapis.com/css?family=Merriweather);
+.cv-header  {
+    margin-top: 6rem;
+}
 
-body {
-	font-family: 'Merriweather';
- }
+.cv-header .title  {
+    grid-template-columns: 100fr;
+}
 
-header>div>h1 {
-    font-size: 400%;
+.cv-header>.title>h1 {
+    font-weight: 700;
+    font-size: 5rem;
+    margin-bottom: 0;
+    margin-top: 0.5rem;
+    padding-bottom: 0;
+    text-transform: uppercase;
+    line-height: 0.8;
+    align-self: start;
+    height: 4rem;
+    color: var(--green);
+}
+
+.cv-header>.title>.subheading {
+    font-weight: 100;
+    font-size: 1.5rem;
+    grid-row-start: 2;
+    align-self: start;
+    color: white;
+    background-color: var(--purple);
+    padding: 0.8rem;
+    text-transform: uppercase;
     display: inline-block;
-    color: #006;
 }
 
-header>div>div>img {
-    width: 10em;
-    float: left;
-    margin-right: 2em;
-    border-radius: 1em;
+article {
+    margin-bottom: 4rem;
 }
 
-@media screen and (max-width: 767px) {
-    section>h3>span.small { display: inline-block; clear: both;}
-    header>div>img {display:none;}
+h2 {
+    color: white;
+    background-color: var(--purple);
+    padding: 0.8rem;
+    text-transform: uppercase;
+    display: inline-block;
+}
+
+.job-header  {
+    grid-template-columns: 100fr auto auto;
+    grid-template-rows: auto auto;
+    display: grid;
+}
+
+.job-header h3  {
+    grid-row: 1;
+}
+
+.job-header span  {
+    grid-row: 2;
+}
+
+.range-start  {
+    grid-column: 2;
+}
+
+.range-end  {
+    grid-column: 3;
+}
+
+.range-start, .range-end {
+	width: 6rem;
+	color: var(--green);
+	text-align: center;
+	padding: 0.5rem;
+    filter: brightness(60%);
+    background-color: var(--background);
+    grid-row-start: 1;
+    grid-row-end: span 2;
+    border-radius: 0.5rem;
+    position: relative;
+    margin: 0.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.range-start > span, .range-end > span {
+	display: block;
+	padding: 0;
+	margin: 0;
+	line-height: 1;
+}
+
+.range-start span span:first-child, .range-end span span:first-child{
+    font-weight: 600;
+    font-size: 2rem;
+}
+
+.present {
+    font-weight: 600;
+    font-size: 2.5rem;
+}
+
+h2#skills, h2#testimonials {
+    margin-top: 0;
+}
+.testimonials blockquote {
+    margin: 0.3rem;
+}
+.testimonials blockquote>p {
+    font-weight: 100;
+    padding: 1.2rem;
+    margin: 0rem;
+    border-radius: 0.5rem;
+    display: block;
+    position: relative;
+    background-color: #272822;
+}
+
+.testimonials blockquote footer {
+    filter: unset;
+    padding: 0;
+    text-align: right;
+    z-index: 10;
+    position: relative;
+    background-color: transparent;
+}
+
+.testimonials blockquote footer p {
+    color: white;
+    background-color: var(--purple);
+    padding: 0.8rem;
+    text-transform: uppercase;
+    display: inline-block;
+    font-weight: 100;
+    transform:translate(-0.4rem, -1.7rem);
 }
