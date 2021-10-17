@@ -152,3 +152,43 @@ h2#skills, h2#testimonials {
     font-weight: 100;
     transform:translate(-0.4rem, -1.7rem);
 }
+
+@media print  {
+    .container {
+        color: black;
+        font-size: 12pt;
+    }
+    
+    .cv-header, h2  {
+        margin: 0;
+        padding: 0;
+    }
+
+    .testimonials blockquote footer p {
+        color: white;
+        background-color: var(--purple);
+        padding: 0.8rem;
+        text-transform: uppercase;
+        display: inline-block;
+        font-weight: 100;
+        transform:translate(-0.4rem, -1.7rem);
+    }
+
+    .flicker::before { display: none; }
+    .flicker::after { display:none; }
+    .flicker {
+        animation: none;
+    }
+
+    .cv-header>.title>h1, .cv-header>.title>.subheading {
+        font-size: 2rem;
+        margin: 0;
+        padding: 0;
+        color: black;
+    }
+    .divider {
+        display: none;
+    }
+
+}
+
