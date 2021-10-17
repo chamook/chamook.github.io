@@ -107,7 +107,7 @@ a:hover {
         grid-column-start: 1;
     }
 
-    .main-header>span.subtitle {
+    .main-header>.subtitle {
         grid-column-start: 1;
         grid-row-start: 3;
     }
@@ -183,7 +183,7 @@ h2, h3 {
   background-color: var(--background);
   grid-row-start: 1;
   grid-row-end: span 2;
-  border-radius: 2rem;
+  border-radius: 0.5rem;
   position: relative;
 }
 
@@ -522,7 +522,7 @@ article>footer {
     padding: 1rem;
     overflow: auto;
     font-size: 1.2rem;
-    border-radius: 2rem;
+    border-radius: 0.5rem;
     display: block;
     position: relative;
 }
