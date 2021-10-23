@@ -153,10 +153,15 @@ h2#skills, h2#testimonials {
     transform:translate(-0.4rem, -1.7rem);
 }
 
+footer.cv-footer>div>p {
+    font-size: 3rem;
+}
+
 @media print  {
     .container {
         color: black;
         font-size: 12pt;
+        width: 100%;
     }
     
     .cv-header, h2  {
@@ -190,5 +195,17 @@ h2#skills, h2#testimonials {
         display: none;
     }
 
+    .cv-footer {
+        background-color: transparent;
+        color: black;
+    }
+
+    .cv-footer a {
+        display: none;
+    }
+
+    footer.cv-footer>div>p {
+        font-size: 1rem;
+    }
 }
 
