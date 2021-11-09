@@ -129,6 +129,9 @@ li {
         font-size: 1.3rem;
     }
     
+    #skills-section {
+        grid-template-columns: 100%;
+    }
 }
 
 
