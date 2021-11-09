@@ -42,6 +42,20 @@ h2 {
     display: inline-block;
 }
 
+#skills-section {
+    display: grid;
+    grid-template-columns: 50% 50%;
+}
+
+dt {
+    font-size: 1rem;
+    text-transform: uppercase;
+}
+
+li {
+    list-style-type: square;
+}
+
 .job-header  {
     grid-template-columns: 100fr auto auto;
     grid-template-rows: auto auto;
