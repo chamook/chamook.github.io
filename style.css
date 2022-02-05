@@ -162,6 +162,15 @@ div.intro p {
     content: "OPDELINGSLINJE";
 }
 
+header>h2 {
+    font-weight: 100;
+    font-size: 1.5rem;
+    color: white;
+    background-color: var(--purple);
+    padding: 0.8rem;
+    display: inline-block;
+}
+
 h2, h3 {
     text-transform: uppercase;
     font-weight: 100;
@@ -172,6 +181,44 @@ h2, h3 {
     grid-template-columns: 8.3rem 100fr;
     margin-top: 4rem;
     margin-bottom: 4rem;
+}
+
+.project-listing {
+    margin-top: 4rem;
+    margin-bottom: 4rem;
+    text-align: right;
+}
+
+.project-item {
+    display: grid;
+    align-items: end;
+    grid-template-columns: 100fr 8.3rem;
+}
+.project-item p {
+    grid-column-start: 1;
+}
+
+
+.icon {
+	  width: 6rem;
+    height: 90%;
+    filter: brightness(60%);
+    background-color: var(--background);
+    grid-column-start: 2;
+    grid-row-start: 1;
+    grid-row-end: span 2;
+    border-radius: 0.5rem;
+    display: grid;
+}
+
+.project-item:hover .icon {
+    filter: brightness(100%);
+}
+
+.icon img {
+    width: 80%;
+    margin: auto;
+    align-self: start;
 }
 
 .datebox {
@@ -759,3 +806,5 @@ article>footer {
 
 .highlight pre:hover::before, .flicker:hover::before { display: none; }
 .highlight pre:hover::after, .flicker:hover::after { display:none; }
+
+
