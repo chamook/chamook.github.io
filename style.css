@@ -193,6 +193,7 @@ h2, h3 {
     display: grid;
     align-items: end;
     grid-template-columns: 100fr 8.3rem;
+    column-gap: 0.5rem;
 }
 .project-item p {
     grid-column-start: 1;
@@ -202,7 +203,6 @@ h2, h3 {
 .icon {
 	  width: 6rem;
     height: 90%;
-    filter: brightness(60%);
     background-color: var(--background);
     grid-column-start: 2;
     grid-row-start: 1;
@@ -211,7 +211,11 @@ h2, h3 {
     display: grid;
 }
 
-.project-item:hover .icon {
+.icon :first-child {
+    filter: brightness(60%);
+}
+
+.project-item:hover .icon :first-child {
     filter: brightness(100%);
 }
 
