@@ -1,4 +1,4 @@
-#+title: Literate Programming with Org Mode
+#+title: Literate Programming with Org Mode 🦄
 #+subtitle: Broke: Generate docs from code | Woke: Generate code from docs 😎
 #+date: 12 August 2022
 #+options: toc:nil num:nil html-style:nil html5-fancy:'t title:nil exports:both
@@ -10,6 +10,14 @@
 #+html_head:<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
 #+html_head:<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
 #+html_head:<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+#+html_head:<meta property="og:url" content="https://chamook.lol/literate-programming-with-org/" />
+#+html_head:<meta property="og:image" content="https://chamook.lol/literate-programming-with-org/card.png" />
+#+html_head:<meta property="og:type" content="article" />
+#+html_head:<meta property="article:published_time" content="2022-08-12T00:00:00+00:00" />
+#+html_head:<meta name="twitter:card" content="summary_large_image" />
+#+html_head:<meta property="twitter:image" content="https://chamook.lol/literate-programming-with-org/card.png" />
+#+html_head:<meta property="twitter:title" content="Literate Programming with Org Mode 🦄" />
+#+html_head:<meta property="twitter:description" content="Broke: Generate docs from code | Woke: Generate code from docs 😎" />
 
 Recently I've been writing [[https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/overview?tabs=bicep][bicep]] for provisioning Azure services, the intent was to create a reusable template that could provision
 different services for different projects. Having never worked with bicep before I wanted to ensure I wrote good documentation that I
@@ -262,6 +270,14 @@ And adding some extra values to include in the html at the top of the document:
 #+html_head:<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
 #+html_head:<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
 #+html_head:<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+#+html_head:<meta property="og:url" content="https://chamook.lol/literate-programming-with-org/" />
+#+html_head:<meta property="og:image" content="https://chamook.lol/literate-programming-with-org/card.png" />
+#+html_head:<meta property="og:type" content="article" />
+#+html_head:<meta property="article:published_time" content="2022-08-12T00:00:00+00:00" />
+#+html_head:<meta name="twitter:card" content="summary_large_image" />
+#+html_head:<meta property="twitter:image" content="https://chamook.lol/literate-programming-with-org/card.png" />
+#+html_head:<meta property="twitter:title" content="Literate Programming with Org Mode 🦄" />
+#+html_head:<meta property="twitter:description" content="Broke: Generate docs from code | Woke: Generate code from docs 😎" />
 #+end_src
 
 I can use =org-export-dispatch= to generate this html page 😍 

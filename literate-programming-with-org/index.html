@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2022-08-12 Fri 17:00 -->
+<!-- 2022-08-12 Fri 17:46 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Literate Programming with Org Mode</title>
+<title>Literate Programming with Org Mode 🦄</title>
 <meta name="author" content="Adam Guest" />
 <meta name="generator" content="Org Mode" />
 <link rel="stylesheet" href="../style.css">
@@ -14,12 +14,20 @@
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<meta property="og:url" content="https://chamook.lol/literate-programming-with-org/" />
+<meta property="og:image" content="https://chamook.lol/literate-programming-with-org/card.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-08-12T00:00:00+00:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="twitter:image" content="https://chamook.lol/literate-programming-with-org/card.png" />
+<meta property="twitter:title" content="Literate Programming with Org Mode 🦄" />
+<meta property="twitter:description" content="Broke: Generate docs from code | Woke: Generate code from docs 😎" />
 </head>
 <body>
 <div id="preamble" class="status">
 <header>
 <div class="container">
-  <h1 class="glitch-text" data-text="Literate Programming with Org Mode">Literate Programming with Org Mode</h1>
+  <h1 class="glitch-text" data-text="Literate Programming with Org Mode 🦄">Literate Programming with Org Mode 🦄</h1>
   <span class="subtitle">Broke: Generate docs from code | Woke: Generate code from docs 😎</span>
 </div>
 <div class="byline">
@@ -37,9 +45,9 @@ could refer back to later, and decided to try out <a href="https://orgmode.org/"
 in sync with the code.
 </p>
 
-<div id="outline-container-orgaa81c72" class="outline-2">
-<h2 id="orgaa81c72">Structured Code</h2>
-<div class="outline-text-2" id="text-orgaa81c72">
+<div id="outline-container-org2e9ad86" class="outline-2">
+<h2 id="org2e9ad86">Structured Code</h2>
+<div class="outline-text-2" id="text-org2e9ad86">
 <p>
 Basic org syntax is a lot like markdown but using different special characters (<code>/</code> for italics instead of <code>_</code> etc) but a more significant
 difference is the approach of using structural blocks for source code. Markdown uses <code>```</code> to denote a block of code, and some
@@ -54,9 +62,9 @@ features from the language mode that you would use when editing a file of that t
 </div>
 </div>
 
-<div id="outline-container-orgdac1fb3" class="outline-2">
-<h2 id="orgdac1fb3">Execution</h2>
-<div class="outline-text-2" id="text-orgdac1fb3">
+<div id="outline-container-orgcd16a31" class="outline-2">
+<h2 id="orgcd16a31">Execution</h2>
+<div class="outline-text-2" id="text-orgcd16a31">
 <p>
 For some languages, it is also possible to execute the code directly inside the org file and have any output placed in a results block
 similar to <a href="https://jupyter.org/try-jupyter/lab/">Jupyter Notebooks</a>.
@@ -76,7 +84,7 @@ And this javascript code:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-js" id="orgf76e5d0">fetch<span style="color: #8b0000;">(</span><span style="color: #61CE3C;">'https://jsonplaceholder.typicode.com/todos/2'</span><span style="color: #8b0000;">)</span>
+<pre class="src src-js" id="orgd48066c">fetch<span style="color: #8b0000;">(</span><span style="color: #61CE3C;">'https://jsonplaceholder.typicode.com/todos/2'</span><span style="color: #8b0000;">)</span>
   .then<span style="color: #8b0000;">(</span>x =&gt; x.json<span style="color: #006400;">()</span><span style="color: #8b0000;">)</span>
   .then<span style="color: #8b0000;">(</span>x =&gt; console.log<span style="color: #006400;">(</span>x<span style="color: #006400;">)</span><span style="color: #8b0000;">)</span>;
 </pre>
@@ -103,9 +111,9 @@ But code in org files isn't limited to staying within the file, with <code>org-b
 </div>
 </div>
 
-<div id="outline-container-orga702c4c" class="outline-2">
-<h2 id="orga702c4c">Tangling</h2>
-<div class="outline-text-2" id="text-orga702c4c">
+<div id="outline-container-org80a784f" class="outline-2">
+<h2 id="org80a784f">Tangling</h2>
+<div class="outline-text-2" id="text-org80a784f">
 <p>
 By adding <code>:tangle</code> and a filename to the start of a block, you can output code from an org documentation file into a file that only
 contains code, and can even be part of a whole coding project.
@@ -213,9 +221,9 @@ Will output both the <code>.cs</code> and the <code>.js</code> files specified.
 </div>
 </div>
 
-<div id="outline-container-orgaf8448d" class="outline-2">
-<h2 id="orgaf8448d">Conditional Tangling</h2>
-<div class="outline-text-2" id="text-orgaf8448d">
+<div id="outline-container-org2b58f0e" class="outline-2">
+<h2 id="org2b58f0e">Conditional Tangling</h2>
+<div class="outline-text-2" id="text-org2b58f0e">
 <p>
 For the templates I was creating from an org file, I wanted to be able to pick and choose which parts were included rather than just
 outputting everything. Conveniently emacs can evaluate an emacs-lisp expression as part of the <code>:tangle</code> definition on a code block,
@@ -235,9 +243,9 @@ This block will only be tangled with the <code>main.bicep</code> file if there i
 </div>
 </div>
 
-<div id="outline-container-org528726a" class="outline-2">
-<h2 id="org528726a">Backfilling Values with Noweb</h2>
-<div class="outline-text-2" id="text-org528726a">
+<div id="outline-container-orgfce8a14" class="outline-2">
+<h2 id="orgfce8a14">Backfilling Values with Noweb</h2>
+<div class="outline-text-2" id="text-orgfce8a14">
 <p>
 Building templates that were configurable in this way led to a scenario where sometimes I would need to include values in an earlier part of a
 bicep file only if a later block was tangled. Source blocks in org mode support using <a href="https://en.wikipedia.org/wiki/Noweb">noweb</a> style markup to include either the contents
@@ -270,9 +278,9 @@ Then later include a named block, that performs the check for the dotfile and re
 </div>
 </div>
 
-<div id="outline-container-org333ecb6" class="outline-2">
-<h2 id="org333ecb6">Tangling for the non-Emacs user</h2>
-<div class="outline-text-2" id="text-org333ecb6">
+<div id="outline-container-orgac6dd24" class="outline-2">
+<h2 id="orgac6dd24">Tangling for the non-Emacs user</h2>
+<div class="outline-text-2" id="text-orgac6dd24">
 <p>
 A template is less useful if it constrains people to use a specific editor (with a relatively steep learning curve) to be able to get any value from
 it, but fortunately Emacs can be called from the command line to tangle a file so I included a shell script with my template. (I actually tangled
@@ -323,9 +331,9 @@ With this the org file is tangled and nobody had to open an emacs window or lear
 </div>
 </div>
 
-<div id="outline-container-orge03cc17" class="outline-2">
-<h2 id="orge03cc17">Exporting</h2>
-<div class="outline-text-2" id="text-orge03cc17">
+<div id="outline-container-org7a1bd1a" class="outline-2">
+<h2 id="org7a1bd1a">Exporting</h2>
+<div class="outline-text-2" id="text-org7a1bd1a">
 <p>
 After working with org files a bunch to create this template, I discovered that there is also a fairly customizable export functionality -
 by setting a few config values:
@@ -367,6 +375,14 @@ And adding some extra values to include in the html at the top of the document:
 <span style="color: #8B8989; font-style: italic;">#+html_head:&lt;link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png"&gt;</span>
 <span style="color: #8B8989; font-style: italic;">#+html_head:&lt;link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png"&gt;</span>
 <span style="color: #8B8989; font-style: italic;">#+html_head:&lt;link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png"&gt;</span>
+<span style="color: #8B8989; font-style: italic;">#+html_head:&lt;meta property="og:url" content="<a href="https://chamook.lol/literate-programming-with-org/">https://chamook.lol/literate-programming-with-org/</a>" /&gt;</span>
+<span style="color: #8B8989; font-style: italic;">#+html_head:&lt;meta property="og:image" content="<a href="https://chamook.lol/literate-programming-with-org/card.png">https://chamook.lol/literate-programming-with-org/card.png</a>" /&gt;</span>
+<span style="color: #8B8989; font-style: italic;">#+html_head:&lt;meta property="og:type" content="article" /&gt;</span>
+<span style="color: #8B8989; font-style: italic;">#+html_head:&lt;meta property="article:published_time" content="2022-08-12T00:00:00+00:00" /&gt;</span>
+<span style="color: #8B8989; font-style: italic;">#+html_head:&lt;meta name="twitter:card" content="summary_large_image" /&gt;</span>
+<span style="color: #8B8989; font-style: italic;">#+html_head:&lt;meta property="twitter:image" content="<a href="https://chamook.lol/literate-programming-with-org/card.png">https://chamook.lol/literate-programming-with-org/card.png</a>" /&gt;</span>
+<span style="color: #8B8989; font-style: italic;">#+html_head:&lt;meta property="twitter:title" content="Literate Programming with Org Mode &#129412;" /&gt;</span>
+<span style="color: #8B8989; font-style: italic;">#+html_head:&lt;meta property="twitter:description" content="Broke: Generate docs from code | Woke: Generate code from docs &#128526;" /&gt;</span>
 </pre>
 </div>
 
