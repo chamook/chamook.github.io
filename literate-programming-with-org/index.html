@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 2022-08-12 Fri 17:00 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Literate Programming with Org Mode</title>
+<meta name="author" content="Adam Guest" />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" href="../style.css">
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+</head>
+<body>
+<div id="preamble" class="status">
+<header>
+<div class="container">
+  <h1 class="glitch-text" data-text="Literate Programming with Org Mode">Literate Programming with Org Mode</h1>
+  <span class="subtitle">Broke: Generate docs from code | Woke: Generate code from docs 😎</span>
+</div>
+<div class="byline">
+  <div class="container">
+    <p>By <a href="https://twitter.com/chamooktweets">Adam Guest</a> - 12 August 2022</p>
+  </div>
+</div>
+</header>
+</div>
+<div id="content" class="container">
+<p>
+Recently I've been writing <a href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/overview?tabs=bicep">bicep</a> for provisioning Azure services, the intent was to create a reusable template that could provision
+different services for different projects. Having never worked with bicep before I wanted to ensure I wrote good documentation that I
+could refer back to later, and decided to try out <a href="https://orgmode.org/">Org Mode</a> for its literate programming features to ensure that I kept the documentation
+in sync with the code.
+</p>
+
+<div id="outline-container-orgaa81c72" class="outline-2">
+<h2 id="orgaa81c72">Structured Code</h2>
+<div class="outline-text-2" id="text-orgaa81c72">
+<p>
+Basic org syntax is a lot like markdown but using different special characters (<code>/</code> for italics instead of <code>_</code> etc) but a more significant
+difference is the approach of using structural blocks for source code. Markdown uses <code>```</code> to denote a block of code, and some
+processors (like github's) can take a language argument (e.g. <code>``` csharp</code>) to provide syntax highlighting. Org uses comparitively
+clunky looking <code>#+begin_src</code> and <code>#+end_src</code> markers to surround code blocks, but it provides a much richer feature set for them.
+</p>
+
+<p>
+Code blocks take a language parameter just like the one some markdown processors provide, but within emacs this provides access to
+features from the language mode that you would use when editing a file of that type like syntax highlighting and autocompletion. 😀
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgdac1fb3" class="outline-2">
+<h2 id="orgdac1fb3">Execution</h2>
+<div class="outline-text-2" id="text-orgdac1fb3">
+<p>
+For some languages, it is also possible to execute the code directly inside the org file and have any output placed in a results block
+similar to <a href="https://jupyter.org/try-jupyter/lab/">Jupyter Notebooks</a>.
+</p>
+
+<p>
+A javascript block with this header line:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-org">#+begin_src js :results output replace :wrap src json
+</pre>
+</div>
+
+<p>
+And this javascript code:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js" id="orgf76e5d0">fetch<span style="color: #8b0000;">(</span><span style="color: #61CE3C;">'https://jsonplaceholder.typicode.com/todos/2'</span><span style="color: #8b0000;">)</span>
+  .then<span style="color: #8b0000;">(</span>x =&gt; x.json<span style="color: #006400;">()</span><span style="color: #8b0000;">)</span>
+  .then<span style="color: #8b0000;">(</span>x =&gt; console.log<span style="color: #006400;">(</span>x<span style="color: #006400;">)</span><span style="color: #8b0000;">)</span>;
+</pre>
+</div>
+
+<p>
+Executing that code block will output a results section that wraps the result in a json source block:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-json"><span style="color: #8b0000;">{</span>
+  userId: <span style="color: #96CBFE;">1</span>,
+  id: <span style="color: #96CBFE;">2</span>,
+  title: 'quis ut nam facilis et officia qui',
+  completed: <span style="color: #96CBFE;">false</span>
+<span style="color: #8b0000;">}</span>
+</pre>
+</div>
+
+
+<p>
+But code in org files isn't limited to staying within the file, with <code>org-babel-tangle</code> you can create code files from your documentation.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orga702c4c" class="outline-2">
+<h2 id="orga702c4c">Tangling</h2>
+<div class="outline-text-2" id="text-orga702c4c">
+<p>
+By adding <code>:tangle</code> and a filename to the start of a block, you can output code from an org documentation file into a file that only
+contains code, and can even be part of a whole coding project.
+</p>
+
+<p>
+Using <code>M-x org-babel-tangle</code> from within emacs on a file containing a block like this:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-org">
+<span style="color: #008ED1; background-color: #2b2b2b;">#+begin_src csharp :tangle SampleClass.cs</span>
+<span style="color: #4c83ff; background-color: #383838;">namespace</span><span style="background-color: #383838;"> </span><span style="color: #ff69b4; background-color: #383838;">Chamook</span><span style="background-color: #383838;">.</span><span style="color: #ff69b4; background-color: #383838;">Sample</span><span style="background-color: #383838;">;</span>
+
+<span style="color: #4c83ff; background-color: #383838;">public</span><span style="background-color: #383838;"> </span><span style="color: #4c83ff; background-color: #383838;">sealed</span><span style="background-color: #383838;"> </span><span style="color: #4c83ff; background-color: #383838;">class</span><span style="background-color: #383838;"> </span><span style="color: #afd8af; background-color: #383838;">SampleClass</span>
+<span style="color: #8b0000; background-color: #383838;">{</span>
+<span style="background-color: #383838;">    </span><span style="color: #4c83ff; background-color: #383838;">public</span><span style="background-color: #383838;"> </span><span style="color: #afd8af; background-color: #383838;">string</span><span style="background-color: #383838;"> </span><span style="color: #ff69b4; background-color: #383838;">Name</span><span style="background-color: #383838;"> </span><span style="color: #006400; background-color: #383838;">{</span><span style="background-color: #383838;"> </span><span style="color: #4c83ff; background-color: #383838;">get</span><span style="background-color: #383838;">; </span><span style="color: #006400; background-color: #383838;">}</span>
+
+<span style="background-color: #383838;">    </span><span style="color: #4c83ff; background-color: #383838;">public</span><span style="background-color: #383838;"> </span><span style="color: #afd8af; background-color: #383838;">void</span><span style="background-color: #383838;"> </span><span style="color: #ff1493; background-color: #383838;">Greet</span><span style="color: #006400; background-color: #383838;">()</span><span style="background-color: #383838;"> =&gt; Console.</span><span style="color: #ff1493; background-color: #383838;">WriteLine</span><span style="color: #006400; background-color: #383838;">(</span><span style="background-color: #383838;">$</span><span style="color: #61CE3C; background-color: #383838;">"Hello, {Name}"</span><span style="color: #006400; background-color: #383838;">)</span><span style="background-color: #383838;">;</span>
+<span style="color: #8b0000; background-color: #383838;">}</span>
+
+<span style="color: #008ED1; background-color: #2b2b2b;">#+end_src</span>
+</pre>
+</div>
+
+<p>
+Will output a file called <code>SampleClass.cs</code> with the code as contents:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-csharp"><span style="color: #4c83ff;">namespace</span> <span style="color: #ff69b4;">Chamook</span>.<span style="color: #ff69b4;">Sample</span>;
+
+<span style="color: #4c83ff;">public</span> <span style="color: #4c83ff;">sealed</span> <span style="color: #4c83ff;">class</span> <span style="color: #afd8af;">SampleClass</span>
+<span style="color: #8b0000;">{</span>
+    <span style="color: #4c83ff;">public</span> <span style="color: #afd8af;">string</span> <span style="color: #ff69b4;">Name</span> <span style="color: #006400;">{</span> <span style="color: #4c83ff;">get</span>; <span style="color: #006400;">}</span>
+
+    <span style="color: #4c83ff;">public</span> <span style="color: #afd8af;">void</span> <span style="color: #ff1493;">Greet</span><span style="color: #006400;">()</span> =&gt; Console.<span style="color: #ff1493;">WriteLine</span><span style="color: #006400;">(</span>$<span style="color: #61CE3C;">"Hello, {Name}"</span><span style="color: #006400;">)</span>;
+<span style="color: #8b0000;">}</span>
+</pre>
+</div>
+
+<p>
+This can be broken up across several source blocks and tangled to a single file:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-org">First declare a namespace:
+
+<span style="color: #008ED1; background-color: #2b2b2b;">#+begin_src csharp :tangle SampleClass.cs</span>
+<span style="color: #4c83ff; background-color: #383838;">namespace</span><span style="background-color: #383838;"> </span><span style="color: #ff69b4; background-color: #383838;">Chamook</span><span style="background-color: #383838;">.</span><span style="color: #ff69b4; background-color: #383838;">Sample</span><span style="background-color: #383838;">;</span>
+<span style="color: #008ED1; background-color: #2b2b2b;">#+end_src</span>
+
+Then declare the class:
+<span style="color: #008ED1; background-color: #2b2b2b;">#+begin_src csharp :tangle SampleClass.cs</span>
+<span style="color: #4c83ff; background-color: #383838;">public</span><span style="background-color: #383838;"> </span><span style="color: #4c83ff; background-color: #383838;">sealed</span><span style="background-color: #383838;"> </span><span style="color: #4c83ff; background-color: #383838;">class</span><span style="background-color: #383838;"> </span><span style="color: #afd8af; background-color: #383838;">SampleClass</span>
+<span style="color: #8b0000; background-color: #383838;">{</span>
+<span style="background-color: #383838;">    </span><span style="color: #4c83ff; background-color: #383838;">public</span><span style="background-color: #383838;"> </span><span style="color: #afd8af; background-color: #383838;">string</span><span style="background-color: #383838;"> </span><span style="color: #ff69b4; background-color: #383838;">Name</span><span style="background-color: #383838;"> </span><span style="color: #006400; background-color: #383838;">{</span><span style="background-color: #383838;"> </span><span style="color: #4c83ff; background-color: #383838;">get</span><span style="background-color: #383838;">; </span><span style="color: #006400; background-color: #383838;">}</span>
+
+<span style="background-color: #383838;">    </span><span style="color: #4c83ff; background-color: #383838;">public</span><span style="background-color: #383838;"> </span><span style="color: #afd8af; background-color: #383838;">void</span><span style="background-color: #383838;"> </span><span style="color: #ff1493; background-color: #383838;">Greet</span><span style="color: #006400; background-color: #383838;">()</span><span style="background-color: #383838;"> =&gt; Console.</span><span style="color: #ff1493; background-color: #383838;">WriteLine</span><span style="color: #006400; background-color: #383838;">(</span><span style="background-color: #383838;">$</span><span style="color: #61CE3C; background-color: #383838;">"Hello, {Name}"</span><span style="color: #006400; background-color: #383838;">)</span><span style="background-color: #383838;">;</span>
+<span style="color: #8b0000; background-color: #383838;">}</span>
+<span style="color: #008ED1; background-color: #2b2b2b;">#+end_src</span>
+</pre>
+</div>
+
+<p>
+Will tangle to a single <code>SampleClass.cs</code> file containing code from all the source blocks that tangle to it in the order that they appear in the
+org file.
+</p>
+
+<p>
+One org file can also tangle to multiple code files by specifying different filenames in code blocks:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-org">Namespace for my C# file:
+
+<span style="color: #008ED1; background-color: #2b2b2b;">#+begin_src csharp :tangle SampleClass.cs</span>
+<span style="color: #4c83ff; background-color: #383838;">namespace</span><span style="background-color: #383838;"> </span><span style="color: #ff69b4; background-color: #383838;">Chamook</span><span style="background-color: #383838;">.</span><span style="color: #ff69b4; background-color: #383838;">Sample</span><span style="background-color: #383838;">;</span>
+<span style="color: #008ED1; background-color: #2b2b2b;">#+end_src</span>
+
+Oh that reminds me of a funny javascript story:
+
+<span style="color: #008ED1; background-color: #2b2b2b;">#+begin_src js :tangle hahaha.js</span>
+<span style="color: #4c83ff; background-color: #383838;">function</span><span style="background-color: #383838;"> </span><span style="color: #ff1493; background-color: #383838;">pleaseLaugh</span><span style="color: #8b0000; background-color: #383838;">()</span><span style="background-color: #383838;"> </span><span style="color: #8b0000; background-color: #383838;">{</span>
+<span style="background-color: #383838;">  </span><span style="color: #4c83ff; background-color: #383838;">return</span><span style="background-color: #383838;"> </span><span style="color: #61CE3C; background-color: #383838;">"hahaha"</span><span style="background-color: #383838;">;</span>
+<span style="color: #8b0000; background-color: #383838;">}</span>
+<span style="color: #008ED1; background-color: #2b2b2b;">#+end_src</span>
+
+Then declare a class in the C# file:
+
+<span style="color: #008ED1; background-color: #2b2b2b;">#+begin_src csharp :tangle SampleClass.cs</span>
+<span style="color: #4c83ff; background-color: #383838;">public</span><span style="background-color: #383838;"> </span><span style="color: #4c83ff; background-color: #383838;">sealed</span><span style="background-color: #383838;"> </span><span style="color: #4c83ff; background-color: #383838;">class</span><span style="background-color: #383838;"> </span><span style="color: #afd8af; background-color: #383838;">SampleClass</span>
+<span style="color: #8b0000; background-color: #383838;">{</span>
+<span style="background-color: #383838;">    </span><span style="color: #4c83ff; background-color: #383838;">public</span><span style="background-color: #383838;"> </span><span style="color: #afd8af; background-color: #383838;">string</span><span style="background-color: #383838;"> </span><span style="color: #ff69b4; background-color: #383838;">Name</span><span style="background-color: #383838;"> </span><span style="color: #006400; background-color: #383838;">{</span><span style="background-color: #383838;"> </span><span style="color: #4c83ff; background-color: #383838;">get</span><span style="background-color: #383838;">; </span><span style="color: #006400; background-color: #383838;">}</span>
+
+<span style="background-color: #383838;">    </span><span style="color: #4c83ff; background-color: #383838;">public</span><span style="background-color: #383838;"> </span><span style="color: #afd8af; background-color: #383838;">void</span><span style="background-color: #383838;"> </span><span style="color: #ff1493; background-color: #383838;">Greet</span><span style="color: #006400; background-color: #383838;">()</span><span style="background-color: #383838;"> =&gt; Console.</span><span style="color: #ff1493; background-color: #383838;">WriteLine</span><span style="color: #006400; background-color: #383838;">(</span><span style="background-color: #383838;">$</span><span style="color: #61CE3C; background-color: #383838;">"Hello, {Name}"</span><span style="color: #006400; background-color: #383838;">)</span><span style="background-color: #383838;">;</span>
+<span style="color: #8b0000; background-color: #383838;">}</span>
+<span style="color: #008ED1; background-color: #2b2b2b;">#+end_src</span>
+</pre>
+</div>
+
+<p>
+Will output both the <code>.cs</code> and the <code>.js</code> files specified.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgaf8448d" class="outline-2">
+<h2 id="orgaf8448d">Conditional Tangling</h2>
+<div class="outline-text-2" id="text-orgaf8448d">
+<p>
+For the templates I was creating from an org file, I wanted to be able to pick and choose which parts were included rather than just
+outputting everything. Conveniently emacs can evaluate an emacs-lisp expression as part of the <code>:tangle</code> definition on a code block,
+meaning that I could check a condition and either return a filename or <code>"no"</code> which disables tangling for that block. The check
+could look at variables set within the org file, but as I was working on a template that other people might want to use I made it check
+if some dotfiles existed in the same directory:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-org">#+begin_src bicep :tangle (if (file-exists-p ".Config1") "infra/main.bicep" "no")
+</pre>
+</div>
+
+<p>
+This block will only be tangled with the <code>main.bicep</code> file if there is a file called <code>.Config1</code> in the same directory as the org file.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org528726a" class="outline-2">
+<h2 id="org528726a">Backfilling Values with Noweb</h2>
+<div class="outline-text-2" id="text-org528726a">
+<p>
+Building templates that were configurable in this way led to a scenario where sometimes I would need to include values in an earlier part of a
+bicep file only if a later block was tangled. Source blocks in org mode support using <a href="https://en.wikipedia.org/wiki/Noweb">noweb</a> style markup to include either the contents
+or the result of evaluating other blocks in the document, which provides a nice way of solving this problem.
+</p>
+
+<p>
+In the initial block that may need a value from later, I can enable noweb replacements by specifying <code>:noweb yes</code> and then add a
+reference to the later contents:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-org"><span style="color: #008ED1; background-color: #2b2b2b;">#+begin_src :noweb yes</span>
+<span style="text-decoration: underline;">&lt;&lt;maybe-from-later()&gt;&gt;</span>
+<span style="color: #008ED1; background-color: #2b2b2b;">#+end_src</span>
+</pre>
+</div>
+
+<p>
+Then later include a named block, that performs the check for the dotfile and returns a value if it is present, or an empty string otherwise:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-org">#name: maybe-from-later
+<span style="color: #008ED1; background-color: #2b2b2b;">#+begin_src emacs-lisp :cache no</span>
+<span style="color: #8b0000; background-color: #383838;">(</span><span style="color: #4c83ff; background-color: #383838;">if</span><span style="background-color: #383838;"> </span><span style="color: #006400; background-color: #383838;">(</span><span style="background-color: #383838;">file-exists-p </span><span style="color: #61CE3C; background-color: #383838;">".config2"</span><span style="color: #006400; background-color: #383838;">)</span><span style="background-color: #383838;"> </span><span style="color: #61CE3C; background-color: #383838;">"// the file exists"</span><span style="background-color: #383838;"> </span><span style="color: #61CE3C; background-color: #383838;">""</span><span style="color: #8b0000; background-color: #383838;">)</span>
+<span style="color: #008ED1; background-color: #2b2b2b;">#+end_src</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org333ecb6" class="outline-2">
+<h2 id="org333ecb6">Tangling for the non-Emacs user</h2>
+<div class="outline-text-2" id="text-org333ecb6">
+<p>
+A template is less useful if it constrains people to use a specific editor (with a relatively steep learning curve) to be able to get any value from
+it, but fortunately Emacs can be called from the command line to tangle a file so I included a shell script with my template. (I actually tangled
+the shell script from the template itself 🤘):
+</p>
+
+<div class="org-src-container">
+<pre class="src src-org"><span style="color: #008ED1; background-color: #2b2b2b;">#+begin_src bash :tangle tangle.sh :shebang "#!/bin/bash"</span>
+<span style="background-color: #383838;">emacs --batch </span><span style="color: #61CE3C; background-color: #383838;">\</span>
+<span style="background-color: #383838;">      --eval </span><span style="color: #61CE3C; background-color: #383838;">"(require 'org)"</span><span style="background-color: #383838;"> </span><span style="color: #61CE3C; background-color: #383838;">\</span>
+<span style="background-color: #383838;">      --eval </span><span style="color: #61CE3C; background-color: #383838;">"(setq org-confirm-babel-evaluate nil)"</span><span style="background-color: #383838;"> </span><span style="color: #61CE3C; background-color: #383838;">\</span>
+<span style="background-color: #383838;">      --eval </span><span style="color: #61CE3C; background-color: #383838;">'(org-babel-tangle-file "file.org")'</span>
+<span style="color: #008ED1; background-color: #2b2b2b;">#+end_src</span>
+</pre>
+</div>
+
+<p>
+This passes several snippets of emacs-lisp for emacs to evaluate:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #8b0000;">(</span><span style="color: #4c83ff;">require</span> '<span style="color: #96CBFE;">org</span><span style="color: #8b0000;">)</span>
+</pre>
+</div>
+
+<p>
+First ensures that org-mode is loaded, then we edit the org-babel configuration slightly:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #8b0000;">(</span><span style="color: #4c83ff;">setq</span> org-confirm-babel-evaluate nil<span style="color: #8b0000;">)</span>
+</pre>
+</div>
+
+<p>
+This disables the prompt before evaluating each code block so that a user doesn't have to type <code>yes</code> for each block that is evaluated.
+With that config change in place it's just a matter to call the function that will actually tangle our org file and tell it which file to operate on:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #8b0000;">(</span>org-babel-tangle-file <span style="color: #61CE3C;">"file.org"</span><span style="color: #8b0000;">)</span>
+</pre>
+</div>
+
+<p>
+With this the org file is tangled and nobody had to open an emacs window or learn any keybindings 😅 
+</p>
+</div>
+</div>
+
+<div id="outline-container-orge03cc17" class="outline-2">
+<h2 id="orge03cc17">Exporting</h2>
+<div class="outline-text-2" id="text-orge03cc17">
+<p>
+After working with org files a bunch to create this template, I discovered that there is also a fairly customizable export functionality -
+by setting a few config values:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #8b0000;">(</span><span style="color: #4c83ff;">setq</span> org-html-doctype <span style="color: #61CE3C;">"html5"</span><span style="color: #8b0000;">)</span>
+<span style="color: #8b0000;">(</span><span style="color: #4c83ff;">setq</span> org-html-postamble-format '<span style="color: #006400;">(</span><span style="color: #ff1493;">(</span><span style="color: #61CE3C;">"en"</span> <span style="color: #61CE3C;">"&lt;footer class=\"page-footer\"&gt;</span>
+<span style="color: #61CE3C;">&lt;div class=\"container\"&gt;</span>
+<span style="color: #61CE3C;">  &lt;a href=\"../index.html\"&gt;&amp;lt;- M-x find-more-content&lt;/a&gt;</span>
+<span style="color: #61CE3C;">&lt;/div&gt;</span>
+<span style="color: #61CE3C;">&lt;/footer&gt;"</span><span style="color: #ff1493;">)</span><span style="color: #006400;">)</span><span style="color: #8b0000;">)</span>
+<span style="color: #8b0000;">(</span><span style="color: #4c83ff;">setq</span> org-html-postamble 't<span style="color: #8b0000;">)</span>
+<span style="color: #8b0000;">(</span><span style="color: #4c83ff;">setq</span> org-html-preamble-format '<span style="color: #006400;">(</span><span style="color: #ff1493;">(</span><span style="color: #61CE3C;">"en"</span> <span style="color: #61CE3C;">"&lt;header&gt;</span>
+<span style="color: #61CE3C;">&lt;div class=\"container\"&gt;</span>
+<span style="color: #61CE3C;">  &lt;h1 class=\"glitch-text\" data-text=\"%t\"&gt;%t&lt;/h1&gt;</span>
+<span style="color: #61CE3C;">  &lt;span class=\"subtitle\"&gt;%s&lt;/span&gt;</span>
+<span style="color: #61CE3C;">&lt;/div&gt;</span>
+<span style="color: #61CE3C;">&lt;div class=\"byline\"&gt;</span>
+<span style="color: #61CE3C;">  &lt;div class=\"container\"&gt;</span>
+<span style="color: #61CE3C;">    &lt;p&gt;By &lt;a href=\"https://twitter.com/chamooktweets\"&gt;Adam Guest&lt;/a&gt; - %d&lt;/p&gt;</span>
+<span style="color: #61CE3C;">  &lt;/div&gt;</span>
+<span style="color: #61CE3C;">&lt;/div&gt;</span>
+<span style="color: #61CE3C;">&lt;/header&gt;"</span><span style="color: #ff1493;">)</span><span style="color: #006400;">)</span><span style="color: #8b0000;">)</span>
+</pre>
+</div>
+
+<p>
+And adding some extra values to include in the html at the top of the document:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-org"><span style="color: #8B8989; font-style: italic;">#+options: toc:nil num:nil html-style:nil html5-fancy:'t title:nil exports:both</span>
+<span style="color: #8B8989; font-style: italic;">#+html_content_class: container</span>
+<span style="color: #8B8989; font-style: italic;">#+html_head: &lt;link rel="stylesheet" href="../style.css"&gt;</span>
+<span style="color: #8B8989; font-style: italic;">#+html_head: &lt;meta charset="utf-8"&gt;</span>
+<span style="color: #8B8989; font-style: italic;">#+html_head:&lt;meta http-equiv="X-UA-Compatible" content="IE=edge"&gt;</span>
+<span style="color: #8B8989; font-style: italic;">#+html_head:&lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;</span>
+<span style="color: #8B8989; font-style: italic;">#+html_head:&lt;link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png"&gt;</span>
+<span style="color: #8B8989; font-style: italic;">#+html_head:&lt;link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png"&gt;</span>
+<span style="color: #8B8989; font-style: italic;">#+html_head:&lt;link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png"&gt;</span>
+</pre>
+</div>
+
+<p>
+I can use <code>org-export-dispatch</code> to generate this html page 😍 
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<footer class="page-footer"><div class="container"><a href="../index.html">&lt;- M-x find-more-content</a></div></footer>
+</div>
+</body>
+</html>

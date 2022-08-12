@@ -1,0 +1,267 @@
+#+title: Literate Programming with Org Mode
+#+subtitle: Broke: Generate docs from code | Woke: Generate code from docs 😎
+#+date: 12 August 2022
+#+options: toc:nil num:nil html-style:nil html5-fancy:'t title:nil exports:both
+#+html_content_class: container
+#+html_head: <link rel="stylesheet" href="../style.css">
+#+html_head: <meta charset="utf-8">
+#+html_head:<meta http-equiv="X-UA-Compatible" content="IE=edge">
+#+html_head:<meta name="viewport" content="width=device-width, initial-scale=1">
+#+html_head:<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+#+html_head:<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+#+html_head:<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+
+Recently I've been writing [[https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/overview?tabs=bicep][bicep]] for provisioning Azure services, the intent was to create a reusable template that could provision
+different services for different projects. Having never worked with bicep before I wanted to ensure I wrote good documentation that I
+could refer back to later, and decided to try out [[https://orgmode.org/][Org Mode]] for its literate programming features to ensure that I kept the documentation
+in sync with the code.
+
+* Structured Code
+
+Basic org syntax is a lot like markdown but using different special characters (=/= for italics instead of =_= etc) but a more significant
+difference is the approach of using structural blocks for source code. Markdown uses =```= to denote a block of code, and some
+processors (like github's) can take a language argument (e.g. =``` csharp=) to provide syntax highlighting. Org uses comparitively
+clunky looking =#+begin_src= and =#+end_src= markers to surround code blocks, but it provides a much richer feature set for them.
+
+Code blocks take a language parameter just like the one some markdown processors provide, but within emacs this provides access to
+features from the language mode that you would use when editing a file of that type like syntax highlighting and autocompletion. 😀
+
+* Execution
+
+For some languages, it is also possible to execute the code directly inside the org file and have any output placed in a results block
+similar to [[https://jupyter.org/try-jupyter/lab/][Jupyter Notebooks]].
+
+A javascript block with this header line:
+
+#+begin_src org
+,#+begin_src js :results output replace :wrap src json
+#+end_src
+
+And this javascript code:
+
+#+name: js-sample
+#+begin_src js :results output replace :wrap src json :exports both
+fetch('https://jsonplaceholder.typicode.com/todos/2')
+  .then(x => x.json())
+  .then(x => console.log(x));
+#+end_src
+
+Executing that code block will output a results section that wraps the result in a json source block:
+
+#+RESULTS: js-sample
+#+begin_src json
+{
+  userId: 1,
+  id: 2,
+  title: 'quis ut nam facilis et officia qui',
+  completed: false
+}
+#+end_src
+
+
+But code in org files isn't limited to staying within the file, with =org-babel-tangle= you can create code files from your documentation.
+
+* Tangling
+
+By adding =:tangle= and a filename to the start of a block, you can output code from an org documentation file into a file that only
+contains code, and can even be part of a whole coding project.
+
+Using =M-x org-babel-tangle= from within emacs on a file containing a block like this:
+
+#+begin_src org
+
+,#+begin_src csharp :tangle SampleClass.cs
+namespace Chamook.Sample;
+
+public sealed class SampleClass
+{
+    public string Name { get; }
+
+    public void Greet() => Console.WriteLine($"Hello, {Name}");
+}
+
+,#+end_src
+#+end_src
+
+Will output a file called =SampleClass.cs= with the code as contents:
+
+#+begin_src csharp
+namespace Chamook.Sample;
+
+public sealed class SampleClass
+{
+    public string Name { get; }
+
+    public void Greet() => Console.WriteLine($"Hello, {Name}");
+}
+#+end_src
+
+This can be broken up across several source blocks and tangled to a single file:
+
+#+begin_src org
+First declare a namespace:
+
+,#+begin_src csharp :tangle SampleClass.cs
+namespace Chamook.Sample;
+,#+end_src
+
+Then declare the class:
+,#+begin_src csharp :tangle SampleClass.cs
+public sealed class SampleClass
+{
+    public string Name { get; }
+
+    public void Greet() => Console.WriteLine($"Hello, {Name}");
+}
+,#+end_src
+#+end_src
+
+Will tangle to a single =SampleClass.cs= file containing code from all the source blocks that tangle to it in the order that they appear in the
+org file.
+
+One org file can also tangle to multiple code files by specifying different filenames in code blocks:
+
+#+begin_src org
+Namespace for my C# file:
+
+,#+begin_src csharp :tangle SampleClass.cs
+namespace Chamook.Sample;
+,#+end_src
+
+Oh that reminds me of a funny javascript story:
+
+,#+begin_src js :tangle hahaha.js
+function pleaseLaugh() {
+  return "hahaha";
+}
+,#+end_src
+
+Then declare a class in the C# file:
+
+,#+begin_src csharp :tangle SampleClass.cs
+public sealed class SampleClass
+{
+    public string Name { get; }
+
+    public void Greet() => Console.WriteLine($"Hello, {Name}");
+}
+,#+end_src
+#+end_src
+
+Will output both the =.cs= and the =.js= files specified.
+
+* Conditional Tangling
+
+For the templates I was creating from an org file, I wanted to be able to pick and choose which parts were included rather than just
+outputting everything. Conveniently emacs can evaluate an emacs-lisp expression as part of the =:tangle= definition on a code block,
+meaning that I could check a condition and either return a filename or ="no"= which disables tangling for that block. The check
+could look at variables set within the org file, but as I was working on a template that other people might want to use I made it check
+if some dotfiles existed in the same directory:
+
+#+begin_src org
+,#+begin_src bicep :tangle (if (file-exists-p ".Config1") "infra/main.bicep" "no")
+#+end_src
+
+This block will only be tangled with the =main.bicep= file if there is a file called =.Config1= in the same directory as the org file.
+
+* Backfilling Values with Noweb
+
+Building templates that were configurable in this way led to a scenario where sometimes I would need to include values in an earlier part of a
+bicep file only if a later block was tangled. Source blocks in org mode support using [[https://en.wikipedia.org/wiki/Noweb][noweb]] style markup to include either the contents
+or the result of evaluating other blocks in the document, which provides a nice way of solving this problem.
+
+In the initial block that may need a value from later, I can enable noweb replacements by specifying =:noweb yes= and then add a
+reference to the later contents:
+
+#+begin_src org
+,#+begin_src :noweb yes
+<<maybe-from-later()>>
+,#+end_src
+#+end_src
+
+Then later include a named block, that performs the check for the dotfile and returns a value if it is present, or an empty string otherwise:
+
+#+begin_src org
+#name: maybe-from-later
+,#+begin_src emacs-lisp :cache no
+(if (file-exists-p ".config2") "// the file exists" "")
+,#+end_src
+#+end_src
+
+* Tangling for the non-Emacs user
+
+A template is less useful if it constrains people to use a specific editor (with a relatively steep learning curve) to be able to get any value from
+it, but fortunately Emacs can be called from the command line to tangle a file so I included a shell script with my template. (I actually tangled
+the shell script from the template itself 🤘):
+
+#+begin_src org
+,#+begin_src bash :tangle tangle.sh :shebang "#!/bin/bash"
+emacs --batch \
+      --eval "(require 'org)" \
+      --eval "(setq org-confirm-babel-evaluate nil)" \
+      --eval '(org-babel-tangle-file "file.org")'
+,#+end_src
+#+end_src
+
+This passes several snippets of emacs-lisp for emacs to evaluate:
+
+#+begin_src emacs-lisp
+(require 'org)
+#+end_src
+
+First ensures that org-mode is loaded, then we edit the org-babel configuration slightly:
+
+#+begin_src emacs-lisp
+(setq org-confirm-babel-evaluate nil)
+#+end_src
+
+This disables the prompt before evaluating each code block so that a user doesn't have to type =yes= for each block that is evaluated.
+With that config change in place it's just a matter to call the function that will actually tangle our org file and tell it which file to operate on:
+
+#+begin_src emacs-lisp
+(org-babel-tangle-file "file.org")
+#+end_src
+
+With this the org file is tangled and nobody had to open an emacs window or learn any keybindings 😅 
+
+* Exporting
+
+After working with org files a bunch to create this template, I discovered that there is also a fairly customizable export functionality -
+by setting a few config values:
+
+#+begin_src emacs-lisp
+(setq org-html-doctype "html5")
+(setq org-html-postamble-format '(("en" "<footer class=\"page-footer\">
+<div class=\"container\">
+  <a href=\"../index.html\">&lt;- M-x find-more-content</a>
+</div>
+</footer>")))
+(setq org-html-postamble 't)
+(setq org-html-preamble-format '(("en" "<header>
+<div class=\"container\">
+  <h1 class=\"glitch-text\" data-text=\"%t\">%t</h1>
+  <span class=\"subtitle\">%s</span>
+</div>
+<div class=\"byline\">
+  <div class=\"container\">
+    <p>By <a href=\"https://twitter.com/chamooktweets\">Adam Guest</a> - %d</p>
+  </div>
+</div>
+</header>")))
+#+end_src
+
+And adding some extra values to include in the html at the top of the document:
+
+#+begin_src org
+#+options: toc:nil num:nil html-style:nil html5-fancy:'t title:nil exports:both
+#+html_content_class: container
+#+html_head: <link rel="stylesheet" href="../style.css">
+#+html_head: <meta charset="utf-8">
+#+html_head:<meta http-equiv="X-UA-Compatible" content="IE=edge">
+#+html_head:<meta name="viewport" content="width=device-width, initial-scale=1">
+#+html_head:<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+#+html_head:<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+#+html_head:<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+#+end_src
+
+I can use =org-export-dispatch= to generate this html page 😍 

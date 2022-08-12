@@ -283,10 +283,10 @@ h2, h3 {
     }
 }
 
-.article-page {
+.article-page, #preamble {
     padding-top: 6rem;
 }
-.article-page h1 {
+.article-page h1, :not(.frontpage) h1 {
     text-transform: uppercase;
     font-weight: 600;
     color: var(--green);
@@ -294,12 +294,12 @@ h2, h3 {
     padding: 0;
 }
 
-.article-page span.subtitle {
+.article-page span.subtitle, :not(.frontpage) span.subtitle {
     color: var(--green);
     font-weight: 100;
 }
 
-.article-page .byline {
+.article-page .byline, :not(.frontpage) .byline {
     filter: brightness(80%);
     font-size: 1rem;
 }
@@ -566,8 +566,8 @@ article>footer {
 }
 
 /* code highlights */
-.highlight { margin: 0;}
-.highlight pre {
+.org-src-container, .highlight { margin: 0;}
+.org-src-container, .highlight pre {
     background-color: #272822;
     font-family: var(--code-font);
     padding: 1rem;
@@ -800,15 +800,15 @@ article>footer {
     text-shadow: 2.6208764473832513px 0 1px rgba(0,30,255,0.5), -2.6208764473832513px 0 1px rgba(255,0,80,0.3), 0 0 3px;
   }
 }
-.highlight pre, .datebox, .flicker {
+.org-src-container, .highlight pre, .datebox, .flicker {
   animation: textShadow 1.6s infinite;
 }
 
-.highlight pre:hover, .flicker:hover {
+.org-src-container:hover, .highlight pre:hover, .flicker:hover {
     animation: none;
 }
 
-.highlight pre:hover::before, .flicker:hover::before { display: none; }
-.highlight pre:hover::after, .flicker:hover::after { display:none; }
+.org-src-container:hover::before, .highlight pre:hover::before, .flicker:hover::before { display: none; }
+.org-src-container:hover::after, .highlight pre:hover::after, .flicker:hover::after { display:none; }
 
 
