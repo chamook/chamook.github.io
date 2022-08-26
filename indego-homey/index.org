@@ -1,0 +1,477 @@
+#+title: Using Indego Robot Mowers from Homey
+#+subtitle: Calling an HTTP API with HomeyScript
+#+date: 26 August 2022
+#+options: toc:nil num:nil html-style:nil html5-fancy:'t title:nil exports:both
+#+html_content_class: container
+#+html_head: <link rel="stylesheet" href="../style.css">
+#+html_head: <meta charset="utf-8">
+#+html_head:<meta http-equiv="X-UA-Compatible" content="IE=edge">
+#+html_head:<meta name="viewport" content="width=device-width, initial-scale=1">
+#+html_head:<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+#+html_head:<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+#+html_head:<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+#+html_head:<meta property="og:url" content="https://chamook.lol/indego-homey/" />
+#+html_head:<meta property="og:image" content="https://chamook.lol/indego-homey/card.png" />
+#+html_head:<meta property="og:type" content="article" />
+#+html_head:<meta property="article:published_time" content="2022-08-26T00:00:00+00:00" />
+#+html_head:<meta name="twitter:card" content="summary_large_image" />
+#+html_head:<meta property="twitter:image" content="https://chamook.lol/indego-homey/card.png" />
+#+html_head:<meta property="twitter:title" content="Using Indego Robot Mowers from Homey" />
+#+html_head:<meta property="twitter:description" content="Calling an HTTP API with HomeyScript" />
+
+My brother-in-law has a [[https://www.bosch-diy.com/dk/da/haveredskaber/robotplaeneklippere][Bosch Indego]] robot mower that he wants to control via [[https://homey.app/][Homey]]. There was no
+app readily available, but there is an API available that has several open source clients. I helped him create
+some blocks of [[https://homey.app/en-us/app/com.athom.homeyscript/HomeyScript/][HomeyScript]] to call the API and integrate the mower into the rest of his smart home. The code
+here leans heavily on the work already done in the [[https://github.com/zazaz-de/iot-device-bosch-indego-controller][Java Controller Application]] and in the
+[[https://pypi.org/project/pyIndego/][pyIndego Python Library]], especially the [[https://github.com/zazaz-de/iot-device-bosch-indego-controller/blob/master/PROTOCOL.md][documentation of the protocol]].
+
+* Authentication
+
+Most requests in the API require a =contextId= value, and to get one of those we first need to make a
+=POST= request to the =/authenticate= endpoint providing some details about the client as well as
+a =Basic= authentication token.
+
+The authentication token is built by base64 encoding a string comprised of your username and password
+separated by a colon. This can be done conveniently in most programming languages, such as javascript:
+
+#+name: base-64-encode-token
+#+begin_src js :results value  replace :wrap src :exports both
+return btoa("username@email.com:secret-password");
+#+end_src
+
+As is, this will output the following (but don't forget to use your actual username and password if you want
+to connect to the API for real):
+
+#+RESULTS: base-64-encode-token
+#+begin_src
+dXNlcm5hbWVAZW1haWwuY29tOnNlY3JldC1wYXNzd29yZA==
+#+end_src
+
+(Note that the above code sample won't actually work in HomeyScript, so you'll need to use a different approach
+if you want to generate the token as part of that)
+
+With the token generated we can get a =contextId= from the =/authenticate= endpoint:
+
+#+name:  authenticate-http
+#+begin_src http :noweb yes :results value replace :wrap src http
+POST https://api.indego.iot.bosch-si.com/api/v1/authenticate
+Authorization: Basic <<base-64-encode-token()>>
+Content-Type: application/json
+
+{
+    "accept_tc_id":"202012",
+    "device": "",
+    "os_type": "Android",
+    "os_version": "4.0",
+    "dvc_manuf": "unknown",
+    "dvc_type": "unknown"
+}
+#+end_src
+
+The token generated previously is provided in the =Authorization= header, while we can use sample data to
+populate most of the fields in the request. It is worth noting that the =accept_tc_id= field value will likely
+need to be updated in the future if a new revision of the terms and conditions for the API are released.
+
+#+begin_src http
+HTTP/1.1 200 
+Content-Type: application/json
+
+{
+  "contextId" : "'3f2a9e8c-93cb-402e-a200-e325859f3ffe",
+  "userId" : "0a86dc31-7136-4009-9ef6-61ac4cab696e",
+  "alm_sn" : "000000000"
+}
+#+end_src
+
+#+name: context-id
+#+begin_src bash :exports none :noweb yes :results output
+# curl -i -H Content-Type\:\ application/json -H Authorization\:\ Basic\ <<base-64-encode-token()>> -XPOST https\://api.indego.iot.bosch-si.com/api/v1/authenticate -d \{'
+# '\ \ \ \ \"accept_tc_id\"\:\"202012\"\,'
+# '\ \ \ \ \"device\"\:\ \"\"\,'
+# '\ \ \ \ \"os_type\"\:\ \"Android\"\,'
+# '\ \ \ \ \"os_version\"\:\ \"4.0\"\,'
+# '\ \ \ \ \"dvc_manuf\"\:\ \"unknown\"\,'
+# '\ \ \ \ \"dvc_type\"\:\ \"unknown\"'
+# '\}'
+# ''
+# ' | tail -n 6 | jq '.contextId' | tr -d '"' | tr -d '\n'
+
+echo '3f2a9e8c-93cb-402e-a200-e325859f3ffe' | tr -d '\n'
+#+end_src
+
+#+RESULTS: context-id
+: 3f2a9e8c-93cb-402e-a200-e325859f3ffe
+
+This provides us with the =contextId= that is needed to make other requests.
+
+Before making other requests we can make this in a HomeyScript function:
+
+#+begin_src js
+// pull values from the flow editor
+const user = args[0];
+const pwd = args[1];
+
+// btoa isn't available :(
+const buffer = Buffer.from(user + ':' + pwd);
+const headerData = buffer.toString('base64');
+const authHeader = 'Basic ' + headerData;
+
+const authRequestBody = {
+    accept_tc_id: "202012",
+    device: "",
+    os_type: "Android",
+    os_version: "4.0",
+    dvc_manuf: "unknown",
+    dvc_type: "unknown"
+};
+
+const result = await fetch('https://api.indego.iot.bosch-si.com/api/v1/authenticate', {
+    method: 'POST',
+    body: JSON.stringify(authRequestBody),
+    headers: {
+        'Authorization': authHeader,
+        'Content-Type': 'application/json'
+    }
+});
+
+// fail for any error and return any error message we were given
+if (!result.ok) {
+    throw new Error(result.statusText);
+}
+
+const body = await result.json();
+
+// return just the context id because we don't care about the other values
+return body.contextId;
+#+end_src
+
+The two =const= values for =user= and =pwd=  should be provided from the flow editor, and this will output
+the =contextId= as a text value, that can then be passed to another function to do something.
+
+* Get Available Devices
+
+If you already know the serial number for your mower, you can skip this step and just use that to work with it
+directly. If you don't know the serial number or you have multiple mowers that you want to work with, there
+is an API endpoint that will list all the available devices:
+
+#+begin_src http :noweb yes
+GET https://api.indego.iot.bosch-si.com/api/v1/alms/
+x-im-context-id: <<context-id()>>
+#+end_src
+
+Which will give a list containing the serial number and status code for the mowers connected to the account:
+
+#+begin_src http
+HTTP/1.1 200
+Content-Type: application/json
+
+[ {
+  "alm_sn" : "000000000",
+  "alm_status" : 258
+} ]
+#+end_src
+
+The serial number is then used to get more detailed information or to control the mower.
+
+* Get Information About The Mower
+
+Now we have the =contextId= and the serial number of the mower we want to work with, we can make
+two different calls to get information about the mower.
+
+** State
+
+First =/state= will give information about the current state of the mower, we need to include the serial
+number of the mower we want to get information about in the url and the context id is provided as a header:
+
+#+name: get-state
+#+begin_src http :noweb yes :results replace :wrap src http
+GET https://api.indego.iot.bosch-si.com/api/v1/alms/{serial-number}/state
+x-im-context-id: <<context-id()>>
+#+end_src
+
+Which gives a response like this:
+
+#+begin_src http
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "state" : 258,
+  "enabled" : true,
+  "map_update_available" : true,
+  "mowed" : 98,
+  "mowmode" : 1,
+  "xPos" : 12,
+  "yPos" : 15,
+  "runtime" : {
+    "total" : {
+      "operate" : 100000,
+      "charge" : 30000
+    },
+    "session" : {
+      "operate" : 2,
+      "charge" : 0
+    }
+  },
+  "mapsvgcache_ts" : 1582506399367,
+  "svg_xPos" : 131,
+  "svg_yPos" : 111,
+  "config_change" : false,
+  "mow_trig" : false
+}
+#+end_src
+
+The status code can be looked up in the following table that is a combination of data found in both the projects
+that I linked at the start of this post and some extra details that my brother-in-law figured out:
+
+| Status Code | Description                                 |
+|-------------+---------------------------------------------|
+|           0 | Reading Status                              |
+|         101 | Docked                                      |
+|         257 | Charging                                    |
+|         258 | Docked                                      |
+|         259 | Docked - Software Update                    |
+|         260 | Charging (Ran out of power)                 |
+|         261 | Docked (Not 258 State)                      |
+|         262 | Docked - Loading Map                        |
+|         263 | Docked -Saving Map                          |
+|         266 | Leaving Dock                                |
+|         512 | Mowing                                      |
+|         513 | Mowing                                      |
+|         514 | Relocalising                                |
+|         515 | Loading map                                 |
+|         516 | Learning lawn                               |
+|         517 | Paused                                      |
+|         518 | Border cut                                  |
+|         519 | Idle in lawn                                |
+|         520 | Mowing                                      |
+|         521 | Mowing                                      |
+|         522 | Mowing                                      |
+|         523 | Spot Mow                                    |
+|         524 | Mow without Docking Station                 |
+|         525 | Mowing                                      |
+|         768 | Mowing                                      |
+|         769 | Returning to Dock                           |
+|         770 | Returning to Dock                           |
+|         771 | Returning to Dock - Battery low             |
+|         772 | Returning to dock - Calendar timeslot ended |
+|         773 | Returning to dock - Battery temp range      |
+|         774 | Returning to dock                           |
+|         775 | Returning to dock - Lawn complete           |
+|         776 | Returning to dock - Relocalising            |
+|        1005 | Mowing                                      |
+|        1025 | Diagnostic mode                             |
+|        1026 | End of life                                 |
+|        1027 | Service Requesting Status                   |
+|        1038 | Mower immobilized                           |
+|        1281 | Software update                             |
+|        1537 | Stuck                                       |
+|       64513 | Sleeping (Docked)                           |
+|       99999 | Offline                                     |
+
+** Operating Data
+
+And then =/operatingData= which can provide more detailed information for some properties, again
+including the serial number in the url and the context id as a header:
+
+#+name: operating-data
+#+begin_src http :noweb yes :results replace :wrap src http
+GET https://api.indego.iot.bosch-si.com/api/v1/alms/{serial number}/operatingData
+x-im-context-id: <<context-id()>>
+#+end_src
+
+In a response that looks like this:
+
+#+begin_src http
+HTTP/1.1 200 
+Content-Type: application/json
+
+{
+  "runtime" : {
+    "total" : {
+      "operate" : 100000,
+      "charge" : 35002
+    },
+    "session" : {
+      "operate" : 0,
+      "charge" : 0
+    }
+  },
+  "battery" : {
+    "voltage" : 7.0,
+    "cycles" : 0,
+    "discharge" : -0.1,
+    "ambient_temp" : 23,
+    "battery_temp" : 23,
+    "percent" : 70
+  },
+  "garden" : {
+    "id" : 1,
+    "name" : 1,
+    "signal_id" : 3,
+    "size" : 157,
+    "inner_bounds" : 0,
+    "cuts" : 0,
+    "runtime" : 100000,
+    "charge" : 35002,
+    "bumps" : 281,
+    "stops" : 90,
+    "last_mow" : 3,
+    "map_cell_size" : 120
+  },
+  "hmiKeys" : 12019
+}
+#+end_src
+
+** HomeyScript
+
+Knowing how these requests and responses look, we can make useful HomeyScript functions so we could
+display the information somewhere or include it as part of a flow.
+
+*** Get Status
+
+Query the state endpoint and return the status converted to a human readable string:
+
+#+begin_src js
+  // pull values from the flow editor
+  const contextId = args[0];
+  const serialNumber = args[1];
+
+  // get the current state
+  const result = await fetch('https://api.indego.iot.bosch-si.com/api/v1/alms/' + serialNumber + '/state', {
+      method: 'GET',
+      headers: { 'x-im-context-id': contextId }
+  });
+
+  if (!result.ok) {
+      throw new Error(result.statusText);
+  }
+
+  const body = await result.json();
+
+  // convert the status code to human readable text
+  switch(body.state) {
+      case 0: return "Reading status";
+      case 257: return "Charging";
+      case 258: return "Docked";
+      case 259: return "Docked - Software update";
+      case 260: return "Docked (Ran out of Power)";
+      case 261: return "Docked (not 258 State)";
+      case 262: return "Docked - Loading map";
+      case 263: return "Docked - Saving map";
+      case 266: return "Leaving dock";
+      case 513: return "Mowing";
+      case 514: return "Relocalising";
+      case 515: return "Loading map";
+      case 516: return "Learning lawn";
+      case 517: return "Paused";
+      case 518: return "Border cut";
+      case 519: return "Idle in lawn";
+      case 523: return "Spot Mow";
+      case 524: return "Mow without Docking Station";
+      case 769: return "Returning to Dock";
+      case 770: return "Returning to Dock";
+      case 771: return "Returning to Dock - Battery low";
+      case 772: return "Returning to dock - Calendar timeslot ended";
+      case 773: return "Returning to dock - Battery temp range";
+      case 774: return "Returning to dock";
+      case 775: return "Returning to dock - Lawn complete";
+      case 776: return "Returning to dock - Relocalising";
+      case 1005: return "Mowing";
+      case 1025: return "Diagnostic mode";
+      case 1026: return "End of life";
+      case 1027: return "Service Requesting Status";
+      case 1038: return "Mower immobilized";
+      case 1281: return "Software update";
+      case 1537: return "Stuck";
+      case 64513: return "Sleeping (Docked)";
+      case 99999: return "Offline";
+      default: throw new Error("Unknown state" + body.state);
+  }
+#+end_src
+
+*** Get Battery Percentage
+
+Query the operating data and return only the battery percentage value, this can easily be modified to return
+other values instead:
+
+#+begin_src js
+// pull values from the flow editor
+const contextId = args[0];
+const serialNumber = args[1];
+
+// get operating data
+const result = await fetch('https://api.indego.iot.bosch-si.com/api/v1/alms/' + serialNumber + '/operatingData', {
+    method: 'GET',
+    headers: { 'x-im-context-id': contextId }
+});
+
+if (!result.ok) {
+    throw new Error(result.statusText);
+}
+
+const body = await result.json();
+
+//return battery percentage
+return body.battery.percent;
+#+end_src
+
+* Control the Mower
+
+With code in place to authenticate with the API and retrieve information about the mower it is quite
+straightforward to control the mower. We just need to make a =PUT= request to the =/state= endpoint
+with the desired state command:
+
+#+begin_src http :noweb yes
+PUT https://api.indego.iot.bosch-si.com/api/v1/alms/{serial number}/state
+x-im-context-id: <<context-id()>>
+content-type: application/json
+
+{
+  "state": "mow"
+}
+#+end_src
+
+We can issue a =mow=  command to start the mower, and a =returnToDock= command to stop it and have it
+go back to the dock.
+
+In HomeyScript this can be done like so:
+
+#+begin_src js
+// pull values from the flow editor
+const contextId = args[0];
+const serialNumber = args[1];
+
+// send the request to the api
+const body = {
+    state: "mow"
+};
+
+const result = await fetch('https://api.indego.iot.bosch-si.com/api/v1/alms/' + serialNumber + '/state', {
+    method: 'PUT',
+    body: JSON.stringify(body),
+    headers: {
+        'x-im-context-id': contextId,
+        'Content-Type': 'application/json'
+    }
+});
+
+if (!result.ok) {
+    throw new Error(result.statusText);
+}
+
+// this doesn't return a body, so as long as it didn't fail it should be good
+#+end_src
+
+* Putting it together
+
+The code snippets in this post can be added to HomeyScript cards in the flow editor, and you can link up your
+robot mower to anything else controlled by Homey.
+
+The screenshot below shows examples of controlling the mower with a virtual device, and monitoring the
+battery percentage with a virtual sensor.
+
+#+ATTR_HTML: :alt A screenshot of the Homey flow editor showing some ways of integrating the code from this post
+[[./annotated-flow.png]]
+
+Happy Automating!

@@ -171,7 +171,7 @@ header>h2 {
     display: inline-block;
 }
 
-h2, h3 {
+h2, h3, h4 {
     text-transform: uppercase;
     font-weight: 100;
 }
@@ -812,3 +812,26 @@ article>footer {
 .org-src-container:hover::after, .highlight pre:hover::after, .flicker:hover::after { display:none; }
 
 
+table {
+    background: #272822;
+}
+
+thead tr {
+    background-color: var(--purple);
+}
+
+th{
+    text-transform: uppercase;
+    font-weight: 100;
+    text-align: left;
+    padding: 0.3rem;
+}
+
+tbody tr:nth-child(even) {
+    background: black;
+}
+
+td {
+    font-family: var(--code-font);
+    padding: 0.3rem;
+}

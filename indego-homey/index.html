@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 2022-08-26 Fri 19:33 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Using Indego Robot Mowers from Homey</title>
+<meta name="author" content="Adam" />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" href="../style.css">
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<meta property="og:url" content="https://chamook.lol/indego-homey/" />
+<meta property="og:image" content="https://chamook.lol/indego-homey/card.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-08-26T00:00:00+00:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="twitter:image" content="https://chamook.lol/indego-homey/card.png" />
+<meta property="twitter:title" content="Using Indego Robot Mowers from Homey" />
+<meta property="twitter:description" content="Calling an HTTP API with HomeyScript" />
+</head>
+<body>
+<div id="preamble" class="status">
+<header>
+<div class="container">
+  <h1 class="glitch-text" data-text="Using Indego Robot Mowers from Homey">Using Indego Robot Mowers from Homey</h1>
+  <span class="subtitle">Calling an HTTP API with HomeyScript</span>
+</div>
+<div class="byline">
+  <div class="container">
+    <p>By <a href="https://twitter.com/chamooktweets">Adam Guest</a> - 26 August 2022</p>
+  </div>
+</div>
+</header>
+</div>
+<div id="content" class="container">
+<p>
+My brother-in-law has a <a href="https://www.bosch-diy.com/dk/da/haveredskaber/robotplaeneklippere">Bosch Indego</a> robot mower that he wants to control via <a href="https://homey.app/">Homey</a>. There was no
+app readily available, but there is an API available that has several open source clients. I helped him create
+some blocks of <a href="https://homey.app/en-us/app/com.athom.homeyscript/HomeyScript/">HomeyScript</a> to call the API and integrate the mower into the rest of his smart home. The code
+here leans heavily on the work already done in the <a href="https://github.com/zazaz-de/iot-device-bosch-indego-controller">Java Controller Application</a> and in the
+<a href="https://pypi.org/project/pyIndego/">pyIndego Python Library</a>, especially the <a href="https://github.com/zazaz-de/iot-device-bosch-indego-controller/blob/master/PROTOCOL.md">documentation of the protocol</a>.
+</p>
+
+<div id="outline-container-org2eea2a4" class="outline-2">
+<h2 id="org2eea2a4">Authentication</h2>
+<div class="outline-text-2" id="text-org2eea2a4">
+<p>
+Most requests in the API require a <code>contextId</code> value, and to get one of those we first need to make a
+<code>POST</code> request to the <code>/authenticate</code> endpoint providing some details about the client as well as
+a <code>Basic</code> authentication token.
+</p>
+
+<p>
+The authentication token is built by base64 encoding a string comprised of your username and password
+separated by a colon. This can be done conveniently in most programming languages, such as javascript:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js" id="org299053b"><span style="color: #4c83ff;">return</span> btoa<span style="color: #8b0000;">(</span><span style="color: #61CE3C;">"username@email.com:secret-password"</span><span style="color: #8b0000;">)</span>;
+</pre>
+</div>
+
+<p>
+As is, this will output the following (but don't forget to use your actual username and password if you want
+to connect to the API for real):
+</p>
+
+<pre class="example">
+dXNlcm5hbWVAZW1haWwuY29tOnNlY3JldC1wYXNzd29yZA==
+</pre>
+
+<p>
+(Note that the above code sample won't actually work in HomeyScript, so you'll need to use a different approach
+if you want to generate the token as part of that)
+</p>
+
+<p>
+With the token generated we can get a <code>contextId</code> from the <code>/authenticate</code> endpoint:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-http" id="org2ee571d"><span style="color: #96CBFE;">POST</span> <span style="color: #ff1493;">https://api.indego.iot.bosch-si.com/api/v1/authenticate</span>
+<span style="color: #ff69b4;">Authorization</span><span style="color: #8B8989; font-style: italic;">:</span> <span style="color: #61CE3C;">Basic dXNlcm5hbWVAZW1haWwuY29tOnNlY3JldC1wYXNzd29yZA==</span>
+<span style="color: #ff69b4;">Content-Type</span><span style="color: #8B8989; font-style: italic;">:</span> <span style="color: #61CE3C;">application/json</span>
+
+<span style="color: #8B8989; font-style: italic;">{</span>
+    <span style="color: #61CE3C;">"accept_tc_id"</span><span style="color: #8B8989; font-style: italic;">:</span><span style="color: #61CE3C;">"202012"</span><span style="color: #8B8989; font-style: italic;">,</span>
+    <span style="color: #61CE3C;">"device"</span><span style="color: #8B8989; font-style: italic;">:</span> <span style="color: #61CE3C;">""</span><span style="color: #8B8989; font-style: italic;">,</span>
+    <span style="color: #61CE3C;">"os_type"</span><span style="color: #8B8989; font-style: italic;">:</span> <span style="color: #61CE3C;">"Android"</span><span style="color: #8B8989; font-style: italic;">,</span>
+    <span style="color: #61CE3C;">"os_version"</span><span style="color: #8B8989; font-style: italic;">:</span> <span style="color: #61CE3C;">"4.0"</span><span style="color: #8B8989; font-style: italic;">,</span>
+    <span style="color: #61CE3C;">"dvc_manuf"</span><span style="color: #8B8989; font-style: italic;">:</span> <span style="color: #61CE3C;">"unknown"</span><span style="color: #8B8989; font-style: italic;">,</span>
+    <span style="color: #61CE3C;">"dvc_type"</span><span style="color: #8B8989; font-style: italic;">:</span> <span style="color: #61CE3C;">"unknown"</span>
+<span style="color: #8B8989; font-style: italic;">}</span>
+</pre>
+</div>
+
+<p>
+The token generated previously is provided in the <code>Authorization</code> header, while we can use sample data to
+populate most of the fields in the request. It is worth noting that the <code>accept_tc_id</code> field value will likely
+need to be updated in the future if a new revision of the terms and conditions for the API are released.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-http">HTTP/1.1 200 
+<span style="color: #ff69b4;">Content-Type</span><span style="color: #8B8989; font-style: italic;">:</span> <span style="color: #61CE3C;">application/json</span>
+
+<span style="color: #8B8989; font-style: italic;">{</span>
+  <span style="color: #61CE3C;">"contextId"</span> <span style="color: #8B8989; font-style: italic;">:</span> <span style="color: #61CE3C;">"'3f2a9e8c-93cb-402e-a200-e325859f3ffe"</span><span style="color: #8B8989; font-style: italic;">,</span>
+  <span style="color: #61CE3C;">"userId"</span> <span style="color: #8B8989; font-style: italic;">:</span> <span style="color: #61CE3C;">"0a86dc31-7136-4009-9ef6-61ac4cab696e"</span><span style="color: #8B8989; font-style: italic;">,</span>
+  <span style="color: #61CE3C;">"alm_sn"</span> <span style="color: #8B8989; font-style: italic;">:</span> <span style="color: #61CE3C;">"000000000"</span>
+<span style="color: #8B8989; font-style: italic;">}</span>
+</pre>
+</div>
+
+<p>
+This provides us with the <code>contextId</code> that is needed to make other requests.
+</p>
+
+<p>
+Before making other requests we can make this in a HomeyScript function:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #8B8989; font-style: italic;">// </span><span style="color: #8B8989; font-style: italic;">pull values from the flow editor</span>
+<span style="color: #4c83ff;">const</span> <span style="color: #ff69b4;">user</span> = args<span style="color: #8b0000;">[</span><span style="color: #96CBFE;">0</span><span style="color: #8b0000;">]</span>;
+<span style="color: #4c83ff;">const</span> <span style="color: #ff69b4;">pwd</span> = args<span style="color: #8b0000;">[</span><span style="color: #96CBFE;">1</span><span style="color: #8b0000;">]</span>;
+
+<span style="color: #8B8989; font-style: italic;">// </span><span style="color: #8B8989; font-style: italic;">btoa isn't available :(</span>
+<span style="color: #4c83ff;">const</span> <span style="color: #ff69b4;">buffer</span> = Buffer.from<span style="color: #8b0000;">(</span>user + <span style="color: #61CE3C;">':'</span> + pwd<span style="color: #8b0000;">)</span>;
+<span style="color: #4c83ff;">const</span> <span style="color: #ff69b4;">headerData</span> = buffer.toString<span style="color: #8b0000;">(</span><span style="color: #61CE3C;">'base64'</span><span style="color: #8b0000;">)</span>;
+<span style="color: #4c83ff;">const</span> <span style="color: #ff69b4;">authHeader</span> = <span style="color: #61CE3C;">'Basic '</span> + headerData;
+
+<span style="color: #4c83ff;">const</span> <span style="color: #ff69b4;">authRequestBody</span> = <span style="color: #8b0000;">{</span>
+    accept_tc_id: <span style="color: #61CE3C;">"202012"</span>,
+    device: <span style="color: #61CE3C;">""</span>,
+    os_type: <span style="color: #61CE3C;">"Android"</span>,
+    os_version: <span style="color: #61CE3C;">"4.0"</span>,
+    dvc_manuf: <span style="color: #61CE3C;">"unknown"</span>,
+    dvc_type: <span style="color: #61CE3C;">"unknown"</span>
+<span style="color: #8b0000;">}</span>;
+
+<span style="color: #4c83ff;">const</span> <span style="color: #ff69b4;">result</span> = <span style="color: #4c83ff;">await</span> fetch<span style="color: #8b0000;">(</span><span style="color: #61CE3C;">'https://api.indego.iot.bosch-si.com/api/v1/authenticate'</span>, <span style="color: #006400;">{</span>
+    method: <span style="color: #61CE3C;">'POST'</span>,
+    body: JSON.stringify<span style="color: #ff1493;">(</span>authRequestBody<span style="color: #ff1493;">)</span>,
+    headers: <span style="color: #ff1493;">{</span>
+        <span style="color: #61CE3C;">'Authorization'</span>: authHeader,
+        <span style="color: #61CE3C;">'Content-Type'</span>: <span style="color: #61CE3C;">'application/json'</span>
+    <span style="color: #ff1493;">}</span>
+<span style="color: #006400;">}</span><span style="color: #8b0000;">)</span>;
+
+<span style="color: #8B8989; font-style: italic;">// </span><span style="color: #8B8989; font-style: italic;">fail for any error and return any error message we were given</span>
+<span style="color: #4c83ff;">if</span> <span style="color: #8b0000;">(</span>!result.ok<span style="color: #8b0000;">)</span> <span style="color: #8b0000;">{</span>
+    <span style="color: #4c83ff;">throw</span> <span style="color: #4c83ff;">new</span> <span style="color: #afd8af;">Error</span><span style="color: #006400;">(</span>result.statusText<span style="color: #006400;">)</span>;
+<span style="color: #8b0000;">}</span>
+
+<span style="color: #4c83ff;">const</span> <span style="color: #ff69b4;">body</span> = <span style="color: #4c83ff;">await</span> result.json<span style="color: #8b0000;">()</span>;
+
+<span style="color: #8B8989; font-style: italic;">// </span><span style="color: #8B8989; font-style: italic;">return just the context id because we don't care about the other values</span>
+<span style="color: #4c83ff;">return</span> body.contextId;
+</pre>
+</div>
+
+<p>
+The two <code>const</code> values for <code>user</code> and <code>pwd</code>  should be provided from the flow editor, and this will output
+the <code>contextId</code> as a text value, that can then be passed to another function to do something.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org16cb325" class="outline-2">
+<h2 id="org16cb325">Get Available Devices</h2>
+<div class="outline-text-2" id="text-org16cb325">
+<p>
+If you already know the serial number for your mower, you can skip this step and just use that to work with it
+directly. If you don't know the serial number or you have multiple mowers that you want to work with, there
+is an API endpoint that will list all the available devices:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-http"><span style="color: #96CBFE;">GET</span> <span style="color: #ff1493;">https://api.indego.iot.bosch-si.com/api/v1/alms/</span>
+x-im-context-id<span style="color: #8B8989; font-style: italic;">:</span> 3f2a9e8c-93cb-402e-a200-e325859f3ffe
+</pre>
+</div>
+
+<p>
+Which will give a list containing the serial number and status code for the mowers connected to the account:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-http">HTTP/1.1 200
+<span style="color: #ff69b4;">Content-Type</span><span style="color: #8B8989; font-style: italic;">:</span> <span style="color: #61CE3C;">application/json</span>
+
+<span style="color: #8B8989; font-style: italic;">[</span> <span style="color: #8B8989; font-style: italic;">{</span>
+  <span style="color: #61CE3C;">"alm_sn"</span> <span style="color: #8B8989; font-style: italic;">:</span> <span style="color: #61CE3C;">"000000000"</span><span style="color: #8B8989; font-style: italic;">,</span>
+  <span style="color: #61CE3C;">"alm_status"</span> <span style="color: #8B8989; font-style: italic;">:</span> 258
+<span style="color: #8B8989; font-style: italic;">}</span> <span style="color: #8B8989; font-style: italic;">]</span>
+</pre>
+</div>
+
+<p>
+The serial number is then used to get more detailed information or to control the mower.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgc165d77" class="outline-2">
+<h2 id="orgc165d77">Get Information About The Mower</h2>
+<div class="outline-text-2" id="text-orgc165d77">
+<p>
+Now we have the <code>contextId</code> and the serial number of the mower we want to work with, we can make
+two different calls to get information about the mower.
+</p>
+</div>
+
+<div id="outline-container-orgd3cb5af" class="outline-3">
+<h3 id="orgd3cb5af">State</h3>
+<div class="outline-text-3" id="text-orgd3cb5af">
+<p>
+First <code>/state</code> will give information about the current state of the mower, we need to include the serial
+number of the mower we want to get information about in the url and the context id is provided as a header:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-http" id="orgcf4a5f7"><span style="color: #96CBFE;">GET</span> <span style="color: #ff1493;">https://api.indego.iot.bosch-si.com/api/v1/alms/{serial-number}/state</span>
+x-im-context-id<span style="color: #8B8989; font-style: italic;">:</span> 3f2a9e8c-93cb-402e-a200-e325859f3ffe
+</pre>
+</div>
+
+<p>
+Which gives a response like this:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-http">HTTP/1.1 200
+<span style="color: #ff69b4;">Content-Type</span><span style="color: #8B8989; font-style: italic;">:</span> <span style="color: #61CE3C;">application/json</span>
+
+<span style="color: #8B8989; font-style: italic;">{</span>
+  <span style="color: #61CE3C;">"state"</span> <span style="color: #8B8989; font-style: italic;">:</span> 258<span style="color: #8B8989; font-style: italic;">,</span>
+  <span style="color: #61CE3C;">"enabled"</span> <span style="color: #8B8989; font-style: italic;">:</span> true<span style="color: #8B8989; font-style: italic;">,</span>
+  <span style="color: #61CE3C;">"map_update_available"</span> <span style="color: #8B8989; font-style: italic;">:</span> true<span style="color: #8B8989; font-style: italic;">,</span>
+  <span style="color: #61CE3C;">"mowed"</span> <span style="color: #8B8989; font-style: italic;">:</span> 98<span style="color: #8B8989; font-style: italic;">,</span>
+  <span style="color: #61CE3C;">"mowmode"</span> <span style="color: #8B8989; font-style: italic;">:</span> 1<span style="color: #8B8989; font-style: italic;">,</span>
+  <span style="color: #61CE3C;">"xPos"</span> <span style="color: #8B8989; font-style: italic;">:</span> 12<span style="color: #8B8989; font-style: italic;">,</span>
+  <span style="color: #61CE3C;">"yPos"</span> <span style="color: #8B8989; font-style: italic;">:</span> 15<span style="color: #8B8989; font-style: italic;">,</span>
+  <span style="color: #61CE3C;">"runtime"</span> <span style="color: #8B8989; font-style: italic;">:</span> <span style="color: #8B8989; font-style: italic;">{</span>
+    <span style="color: #61CE3C;">"total"</span> <span style="color: #8B8989; font-style: italic;">:</span> <span style="color: #8B8989; font-style: italic;">{</span>
+      <span style="color: #61CE3C;">"operate"</span> <span style="color: #8B8989; font-style: italic;">:</span> 100000<span style="color: #8B8989; font-style: italic;">,</span>
+      <span style="color: #61CE3C;">"charge"</span> <span style="color: #8B8989; font-style: italic;">:</span> 30000
+    <span style="color: #8B8989; font-style: italic;">},</span>
+    <span style="color: #61CE3C;">"session"</span> <span style="color: #8B8989; font-style: italic;">:</span> <span style="color: #8B8989; font-style: italic;">{</span>
+      <span style="color: #61CE3C;">"operate"</span> <span style="color: #8B8989; font-style: italic;">:</span> 2<span style="color: #8B8989; font-style: italic;">,</span>
+      <span style="color: #61CE3C;">"charge"</span> <span style="color: #8B8989; font-style: italic;">:</span> 0
+    <span style="color: #8B8989; font-style: italic;">}</span>
+  <span style="color: #8B8989; font-style: italic;">},</span>
+  <span style="color: #61CE3C;">"mapsvgcache_ts"</span> <span style="color: #8B8989; font-style: italic;">:</span> 1582506399367<span style="color: #8B8989; font-style: italic;">,</span>
+  <span style="color: #61CE3C;">"svg_xPos"</span> <span style="color: #8B8989; font-style: italic;">:</span> 131<span style="color: #8B8989; font-style: italic;">,</span>
+  <span style="color: #61CE3C;">"svg_yPos"</span> <span style="color: #8B8989; font-style: italic;">:</span> 111<span style="color: #8B8989; font-style: italic;">,</span>
+  <span style="color: #61CE3C;">"config_change"</span> <span style="color: #8B8989; font-style: italic;">:</span> false<span style="color: #8B8989; font-style: italic;">,</span>
+  <span style="color: #61CE3C;">"mow_trig"</span> <span style="color: #8B8989; font-style: italic;">:</span> false
+<span style="color: #8B8989; font-style: italic;">}</span>
+</pre>
+</div>
+
+<p>
+The status code can be looked up in the following table that is a combination of data found in both the projects
+that I linked at the start of this post and some extra details that my brother-in-law figured out:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-right">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">Status Code</th>
+<th scope="col" class="org-left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">0</td>
+<td class="org-left">Reading Status</td>
+</tr>
+
+<tr>
+<td class="org-right">101</td>
+<td class="org-left">Docked</td>
+</tr>
+
+<tr>
+<td class="org-right">257</td>
+<td class="org-left">Charging</td>
+</tr>
+
+<tr>
+<td class="org-right">258</td>
+<td class="org-left">Docked</td>
+</tr>
+
+<tr>
+<td class="org-right">259</td>
+<td class="org-left">Docked - Software Update</td>
+</tr>
+
+<tr>
+<td class="org-right">260</td>
+<td class="org-left">Charging (Ran out of power)</td>
+</tr>
+
+<tr>
+<td class="org-right">261</td>
+<td class="org-left">Docked (Not 258 State)</td>
+</tr>
+
+<tr>
+<td class="org-right">262</td>
+<td class="org-left">Docked - Loading Map</td>
+</tr>
+
+<tr>
+<td class="org-right">263</td>
+<td class="org-left">Docked -Saving Map</td>
+</tr>
+
+<tr>
+<td class="org-right">266</td>
+<td class="org-left">Leaving Dock</td>
+</tr>
+
+<tr>
+<td class="org-right">512</td>
+<td class="org-left">Mowing</td>
+</tr>
+
+<tr>
+<td class="org-right">513</td>
+<td class="org-left">Mowing</td>
+</tr>
+
+<tr>
+<td class="org-right">514</td>
+<td class="org-left">Relocalising</td>
+</tr>
+
+<tr>
+<td class="org-right">515</td>
+<td class="org-left">Loading map</td>
+</tr>
+
+<tr>
+<td class="org-right">516</td>
+<td class="org-left">Learning lawn</td>
+</tr>
+
+<tr>
+<td class="org-right">517</td>
+<td class="org-left">Paused</td>
+</tr>
+
+<tr>
+<td class="org-right">518</td>
+<td class="org-left">Border cut</td>
+</tr>
+
+<tr>
+<td class="org-right">519</td>
+<td class="org-left">Idle in lawn</td>
+</tr>
+
+<tr>
+<td class="org-right">520</td>
+<td class="org-left">Mowing</td>
+</tr>
+
+<tr>
+<td class="org-right">521</td>
+<td class="org-left">Mowing</td>
+</tr>
+
+<tr>
+<td class="org-right">522</td>
+<td class="org-left">Mowing</td>
+</tr>
+
+<tr>
+<td class="org-right">523</td>
+<td class="org-left">Spot Mow</td>
+</tr>
+
+<tr>
+<td class="org-right">524</td>
+<td class="org-left">Mow without Docking Station</td>
+</tr>
+
+<tr>
+<td class="org-right">525</td>
+<td class="org-left">Mowing</td>
+</tr>
+
+<tr>
+<td class="org-right">768</td>
+<td class="org-left">Mowing</td>
+</tr>
+
+<tr>
+<td class="org-right">769</td>
+<td class="org-left">Returning to Dock</td>
+</tr>
+
+<tr>
+<td class="org-right">770</td>
+<td class="org-left">Returning to Dock</td>
+</tr>
+
+<tr>
+<td class="org-right">771</td>
+<td class="org-left">Returning to Dock - Battery low</td>
+</tr>
+
+<tr>
+<td class="org-right">772</td>
+<td class="org-left">Returning to dock - Calendar timeslot ended</td>
+</tr>
+
+<tr>
+<td class="org-right">773</td>
+<td class="org-left">Returning to dock - Battery temp range</td>
+</tr>
+
+<tr>
+<td class="org-right">774</td>
+<td class="org-left">Returning to dock</td>
+</tr>
+
+<tr>
+<td class="org-right">775</td>
+<td class="org-left">Returning to dock - Lawn complete</td>
+</tr>
+
+<tr>
+<td class="org-right">776</td>
+<td class="org-left">Returning to dock - Relocalising</td>
+</tr>
+
+<tr>
+<td class="org-right">1005</td>
+<td class="org-left">Mowing</td>
+</tr>
+
+<tr>
+<td class="org-right">1025</td>
+<td class="org-left">Diagnostic mode</td>
+</tr>
+
+<tr>
+<td class="org-right">1026</td>
+<td class="org-left">End of life</td>
+</tr>
+
+<tr>
+<td class="org-right">1027</td>
+<td class="org-left">Service Requesting Status</td>
+</tr>
+
+<tr>
+<td class="org-right">1038</td>
+<td class="org-left">Mower immobilized</td>
+</tr>
+
+<tr>
+<td class="org-right">1281</td>
+<td class="org-left">Software update</td>
+</tr>
+
+<tr>
+<td class="org-right">1537</td>
+<td class="org-left">Stuck</td>
+</tr>
+
+<tr>
+<td class="org-right">64513</td>
+<td class="org-left">Sleeping (Docked)</td>
+</tr>
+
+<tr>
+<td class="org-right">99999</td>
+<td class="org-left">Offline</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-org2c9d890" class="outline-3">
+<h3 id="org2c9d890">Operating Data</h3>
+<div class="outline-text-3" id="text-org2c9d890">
+<p>
+And then <code>/operatingData</code> which can provide more detailed information for some properties, again
+including the serial number in the url and the context id as a header:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-http" id="org7b60ebd"><span style="color: #96CBFE;">GET</span> <span style="color: #ff1493;">https://api.indego.iot.bosch-si.com/api/v1/alms/{serial number}/operatingData</span>
+x-im-context-id<span style="color: #8B8989; font-style: italic;">:</span> 3f2a9e8c-93cb-402e-a200-e325859f3ffe
+</pre>
+</div>
+
+<p>
+In a response that looks like this:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-http">HTTP/1.1 200 
+<span style="color: #ff69b4;">Content-Type</span><span style="color: #8B8989; font-style: italic;">:</span> <span style="color: #61CE3C;">application/json</span>
+
+<span style="color: #8B8989; font-style: italic;">{</span>
+  <span style="color: #61CE3C;">"runtime"</span> <span style="color: #8B8989; font-style: italic;">:</span> <span style="color: #8B8989; font-style: italic;">{</span>
+    <span style="color: #61CE3C;">"total"</span> <span style="color: #8B8989; font-style: italic;">:</span> <span style="color: #8B8989; font-style: italic;">{</span>
+      <span style="color: #61CE3C;">"operate"</span> <span style="color: #8B8989; font-style: italic;">:</span> 100000<span style="color: #8B8989; font-style: italic;">,</span>
+      <span style="color: #61CE3C;">"charge"</span> <span style="color: #8B8989; font-style: italic;">:</span> 35002
+    <span style="color: #8B8989; font-style: italic;">},</span>
+    <span style="color: #61CE3C;">"session"</span> <span style="color: #8B8989; font-style: italic;">:</span> <span style="color: #8B8989; font-style: italic;">{</span>
+      <span style="color: #61CE3C;">"operate"</span> <span style="color: #8B8989; font-style: italic;">:</span> 0<span style="color: #8B8989; font-style: italic;">,</span>
+      <span style="color: #61CE3C;">"charge"</span> <span style="color: #8B8989; font-style: italic;">:</span> 0
+    <span style="color: #8B8989; font-style: italic;">}</span>
+  <span style="color: #8B8989; font-style: italic;">},</span>
+  <span style="color: #61CE3C;">"battery"</span> <span style="color: #8B8989; font-style: italic;">:</span> <span style="color: #8B8989; font-style: italic;">{</span>
+    <span style="color: #61CE3C;">"voltage"</span> <span style="color: #8B8989; font-style: italic;">:</span> 7.0<span style="color: #8B8989; font-style: italic;">,</span>
+    <span style="color: #61CE3C;">"cycles"</span> <span style="color: #8B8989; font-style: italic;">:</span> 0<span style="color: #8B8989; font-style: italic;">,</span>
+    <span style="color: #61CE3C;">"discharge"</span> <span style="color: #8B8989; font-style: italic;">:</span> -0.1<span style="color: #8B8989; font-style: italic;">,</span>
+    <span style="color: #61CE3C;">"ambient_temp"</span> <span style="color: #8B8989; font-style: italic;">:</span> 23<span style="color: #8B8989; font-style: italic;">,</span>
+    <span style="color: #61CE3C;">"battery_temp"</span> <span style="color: #8B8989; font-style: italic;">:</span> 23<span style="color: #8B8989; font-style: italic;">,</span>
+    <span style="color: #61CE3C;">"percent"</span> <span style="color: #8B8989; font-style: italic;">:</span> 70
+  <span style="color: #8B8989; font-style: italic;">},</span>
+  <span style="color: #61CE3C;">"garden"</span> <span style="color: #8B8989; font-style: italic;">:</span> <span style="color: #8B8989; font-style: italic;">{</span>
+    <span style="color: #61CE3C;">"id"</span> <span style="color: #8B8989; font-style: italic;">:</span> 1<span style="color: #8B8989; font-style: italic;">,</span>
+    <span style="color: #61CE3C;">"name"</span> <span style="color: #8B8989; font-style: italic;">:</span> 1<span style="color: #8B8989; font-style: italic;">,</span>
+    <span style="color: #61CE3C;">"signal_id"</span> <span style="color: #8B8989; font-style: italic;">:</span> 3<span style="color: #8B8989; font-style: italic;">,</span>
+    <span style="color: #61CE3C;">"size"</span> <span style="color: #8B8989; font-style: italic;">:</span> 157<span style="color: #8B8989; font-style: italic;">,</span>
+    <span style="color: #61CE3C;">"inner_bounds"</span> <span style="color: #8B8989; font-style: italic;">:</span> 0<span style="color: #8B8989; font-style: italic;">,</span>
+    <span style="color: #61CE3C;">"cuts"</span> <span style="color: #8B8989; font-style: italic;">:</span> 0<span style="color: #8B8989; font-style: italic;">,</span>
+    <span style="color: #61CE3C;">"runtime"</span> <span style="color: #8B8989; font-style: italic;">:</span> 100000<span style="color: #8B8989; font-style: italic;">,</span>
+    <span style="color: #61CE3C;">"charge"</span> <span style="color: #8B8989; font-style: italic;">:</span> 35002<span style="color: #8B8989; font-style: italic;">,</span>
+    <span style="color: #61CE3C;">"bumps"</span> <span style="color: #8B8989; font-style: italic;">:</span> 281<span style="color: #8B8989; font-style: italic;">,</span>
+    <span style="color: #61CE3C;">"stops"</span> <span style="color: #8B8989; font-style: italic;">:</span> 90<span style="color: #8B8989; font-style: italic;">,</span>
+    <span style="color: #61CE3C;">"last_mow"</span> <span style="color: #8B8989; font-style: italic;">:</span> 3<span style="color: #8B8989; font-style: italic;">,</span>
+    <span style="color: #61CE3C;">"map_cell_size"</span> <span style="color: #8B8989; font-style: italic;">:</span> 120
+  <span style="color: #8B8989; font-style: italic;">},</span>
+  <span style="color: #61CE3C;">"hmiKeys"</span> <span style="color: #8B8989; font-style: italic;">:</span> 12019
+<span style="color: #8B8989; font-style: italic;">}</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgbfd3695" class="outline-3">
+<h3 id="orgbfd3695">HomeyScript</h3>
+<div class="outline-text-3" id="text-orgbfd3695">
+<p>
+Knowing how these requests and responses look, we can make useful HomeyScript functions so we could
+display the information somewhere or include it as part of a flow.
+</p>
+</div>
+
+<div id="outline-container-org04148fc" class="outline-4">
+<h4 id="org04148fc">Get Status</h4>
+<div class="outline-text-4" id="text-org04148fc">
+<p>
+Query the state endpoint and return the status converted to a human readable string:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #8B8989; font-style: italic;">// </span><span style="color: #8B8989; font-style: italic;">pull values from the flow editor</span>
+<span style="color: #4c83ff;">const</span> <span style="color: #ff69b4;">contextId</span> = args<span style="color: #8b0000;">[</span><span style="color: #96CBFE;">0</span><span style="color: #8b0000;">]</span>;
+<span style="color: #4c83ff;">const</span> <span style="color: #ff69b4;">serialNumber</span> = args<span style="color: #8b0000;">[</span><span style="color: #96CBFE;">1</span><span style="color: #8b0000;">]</span>;
+
+<span style="color: #8B8989; font-style: italic;">// </span><span style="color: #8B8989; font-style: italic;">get the current state</span>
+<span style="color: #4c83ff;">const</span> <span style="color: #ff69b4;">result</span> = <span style="color: #4c83ff;">await</span> fetch<span style="color: #8b0000;">(</span><span style="color: #61CE3C;">'https://api.indego.iot.bosch-si.com/api/v1/alms/'</span> + serialNumber + <span style="color: #61CE3C;">'/state'</span>, <span style="color: #006400;">{</span>
+    method: <span style="color: #61CE3C;">'GET'</span>,
+    headers: <span style="color: #ff1493;">{</span> <span style="color: #61CE3C;">'x-im-context-id'</span>: contextId <span style="color: #ff1493;">}</span>
+<span style="color: #006400;">}</span><span style="color: #8b0000;">)</span>;
+
+<span style="color: #4c83ff;">if</span> <span style="color: #8b0000;">(</span>!result.ok<span style="color: #8b0000;">)</span> <span style="color: #8b0000;">{</span>
+    <span style="color: #4c83ff;">throw</span> <span style="color: #4c83ff;">new</span> <span style="color: #afd8af;">Error</span><span style="color: #006400;">(</span>result.statusText<span style="color: #006400;">)</span>;
+<span style="color: #8b0000;">}</span>
+
+<span style="color: #4c83ff;">const</span> <span style="color: #ff69b4;">body</span> = <span style="color: #4c83ff;">await</span> result.json<span style="color: #8b0000;">()</span>;
+
+<span style="color: #8B8989; font-style: italic;">// </span><span style="color: #8B8989; font-style: italic;">convert the status code to human readable text</span>
+<span style="color: #4c83ff;">switch</span><span style="color: #8b0000;">(</span>body.state<span style="color: #8b0000;">)</span> <span style="color: #8b0000;">{</span>
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">0</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Reading status"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">257</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Charging"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">258</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Docked"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">259</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Docked - Software update"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">260</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Docked (Ran out of Power)"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">261</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Docked (not 258 State)"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">262</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Docked - Loading map"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">263</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Docked - Saving map"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">266</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Leaving dock"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">513</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Mowing"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">514</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Relocalising"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">515</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Loading map"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">516</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Learning lawn"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">517</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Paused"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">518</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Border cut"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">519</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Idle in lawn"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">523</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Spot Mow"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">524</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Mow without Docking Station"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">769</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Returning to Dock"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">770</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Returning to Dock"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">771</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Returning to Dock - Battery low"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">772</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Returning to dock - Calendar timeslot ended"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">773</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Returning to dock - Battery temp range"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">774</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Returning to dock"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">775</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Returning to dock - Lawn complete"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">776</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Returning to dock - Relocalising"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">1005</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Mowing"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">1025</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Diagnostic mode"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">1026</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"End of life"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">1027</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Service Requesting Status"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">1038</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Mower immobilized"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">1281</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Software update"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">1537</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Stuck"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">64513</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Sleeping (Docked)"</span>;
+    <span style="color: #4c83ff;">case</span> <span style="color: #96CBFE;">99999</span>: <span style="color: #4c83ff;">return</span> <span style="color: #61CE3C;">"Offline"</span>;
+    <span style="color: #4c83ff;">default</span>: <span style="color: #4c83ff;">throw</span> <span style="color: #4c83ff;">new</span> <span style="color: #afd8af;">Error</span><span style="color: #006400;">(</span><span style="color: #61CE3C;">"Unknown state"</span> + body.state<span style="color: #006400;">)</span>;
+<span style="color: #8b0000;">}</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org6e3d2a6" class="outline-4">
+<h4 id="org6e3d2a6">Get Battery Percentage</h4>
+<div class="outline-text-4" id="text-org6e3d2a6">
+<p>
+Query the operating data and return only the battery percentage value, this can easily be modified to return
+other values instead:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #8B8989; font-style: italic;">// </span><span style="color: #8B8989; font-style: italic;">pull values from the flow editor</span>
+<span style="color: #4c83ff;">const</span> <span style="color: #ff69b4;">contextId</span> = args<span style="color: #8b0000;">[</span><span style="color: #96CBFE;">0</span><span style="color: #8b0000;">]</span>;
+<span style="color: #4c83ff;">const</span> <span style="color: #ff69b4;">serialNumber</span> = args<span style="color: #8b0000;">[</span><span style="color: #96CBFE;">1</span><span style="color: #8b0000;">]</span>;
+
+<span style="color: #8B8989; font-style: italic;">// </span><span style="color: #8B8989; font-style: italic;">get operating data</span>
+<span style="color: #4c83ff;">const</span> <span style="color: #ff69b4;">result</span> = <span style="color: #4c83ff;">await</span> fetch<span style="color: #8b0000;">(</span><span style="color: #61CE3C;">'https://api.indego.iot.bosch-si.com/api/v1/alms/'</span> + serialNumber + <span style="color: #61CE3C;">'/operatingData'</span>, <span style="color: #006400;">{</span>
+    method: <span style="color: #61CE3C;">'GET'</span>,
+    headers: <span style="color: #ff1493;">{</span> <span style="color: #61CE3C;">'x-im-context-id'</span>: contextId <span style="color: #ff1493;">}</span>
+<span style="color: #006400;">}</span><span style="color: #8b0000;">)</span>;
+
+<span style="color: #4c83ff;">if</span> <span style="color: #8b0000;">(</span>!result.ok<span style="color: #8b0000;">)</span> <span style="color: #8b0000;">{</span>
+    <span style="color: #4c83ff;">throw</span> <span style="color: #4c83ff;">new</span> <span style="color: #afd8af;">Error</span><span style="color: #006400;">(</span>result.statusText<span style="color: #006400;">)</span>;
+<span style="color: #8b0000;">}</span>
+
+<span style="color: #4c83ff;">const</span> <span style="color: #ff69b4;">body</span> = <span style="color: #4c83ff;">await</span> result.json<span style="color: #8b0000;">()</span>;
+
+<span style="color: #8B8989; font-style: italic;">//</span><span style="color: #8B8989; font-style: italic;">return battery percentage</span>
+<span style="color: #4c83ff;">return</span> body.battery.percent;
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org7c94378" class="outline-2">
+<h2 id="org7c94378">Control the Mower</h2>
+<div class="outline-text-2" id="text-org7c94378">
+<p>
+With code in place to authenticate with the API and retrieve information about the mower it is quite
+straightforward to control the mower. We just need to make a <code>PUT</code> request to the <code>/state</code> endpoint
+with the desired state command:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-http"><span style="color: #96CBFE;">PUT</span> <span style="color: #ff1493;">https://api.indego.iot.bosch-si.com/api/v1/alms/{serial number}/state</span>
+x-im-context-id<span style="color: #8B8989; font-style: italic;">:</span> 3f2a9e8c-93cb-402e-a200-e325859f3ffe
+content-type<span style="color: #8B8989; font-style: italic;">:</span> application/json
+
+<span style="color: #8B8989; font-style: italic;">{</span>
+  <span style="color: #61CE3C;">"state"</span><span style="color: #8B8989; font-style: italic;">:</span> <span style="color: #61CE3C;">"mow"</span>
+<span style="color: #8B8989; font-style: italic;">}</span>
+</pre>
+</div>
+
+<p>
+We can issue a <code>mow</code>  command to start the mower, and a <code>returnToDock</code> command to stop it and have it
+go back to the dock.
+</p>
+
+<p>
+In HomeyScript this can be done like so:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #8B8989; font-style: italic;">// </span><span style="color: #8B8989; font-style: italic;">pull values from the flow editor</span>
+<span style="color: #4c83ff;">const</span> <span style="color: #ff69b4;">contextId</span> = args<span style="color: #8b0000;">[</span><span style="color: #96CBFE;">0</span><span style="color: #8b0000;">]</span>;
+<span style="color: #4c83ff;">const</span> <span style="color: #ff69b4;">serialNumber</span> = args<span style="color: #8b0000;">[</span><span style="color: #96CBFE;">1</span><span style="color: #8b0000;">]</span>;
+
+<span style="color: #8B8989; font-style: italic;">// </span><span style="color: #8B8989; font-style: italic;">send the request to the api</span>
+<span style="color: #4c83ff;">const</span> <span style="color: #ff69b4;">body</span> = <span style="color: #8b0000;">{</span>
+    state: <span style="color: #61CE3C;">"mow"</span>
+<span style="color: #8b0000;">}</span>;
+
+<span style="color: #4c83ff;">const</span> <span style="color: #ff69b4;">result</span> = <span style="color: #4c83ff;">await</span> fetch<span style="color: #8b0000;">(</span><span style="color: #61CE3C;">'https://api.indego.iot.bosch-si.com/api/v1/alms/'</span> + serialNumber + <span style="color: #61CE3C;">'/state'</span>, <span style="color: #006400;">{</span>
+    method: <span style="color: #61CE3C;">'PUT'</span>,
+    body: JSON.stringify<span style="color: #ff1493;">(</span>body<span style="color: #ff1493;">)</span>,
+    headers: <span style="color: #ff1493;">{</span>
+        <span style="color: #61CE3C;">'x-im-context-id'</span>: contextId,
+        <span style="color: #61CE3C;">'Content-Type'</span>: <span style="color: #61CE3C;">'application/json'</span>
+    <span style="color: #ff1493;">}</span>
+<span style="color: #006400;">}</span><span style="color: #8b0000;">)</span>;
+
+<span style="color: #4c83ff;">if</span> <span style="color: #8b0000;">(</span>!result.ok<span style="color: #8b0000;">)</span> <span style="color: #8b0000;">{</span>
+    <span style="color: #4c83ff;">throw</span> <span style="color: #4c83ff;">new</span> <span style="color: #afd8af;">Error</span><span style="color: #006400;">(</span>result.statusText<span style="color: #006400;">)</span>;
+<span style="color: #8b0000;">}</span>
+
+<span style="color: #8B8989; font-style: italic;">// </span><span style="color: #8B8989; font-style: italic;">this doesn't return a body, so as long as it didn't fail it should be good</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgbd27984" class="outline-2">
+<h2 id="orgbd27984">Putting it together</h2>
+<div class="outline-text-2" id="text-orgbd27984">
+<p>
+The code snippets in this post can be added to HomeyScript cards in the flow editor, and you can link up your
+robot mower to anything else controlled by Homey.
+</p>
+
+<p>
+The screenshot below shows examples of controlling the mower with a virtual device, and monitoring the
+battery percentage with a virtual sensor.
+</p>
+
+
+<figure id="org878b8c8">
+<img src="./annotated-flow.png" alt="A screenshot of the Homey flow editor showing some ways of integrating the code from this post">
+
+</figure>
+
+<p>
+Happy Automating!
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<footer class="page-footer">
+<div class="container">
+  <a href="../index.html">&lt;- Ah well, nevertheless...</a>
+</div>
+</footer>
+</div>
+</body>
+</html>
