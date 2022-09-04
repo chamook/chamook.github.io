@@ -1,0 +1,1105 @@
+<?xml version="1.0" ?>
+<rss version="2.0">
+<channel>
+  <title>chamook.lol</title>
+  <link>https://chamook.lol/</link>
+  <description>Posts from chamook.lol</description>
+
+<item>
+  <title>Using Indego Robot Mowers from Homey</title>
+  <link>https://chamook.lol/indego-homey/</link>
+  <description>
+    &lt;div id="content" class="container"&gt;
+    &lt;p&gt;
+    My brother-in-law has a &lt;a href="https://www.bosch-diy.com/dk/da/haveredskaber/robotplaeneklippere"&gt;Bosch Indego&lt;/a&gt; robot mower that he wants to control via &lt;a href="https://homey.app/"&gt;Homey&lt;/a&gt;. There was no
+    app readily available, but there is an API available that has several open source clients. I helped him create
+    some blocks of &lt;a href="https://homey.app/en-us/app/com.athom.homeyscript/HomeyScript/"&gt;HomeyScript&lt;/a&gt; to call the API and integrate the mower into the rest of his smart home. The code
+    here leans heavily on the work already done in the &lt;a href="https://github.com/zazaz-de/iot-device-bosch-indego-controller"&gt;Java Controller Application&lt;/a&gt; and in the
+    &lt;a href="https://pypi.org/project/pyIndego/"&gt;pyIndego Python Library&lt;/a&gt;, especially the &lt;a href="https://github.com/zazaz-de/iot-device-bosch-indego-controller/blob/master/PROTOCOL.md"&gt;documentation of the protocol&lt;/a&gt;.
+    &lt;/p&gt;
+    
+    &lt;div id="outline-container-org2eea2a4" class="outline-2"&gt;
+    &lt;h2 id="org2eea2a4"&gt;Authentication&lt;/h2&gt;
+    &lt;div class="outline-text-2" id="text-org2eea2a4"&gt;
+    &lt;p&gt;
+    Most requests in the API require a &lt;code&gt;contextId&lt;/code&gt; value, and to get one of those we first need to make a
+    &lt;code&gt;POST&lt;/code&gt; request to the &lt;code&gt;/authenticate&lt;/code&gt; endpoint providing some details about the client as well as
+    a &lt;code&gt;Basic&lt;/code&gt; authentication token.
+    &lt;/p&gt;
+    
+    &lt;p&gt;
+    The authentication token is built by base64 encoding a string comprised of your username and password
+    separated by a colon. This can be done conveniently in most programming languages, such as javascript:
+    &lt;/p&gt;
+    
+    &lt;div class="org-src-container"&gt;
+    &lt;pre class="src src-js" id="org299053b"&gt;&lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; btoa&lt;span style="color: #8b0000;"&gt;(&lt;/span&gt;&lt;span style="color: #61CE3C;"&gt;"username@email.com:secret-password"&lt;/span&gt;&lt;span style="color: #8b0000;"&gt;)&lt;/span&gt;;
+    &lt;/pre&gt;
+    &lt;/div&gt;
+    
+    &lt;p&gt;
+    As is, this will output the following (but don't forget to use your actual username and password if you want
+    to connect to the API for real):
+    &lt;/p&gt;
+    
+    &lt;pre class="example"&gt;
+    dXNlcm5hbWVAZW1haWwuY29tOnNlY3JldC1wYXNzd29yZA==
+    &lt;/pre&gt;
+    
+    &lt;p&gt;
+    (Note that the above code sample won't actually work in HomeyScript, so you'll need to use a different approach
+    if you want to generate the token as part of that)
+    &lt;/p&gt;
+    
+    &lt;p&gt;
+    With the token generated we can get a &lt;code&gt;contextId&lt;/code&gt; from the &lt;code&gt;/authenticate&lt;/code&gt; endpoint:
+    &lt;/p&gt;
+    
+    &lt;div class="org-src-container"&gt;
+    &lt;pre class="src src-http" id="org2ee571d"&gt;&lt;span style="color: #96CBFE;"&gt;POST&lt;/span&gt; &lt;span style="color: #ff1493;"&gt;https://api.indego.iot.bosch-si.com/api/v1/authenticate&lt;/span&gt;
+    &lt;span style="color: #ff69b4;"&gt;Authorization&lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;Basic dXNlcm5hbWVAZW1haWwuY29tOnNlY3JldC1wYXNzd29yZA==&lt;/span&gt;
+    &lt;span style="color: #ff69b4;"&gt;Content-Type&lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;application/json&lt;/span&gt;
+    
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;{&lt;/span&gt;
+        &lt;span style="color: #61CE3C;"&gt;"accept_tc_id"&lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt;&lt;span style="color: #61CE3C;"&gt;"202012"&lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+        &lt;span style="color: #61CE3C;"&gt;"device"&lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;""&lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+        &lt;span style="color: #61CE3C;"&gt;"os_type"&lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Android"&lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+        &lt;span style="color: #61CE3C;"&gt;"os_version"&lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"4.0"&lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+        &lt;span style="color: #61CE3C;"&gt;"dvc_manuf"&lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"unknown"&lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+        &lt;span style="color: #61CE3C;"&gt;"dvc_type"&lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"unknown"&lt;/span&gt;
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;}&lt;/span&gt;
+    &lt;/pre&gt;
+    &lt;/div&gt;
+    
+    &lt;p&gt;
+    The token generated previously is provided in the &lt;code&gt;Authorization&lt;/code&gt; header, while we can use sample data to
+    populate most of the fields in the request. It is worth noting that the &lt;code&gt;accept_tc_id&lt;/code&gt; field value will likely
+    need to be updated in the future if a new revision of the terms and conditions for the API are released.
+    &lt;/p&gt;
+    
+    &lt;div class="org-src-container"&gt;
+    &lt;pre class="src src-http"&gt;HTTP/1.1 200 
+    &lt;span style="color: #ff69b4;"&gt;Content-Type&lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;application/json&lt;/span&gt;
+    
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;{&lt;/span&gt;
+      &lt;span style="color: #61CE3C;"&gt;"contextId"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"'3f2a9e8c-93cb-402e-a200-e325859f3ffe"&lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+      &lt;span style="color: #61CE3C;"&gt;"userId"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"0a86dc31-7136-4009-9ef6-61ac4cab696e"&lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+      &lt;span style="color: #61CE3C;"&gt;"alm_sn"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"000000000"&lt;/span&gt;
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;}&lt;/span&gt;
+    &lt;/pre&gt;
+    &lt;/div&gt;
+    
+    &lt;p&gt;
+    This provides us with the &lt;code&gt;contextId&lt;/code&gt; that is needed to make other requests.
+    &lt;/p&gt;
+    
+    &lt;p&gt;
+    Before making other requests we can make this in a HomeyScript function:
+    &lt;/p&gt;
+    
+    &lt;div class="org-src-container"&gt;
+    &lt;pre class="src src-js"&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;// &lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;pull values from the flow editor&lt;/span&gt;
+    &lt;span style="color: #4c83ff;"&gt;const&lt;/span&gt; &lt;span style="color: #ff69b4;"&gt;user&lt;/span&gt; = args&lt;span style="color: #8b0000;"&gt;[&lt;/span&gt;&lt;span style="color: #96CBFE;"&gt;0&lt;/span&gt;&lt;span style="color: #8b0000;"&gt;]&lt;/span&gt;;
+    &lt;span style="color: #4c83ff;"&gt;const&lt;/span&gt; &lt;span style="color: #ff69b4;"&gt;pwd&lt;/span&gt; = args&lt;span style="color: #8b0000;"&gt;[&lt;/span&gt;&lt;span style="color: #96CBFE;"&gt;1&lt;/span&gt;&lt;span style="color: #8b0000;"&gt;]&lt;/span&gt;;
+    
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;// &lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;btoa isn't available :(&lt;/span&gt;
+    &lt;span style="color: #4c83ff;"&gt;const&lt;/span&gt; &lt;span style="color: #ff69b4;"&gt;buffer&lt;/span&gt; = Buffer.from&lt;span style="color: #8b0000;"&gt;(&lt;/span&gt;user + &lt;span style="color: #61CE3C;"&gt;':'&lt;/span&gt; + pwd&lt;span style="color: #8b0000;"&gt;)&lt;/span&gt;;
+    &lt;span style="color: #4c83ff;"&gt;const&lt;/span&gt; &lt;span style="color: #ff69b4;"&gt;headerData&lt;/span&gt; = buffer.toString&lt;span style="color: #8b0000;"&gt;(&lt;/span&gt;&lt;span style="color: #61CE3C;"&gt;'base64'&lt;/span&gt;&lt;span style="color: #8b0000;"&gt;)&lt;/span&gt;;
+    &lt;span style="color: #4c83ff;"&gt;const&lt;/span&gt; &lt;span style="color: #ff69b4;"&gt;authHeader&lt;/span&gt; = &lt;span style="color: #61CE3C;"&gt;'Basic '&lt;/span&gt; + headerData;
+    
+    &lt;span style="color: #4c83ff;"&gt;const&lt;/span&gt; &lt;span style="color: #ff69b4;"&gt;authRequestBody&lt;/span&gt; = &lt;span style="color: #8b0000;"&gt;{&lt;/span&gt;
+        accept_tc_id: &lt;span style="color: #61CE3C;"&gt;"202012"&lt;/span&gt;,
+        device: &lt;span style="color: #61CE3C;"&gt;""&lt;/span&gt;,
+        os_type: &lt;span style="color: #61CE3C;"&gt;"Android"&lt;/span&gt;,
+        os_version: &lt;span style="color: #61CE3C;"&gt;"4.0"&lt;/span&gt;,
+        dvc_manuf: &lt;span style="color: #61CE3C;"&gt;"unknown"&lt;/span&gt;,
+        dvc_type: &lt;span style="color: #61CE3C;"&gt;"unknown"&lt;/span&gt;
+    &lt;span style="color: #8b0000;"&gt;}&lt;/span&gt;;
+    
+    &lt;span style="color: #4c83ff;"&gt;const&lt;/span&gt; &lt;span style="color: #ff69b4;"&gt;result&lt;/span&gt; = &lt;span style="color: #4c83ff;"&gt;await&lt;/span&gt; fetch&lt;span style="color: #8b0000;"&gt;(&lt;/span&gt;&lt;span style="color: #61CE3C;"&gt;'https://api.indego.iot.bosch-si.com/api/v1/authenticate'&lt;/span&gt;, &lt;span style="color: #006400;"&gt;{&lt;/span&gt;
+        method: &lt;span style="color: #61CE3C;"&gt;'POST'&lt;/span&gt;,
+        body: JSON.stringify&lt;span style="color: #ff1493;"&gt;(&lt;/span&gt;authRequestBody&lt;span style="color: #ff1493;"&gt;)&lt;/span&gt;,
+        headers: &lt;span style="color: #ff1493;"&gt;{&lt;/span&gt;
+            &lt;span style="color: #61CE3C;"&gt;'Authorization'&lt;/span&gt;: authHeader,
+            &lt;span style="color: #61CE3C;"&gt;'Content-Type'&lt;/span&gt;: &lt;span style="color: #61CE3C;"&gt;'application/json'&lt;/span&gt;
+        &lt;span style="color: #ff1493;"&gt;}&lt;/span&gt;
+    &lt;span style="color: #006400;"&gt;}&lt;/span&gt;&lt;span style="color: #8b0000;"&gt;)&lt;/span&gt;;
+    
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;// &lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;fail for any error and return any error message we were given&lt;/span&gt;
+    &lt;span style="color: #4c83ff;"&gt;if&lt;/span&gt; &lt;span style="color: #8b0000;"&gt;(&lt;/span&gt;!result.ok&lt;span style="color: #8b0000;"&gt;)&lt;/span&gt; &lt;span style="color: #8b0000;"&gt;{&lt;/span&gt;
+        &lt;span style="color: #4c83ff;"&gt;throw&lt;/span&gt; &lt;span style="color: #4c83ff;"&gt;new&lt;/span&gt; &lt;span style="color: #afd8af;"&gt;Error&lt;/span&gt;&lt;span style="color: #006400;"&gt;(&lt;/span&gt;result.statusText&lt;span style="color: #006400;"&gt;)&lt;/span&gt;;
+    &lt;span style="color: #8b0000;"&gt;}&lt;/span&gt;
+    
+    &lt;span style="color: #4c83ff;"&gt;const&lt;/span&gt; &lt;span style="color: #ff69b4;"&gt;body&lt;/span&gt; = &lt;span style="color: #4c83ff;"&gt;await&lt;/span&gt; result.json&lt;span style="color: #8b0000;"&gt;()&lt;/span&gt;;
+    
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;// &lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;return just the context id because we don't care about the other values&lt;/span&gt;
+    &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; body.contextId;
+    &lt;/pre&gt;
+    &lt;/div&gt;
+    
+    &lt;p&gt;
+    The two &lt;code&gt;const&lt;/code&gt; values for &lt;code&gt;user&lt;/code&gt; and &lt;code&gt;pwd&lt;/code&gt;  should be provided from the flow editor, and this will output
+    the &lt;code&gt;contextId&lt;/code&gt; as a text value, that can then be passed to another function to do something.
+    &lt;/p&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    
+    &lt;div id="outline-container-org16cb325" class="outline-2"&gt;
+    &lt;h2 id="org16cb325"&gt;Get Available Devices&lt;/h2&gt;
+    &lt;div class="outline-text-2" id="text-org16cb325"&gt;
+    &lt;p&gt;
+    If you already know the serial number for your mower, you can skip this step and just use that to work with it
+    directly. If you don't know the serial number or you have multiple mowers that you want to work with, there
+    is an API endpoint that will list all the available devices:
+    &lt;/p&gt;
+    
+    &lt;div class="org-src-container"&gt;
+    &lt;pre class="src src-http"&gt;&lt;span style="color: #96CBFE;"&gt;GET&lt;/span&gt; &lt;span style="color: #ff1493;"&gt;https://api.indego.iot.bosch-si.com/api/v1/alms/&lt;/span&gt;
+    x-im-context-id&lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 3f2a9e8c-93cb-402e-a200-e325859f3ffe
+    &lt;/pre&gt;
+    &lt;/div&gt;
+    
+    &lt;p&gt;
+    Which will give a list containing the serial number and status code for the mowers connected to the account:
+    &lt;/p&gt;
+    
+    &lt;div class="org-src-container"&gt;
+    &lt;pre class="src src-http"&gt;HTTP/1.1 200
+    &lt;span style="color: #ff69b4;"&gt;Content-Type&lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;application/json&lt;/span&gt;
+    
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;[&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;{&lt;/span&gt;
+      &lt;span style="color: #61CE3C;"&gt;"alm_sn"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"000000000"&lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+      &lt;span style="color: #61CE3C;"&gt;"alm_status"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 258
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;}&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;]&lt;/span&gt;
+    &lt;/pre&gt;
+    &lt;/div&gt;
+    
+    &lt;p&gt;
+    The serial number is then used to get more detailed information or to control the mower.
+    &lt;/p&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    
+    &lt;div id="outline-container-orgc165d77" class="outline-2"&gt;
+    &lt;h2 id="orgc165d77"&gt;Get Information About The Mower&lt;/h2&gt;
+    &lt;div class="outline-text-2" id="text-orgc165d77"&gt;
+    &lt;p&gt;
+    Now we have the &lt;code&gt;contextId&lt;/code&gt; and the serial number of the mower we want to work with, we can make
+    two different calls to get information about the mower.
+    &lt;/p&gt;
+    &lt;/div&gt;
+    
+    &lt;div id="outline-container-orgd3cb5af" class="outline-3"&gt;
+    &lt;h3 id="orgd3cb5af"&gt;State&lt;/h3&gt;
+    &lt;div class="outline-text-3" id="text-orgd3cb5af"&gt;
+    &lt;p&gt;
+    First &lt;code&gt;/state&lt;/code&gt; will give information about the current state of the mower, we need to include the serial
+    number of the mower we want to get information about in the url and the context id is provided as a header:
+    &lt;/p&gt;
+    
+    &lt;div class="org-src-container"&gt;
+    &lt;pre class="src src-http" id="orgcf4a5f7"&gt;&lt;span style="color: #96CBFE;"&gt;GET&lt;/span&gt; &lt;span style="color: #ff1493;"&gt;https://api.indego.iot.bosch-si.com/api/v1/alms/{serial-number}/state&lt;/span&gt;
+    x-im-context-id&lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 3f2a9e8c-93cb-402e-a200-e325859f3ffe
+    &lt;/pre&gt;
+    &lt;/div&gt;
+    
+    &lt;p&gt;
+    Which gives a response like this:
+    &lt;/p&gt;
+    
+    &lt;div class="org-src-container"&gt;
+    &lt;pre class="src src-http"&gt;HTTP/1.1 200
+    &lt;span style="color: #ff69b4;"&gt;Content-Type&lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;application/json&lt;/span&gt;
+    
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;{&lt;/span&gt;
+      &lt;span style="color: #61CE3C;"&gt;"state"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 258&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+      &lt;span style="color: #61CE3C;"&gt;"enabled"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; true&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+      &lt;span style="color: #61CE3C;"&gt;"map_update_available"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; true&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+      &lt;span style="color: #61CE3C;"&gt;"mowed"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 98&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+      &lt;span style="color: #61CE3C;"&gt;"mowmode"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 1&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+      &lt;span style="color: #61CE3C;"&gt;"xPos"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 12&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+      &lt;span style="color: #61CE3C;"&gt;"yPos"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 15&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+      &lt;span style="color: #61CE3C;"&gt;"runtime"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;{&lt;/span&gt;
+        &lt;span style="color: #61CE3C;"&gt;"total"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;{&lt;/span&gt;
+          &lt;span style="color: #61CE3C;"&gt;"operate"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 100000&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+          &lt;span style="color: #61CE3C;"&gt;"charge"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 30000
+        &lt;span style="color: #8B8989; font-style: italic;"&gt;},&lt;/span&gt;
+        &lt;span style="color: #61CE3C;"&gt;"session"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;{&lt;/span&gt;
+          &lt;span style="color: #61CE3C;"&gt;"operate"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 2&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+          &lt;span style="color: #61CE3C;"&gt;"charge"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 0
+        &lt;span style="color: #8B8989; font-style: italic;"&gt;}&lt;/span&gt;
+      &lt;span style="color: #8B8989; font-style: italic;"&gt;},&lt;/span&gt;
+      &lt;span style="color: #61CE3C;"&gt;"mapsvgcache_ts"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 1582506399367&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+      &lt;span style="color: #61CE3C;"&gt;"svg_xPos"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 131&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+      &lt;span style="color: #61CE3C;"&gt;"svg_yPos"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 111&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+      &lt;span style="color: #61CE3C;"&gt;"config_change"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; false&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+      &lt;span style="color: #61CE3C;"&gt;"mow_trig"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; false
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;}&lt;/span&gt;
+    &lt;/pre&gt;
+    &lt;/div&gt;
+    
+    &lt;p&gt;
+    The status code can be looked up in the following table that is a combination of data found in both the projects
+    that I linked at the start of this post and some extra details that my brother-in-law figured out:
+    &lt;/p&gt;
+    
+    &lt;table&gt;
+    
+    
+    &lt;colgroup&gt;
+    &lt;col  class="org-right"&gt;
+    
+    &lt;col  class="org-left"&gt;
+    &lt;/colgroup&gt;
+    &lt;thead&gt;
+    &lt;tr&gt;
+    &lt;th scope="col" class="org-right"&gt;Status Code&lt;/th&gt;
+    &lt;th scope="col" class="org-left"&gt;Description&lt;/th&gt;
+    &lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;0&lt;/td&gt;
+    &lt;td class="org-left"&gt;Reading Status&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;101&lt;/td&gt;
+    &lt;td class="org-left"&gt;Docked&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;257&lt;/td&gt;
+    &lt;td class="org-left"&gt;Charging&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;258&lt;/td&gt;
+    &lt;td class="org-left"&gt;Docked&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;259&lt;/td&gt;
+    &lt;td class="org-left"&gt;Docked - Software Update&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;260&lt;/td&gt;
+    &lt;td class="org-left"&gt;Charging (Ran out of power)&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;261&lt;/td&gt;
+    &lt;td class="org-left"&gt;Docked (Not 258 State)&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;262&lt;/td&gt;
+    &lt;td class="org-left"&gt;Docked - Loading Map&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;263&lt;/td&gt;
+    &lt;td class="org-left"&gt;Docked -Saving Map&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;266&lt;/td&gt;
+    &lt;td class="org-left"&gt;Leaving Dock&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;512&lt;/td&gt;
+    &lt;td class="org-left"&gt;Mowing&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;513&lt;/td&gt;
+    &lt;td class="org-left"&gt;Mowing&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;514&lt;/td&gt;
+    &lt;td class="org-left"&gt;Relocalising&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;515&lt;/td&gt;
+    &lt;td class="org-left"&gt;Loading map&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;516&lt;/td&gt;
+    &lt;td class="org-left"&gt;Learning lawn&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;517&lt;/td&gt;
+    &lt;td class="org-left"&gt;Paused&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;518&lt;/td&gt;
+    &lt;td class="org-left"&gt;Border cut&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;519&lt;/td&gt;
+    &lt;td class="org-left"&gt;Idle in lawn&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;520&lt;/td&gt;
+    &lt;td class="org-left"&gt;Mowing&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;521&lt;/td&gt;
+    &lt;td class="org-left"&gt;Mowing&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;522&lt;/td&gt;
+    &lt;td class="org-left"&gt;Mowing&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;523&lt;/td&gt;
+    &lt;td class="org-left"&gt;Spot Mow&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;524&lt;/td&gt;
+    &lt;td class="org-left"&gt;Mow without Docking Station&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;525&lt;/td&gt;
+    &lt;td class="org-left"&gt;Mowing&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;768&lt;/td&gt;
+    &lt;td class="org-left"&gt;Mowing&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;769&lt;/td&gt;
+    &lt;td class="org-left"&gt;Returning to Dock&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;770&lt;/td&gt;
+    &lt;td class="org-left"&gt;Returning to Dock&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;771&lt;/td&gt;
+    &lt;td class="org-left"&gt;Returning to Dock - Battery low&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;772&lt;/td&gt;
+    &lt;td class="org-left"&gt;Returning to dock - Calendar timeslot ended&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;773&lt;/td&gt;
+    &lt;td class="org-left"&gt;Returning to dock - Battery temp range&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;774&lt;/td&gt;
+    &lt;td class="org-left"&gt;Returning to dock&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;775&lt;/td&gt;
+    &lt;td class="org-left"&gt;Returning to dock - Lawn complete&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;776&lt;/td&gt;
+    &lt;td class="org-left"&gt;Returning to dock - Relocalising&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;1005&lt;/td&gt;
+    &lt;td class="org-left"&gt;Mowing&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;1025&lt;/td&gt;
+    &lt;td class="org-left"&gt;Diagnostic mode&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;1026&lt;/td&gt;
+    &lt;td class="org-left"&gt;End of life&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;1027&lt;/td&gt;
+    &lt;td class="org-left"&gt;Service Requesting Status&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;1038&lt;/td&gt;
+    &lt;td class="org-left"&gt;Mower immobilized&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;1281&lt;/td&gt;
+    &lt;td class="org-left"&gt;Software update&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;1537&lt;/td&gt;
+    &lt;td class="org-left"&gt;Stuck&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;64513&lt;/td&gt;
+    &lt;td class="org-left"&gt;Sleeping (Docked)&lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+    &lt;td class="org-right"&gt;99999&lt;/td&gt;
+    &lt;td class="org-left"&gt;Offline&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;/tbody&gt;
+    &lt;/table&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    
+    &lt;div id="outline-container-org2c9d890" class="outline-3"&gt;
+    &lt;h3 id="org2c9d890"&gt;Operating Data&lt;/h3&gt;
+    &lt;div class="outline-text-3" id="text-org2c9d890"&gt;
+    &lt;p&gt;
+    And then &lt;code&gt;/operatingData&lt;/code&gt; which can provide more detailed information for some properties, again
+    including the serial number in the url and the context id as a header:
+    &lt;/p&gt;
+    
+    &lt;div class="org-src-container"&gt;
+    &lt;pre class="src src-http" id="org7b60ebd"&gt;&lt;span style="color: #96CBFE;"&gt;GET&lt;/span&gt; &lt;span style="color: #ff1493;"&gt;https://api.indego.iot.bosch-si.com/api/v1/alms/{serial number}/operatingData&lt;/span&gt;
+    x-im-context-id&lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 3f2a9e8c-93cb-402e-a200-e325859f3ffe
+    &lt;/pre&gt;
+    &lt;/div&gt;
+    
+    &lt;p&gt;
+    In a response that looks like this:
+    &lt;/p&gt;
+    
+    &lt;div class="org-src-container"&gt;
+    &lt;pre class="src src-http"&gt;HTTP/1.1 200 
+    
+    &lt;span style="color: #ff69b4;"&gt;Content-Type&lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;application/json
+    &lt;/span&gt;
+    
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;{&lt;/span&gt;
+      &lt;span style="color: #61CE3C;"&gt;"runtime"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;{&lt;/span&gt;
+        &lt;span style="color: #61CE3C;"&gt;"total"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;{&lt;/span&gt;
+          &lt;span style="color: #61CE3C;"&gt;"operate"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 100000&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+          &lt;span style="color: #61CE3C;"&gt;"charge"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 35002
+        &lt;span style="color: #8B8989; font-style: italic;"&gt;},&lt;/span&gt;
+        &lt;span style="color: #61CE3C;"&gt;"session"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;{&lt;/span&gt;
+          &lt;span style="color: #61CE3C;"&gt;"operate"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 0&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+          &lt;span style="color: #61CE3C;"&gt;"charge"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 0
+        &lt;span style="color: #8B8989; font-style: italic;"&gt;}&lt;/span&gt;
+      &lt;span style="color: #8B8989; font-style: italic;"&gt;},&lt;/span&gt;
+      &lt;span style="color: #61CE3C;"&gt;"battery"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;{&lt;/span&gt;
+        &lt;span style="color: #61CE3C;"&gt;"voltage"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 7.0&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+        &lt;span style="color: #61CE3C;"&gt;"cycles"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 0&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+        &lt;span style="color: #61CE3C;"&gt;"discharge"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; -0.1&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+        &lt;span style="color: #61CE3C;"&gt;"ambient_temp"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 23&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+        &lt;span style="color: #61CE3C;"&gt;"battery_temp"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 23&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+        &lt;span style="color: #61CE3C;"&gt;"percent"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 70
+      &lt;span style="color: #8B8989; font-style: italic;"&gt;},&lt;/span&gt;
+      &lt;span style="color: #61CE3C;"&gt;"garden"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;{&lt;/span&gt;
+        &lt;span style="color: #61CE3C;"&gt;"id"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 1&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+        &lt;span style="color: #61CE3C;"&gt;"name"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 1&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+        &lt;span style="color: #61CE3C;"&gt;"signal_id"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 3&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+        &lt;span style="color: #61CE3C;"&gt;"size"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 157&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+        &lt;span style="color: #61CE3C;"&gt;"inner_bounds"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 0&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+        &lt;span style="color: #61CE3C;"&gt;"cuts"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 0&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+        &lt;span style="color: #61CE3C;"&gt;"runtime"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 100000&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+        &lt;span style="color: #61CE3C;"&gt;"charge"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 35002&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+        &lt;span style="color: #61CE3C;"&gt;"bumps"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 281&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+        &lt;span style="color: #61CE3C;"&gt;"stops"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 90&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+        &lt;span style="color: #61CE3C;"&gt;"last_mow"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 3&lt;span style="color: #8B8989; font-style: italic;"&gt;,&lt;/span&gt;
+        &lt;span style="color: #61CE3C;"&gt;"map_cell_size"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 120
+      &lt;span style="color: #8B8989; font-style: italic;"&gt;},&lt;/span&gt;
+      &lt;span style="color: #61CE3C;"&gt;"hmiKeys"&lt;/span&gt; &lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 12019
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;}&lt;/span&gt;
+    &lt;/pre&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    
+    &lt;div id="outline-container-orgbfd3695" class="outline-3"&gt;
+    &lt;h3 id="orgbfd3695"&gt;HomeyScript&lt;/h3&gt;
+    &lt;div class="outline-text-3" id="text-orgbfd3695"&gt;
+    &lt;p&gt;
+    Knowing how these requests and responses look, we can make useful HomeyScript functions so we could
+    display the information somewhere or include it as part of a flow.
+    &lt;/p&gt;
+    &lt;/div&gt;
+    
+    &lt;div id="outline-container-org04148fc" class="outline-4"&gt;
+    &lt;h4 id="org04148fc"&gt;Get Status&lt;/h4&gt;
+    &lt;div class="outline-text-4" id="text-org04148fc"&gt;
+    &lt;p&gt;
+    Query the state endpoint and return the status converted to a human readable string:
+    &lt;/p&gt;
+    
+    &lt;div class="org-src-container"&gt;
+    &lt;pre class="src src-js"&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;// &lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;pull values from the flow editor&lt;/span&gt;
+    &lt;span style="color: #4c83ff;"&gt;const&lt;/span&gt; &lt;span style="color: #ff69b4;"&gt;contextId&lt;/span&gt; = args&lt;span style="color: #8b0000;"&gt;[&lt;/span&gt;&lt;span style="color: #96CBFE;"&gt;0&lt;/span&gt;&lt;span style="color: #8b0000;"&gt;]&lt;/span&gt;;
+    &lt;span style="color: #4c83ff;"&gt;const&lt;/span&gt; &lt;span style="color: #ff69b4;"&gt;serialNumber&lt;/span&gt; = args&lt;span style="color: #8b0000;"&gt;[&lt;/span&gt;&lt;span style="color: #96CBFE;"&gt;1&lt;/span&gt;&lt;span style="color: #8b0000;"&gt;]&lt;/span&gt;;
+    
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;// &lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;get the current state&lt;/span&gt;
+    &lt;span style="color: #4c83ff;"&gt;const&lt;/span&gt; &lt;span style="color: #ff69b4;"&gt;result&lt;/span&gt; = &lt;span style="color: #4c83ff;"&gt;await&lt;/span&gt; fetch&lt;span style="color: #8b0000;"&gt;(&lt;/span&gt;&lt;span style="color: #61CE3C;"&gt;'https://api.indego.iot.bosch-si.com/api/v1/alms/'&lt;/span&gt; + serialNumber + &lt;span style="color: #61CE3C;"&gt;'/state'&lt;/span&gt;, &lt;span style="color: #006400;"&gt;{&lt;/span&gt;
+        method: &lt;span style="color: #61CE3C;"&gt;'GET'&lt;/span&gt;,
+        headers: &lt;span style="color: #ff1493;"&gt;{&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;'x-im-context-id'&lt;/span&gt;: contextId &lt;span style="color: #ff1493;"&gt;}&lt;/span&gt;
+    &lt;span style="color: #006400;"&gt;}&lt;/span&gt;&lt;span style="color: #8b0000;"&gt;)&lt;/span&gt;;
+    
+    &lt;span style="color: #4c83ff;"&gt;if&lt;/span&gt; &lt;span style="color: #8b0000;"&gt;(&lt;/span&gt;!result.ok&lt;span style="color: #8b0000;"&gt;)&lt;/span&gt; &lt;span style="color: #8b0000;"&gt;{&lt;/span&gt;
+        &lt;span style="color: #4c83ff;"&gt;throw&lt;/span&gt; &lt;span style="color: #4c83ff;"&gt;new&lt;/span&gt; &lt;span style="color: #afd8af;"&gt;Error&lt;/span&gt;&lt;span style="color: #006400;"&gt;(&lt;/span&gt;result.statusText&lt;span style="color: #006400;"&gt;)&lt;/span&gt;;
+    &lt;span style="color: #8b0000;"&gt;}&lt;/span&gt;
+    
+    &lt;span style="color: #4c83ff;"&gt;const&lt;/span&gt; &lt;span style="color: #ff69b4;"&gt;body&lt;/span&gt; = &lt;span style="color: #4c83ff;"&gt;await&lt;/span&gt; result.json&lt;span style="color: #8b0000;"&gt;()&lt;/span&gt;;
+    
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;// &lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;convert the status code to human readable text&lt;/span&gt;
+    &lt;span style="color: #4c83ff;"&gt;switch&lt;/span&gt;&lt;span style="color: #8b0000;"&gt;(&lt;/span&gt;body.state&lt;span style="color: #8b0000;"&gt;)&lt;/span&gt; &lt;span style="color: #8b0000;"&gt;{&lt;/span&gt;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;0&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Reading status"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;257&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Charging"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;258&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Docked"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;259&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Docked - Software update"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;260&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Docked (Ran out of Power)"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;261&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Docked (not 258 State)"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;262&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Docked - Loading map"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;263&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Docked - Saving map"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;266&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Leaving dock"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;513&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Mowing"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;514&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Relocalising"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;515&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Loading map"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;516&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Learning lawn"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;517&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Paused"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;518&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Border cut"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;519&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Idle in lawn"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;523&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Spot Mow"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;524&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Mow without Docking Station"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;769&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Returning to Dock"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;770&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Returning to Dock"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;771&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Returning to Dock - Battery low"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;772&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Returning to dock - Calendar timeslot ended"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;773&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Returning to dock - Battery temp range"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;774&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Returning to dock"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;775&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Returning to dock - Lawn complete"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;776&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Returning to dock - Relocalising"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;1005&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Mowing"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;1025&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Diagnostic mode"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;1026&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"End of life"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;1027&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Service Requesting Status"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;1038&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Mower immobilized"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;1281&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Software update"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;1537&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Stuck"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;64513&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Sleeping (Docked)"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;case&lt;/span&gt; &lt;span style="color: #96CBFE;"&gt;99999&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"Offline"&lt;/span&gt;;
+        &lt;span style="color: #4c83ff;"&gt;default&lt;/span&gt;: &lt;span style="color: #4c83ff;"&gt;throw&lt;/span&gt; &lt;span style="color: #4c83ff;"&gt;new&lt;/span&gt; &lt;span style="color: #afd8af;"&gt;Error&lt;/span&gt;&lt;span style="color: #006400;"&gt;(&lt;/span&gt;&lt;span style="color: #61CE3C;"&gt;"Unknown state"&lt;/span&gt; + body.state&lt;span style="color: #006400;"&gt;)&lt;/span&gt;;
+    &lt;span style="color: #8b0000;"&gt;}&lt;/span&gt;
+    &lt;/pre&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    
+    &lt;div id="outline-container-org6e3d2a6" class="outline-4"&gt;
+    &lt;h4 id="org6e3d2a6"&gt;Get Battery Percentage&lt;/h4&gt;
+    &lt;div class="outline-text-4" id="text-org6e3d2a6"&gt;
+    &lt;p&gt;
+    Query the operating data and return only the battery percentage value, this can easily be modified to return
+    other values instead:
+    &lt;/p&gt;
+    
+    &lt;div class="org-src-container"&gt;
+    &lt;pre class="src src-js"&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;// &lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;pull values from the flow editor&lt;/span&gt;
+    &lt;span style="color: #4c83ff;"&gt;const&lt;/span&gt; &lt;span style="color: #ff69b4;"&gt;contextId&lt;/span&gt; = args&lt;span style="color: #8b0000;"&gt;[&lt;/span&gt;&lt;span style="color: #96CBFE;"&gt;0&lt;/span&gt;&lt;span style="color: #8b0000;"&gt;]&lt;/span&gt;;
+    &lt;span style="color: #4c83ff;"&gt;const&lt;/span&gt; &lt;span style="color: #ff69b4;"&gt;serialNumber&lt;/span&gt; = args&lt;span style="color: #8b0000;"&gt;[&lt;/span&gt;&lt;span style="color: #96CBFE;"&gt;1&lt;/span&gt;&lt;span style="color: #8b0000;"&gt;]&lt;/span&gt;;
+    
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;// &lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;get operating data&lt;/span&gt;
+    &lt;span style="color: #4c83ff;"&gt;const&lt;/span&gt; &lt;span style="color: #ff69b4;"&gt;result&lt;/span&gt; = &lt;span style="color: #4c83ff;"&gt;await&lt;/span&gt; fetch&lt;span style="color: #8b0000;"&gt;(&lt;/span&gt;&lt;span style="color: #61CE3C;"&gt;'https://api.indego.iot.bosch-si.com/api/v1/alms/'&lt;/span&gt; + serialNumber + &lt;span style="color: #61CE3C;"&gt;'/operatingData'&lt;/span&gt;, &lt;span style="color: #006400;"&gt;{&lt;/span&gt;
+        method: &lt;span style="color: #61CE3C;"&gt;'GET'&lt;/span&gt;,
+        headers: &lt;span style="color: #ff1493;"&gt;{&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;'x-im-context-id'&lt;/span&gt;: contextId &lt;span style="color: #ff1493;"&gt;}&lt;/span&gt;
+    &lt;span style="color: #006400;"&gt;}&lt;/span&gt;&lt;span style="color: #8b0000;"&gt;)&lt;/span&gt;;
+    
+    &lt;span style="color: #4c83ff;"&gt;if&lt;/span&gt; &lt;span style="color: #8b0000;"&gt;(&lt;/span&gt;!result.ok&lt;span style="color: #8b0000;"&gt;)&lt;/span&gt; &lt;span style="color: #8b0000;"&gt;{&lt;/span&gt;
+        &lt;span style="color: #4c83ff;"&gt;throw&lt;/span&gt; &lt;span style="color: #4c83ff;"&gt;new&lt;/span&gt; &lt;span style="color: #afd8af;"&gt;Error&lt;/span&gt;&lt;span style="color: #006400;"&gt;(&lt;/span&gt;result.statusText&lt;span style="color: #006400;"&gt;)&lt;/span&gt;;
+    &lt;span style="color: #8b0000;"&gt;}&lt;/span&gt;
+    
+    &lt;span style="color: #4c83ff;"&gt;const&lt;/span&gt; &lt;span style="color: #ff69b4;"&gt;body&lt;/span&gt; = &lt;span style="color: #4c83ff;"&gt;await&lt;/span&gt; result.json&lt;span style="color: #8b0000;"&gt;()&lt;/span&gt;;
+    
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;//&lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;return battery percentage&lt;/span&gt;
+    &lt;span style="color: #4c83ff;"&gt;return&lt;/span&gt; body.battery.percent;
+    &lt;/pre&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    
+    &lt;div id="outline-container-org7c94378" class="outline-2"&gt;
+    &lt;h2 id="org7c94378"&gt;Control the Mower&lt;/h2&gt;
+    &lt;div class="outline-text-2" id="text-org7c94378"&gt;
+    &lt;p&gt;
+    With code in place to authenticate with the API and retrieve information about the mower it is quite
+    straightforward to control the mower. We just need to make a &lt;code&gt;PUT&lt;/code&gt; request to the &lt;code&gt;/state&lt;/code&gt; endpoint
+    with the desired state command:
+    &lt;/p&gt;
+    
+    &lt;div class="org-src-container"&gt;
+    &lt;pre class="src src-http"&gt;&lt;span style="color: #96CBFE;"&gt;PUT&lt;/span&gt; &lt;span style="color: #ff1493;"&gt;https://api.indego.iot.bosch-si.com/api/v1/alms/{serial number}/state&lt;/span&gt;
+    x-im-context-id&lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; 3f2a9e8c-93cb-402e-a200-e325859f3ffe
+    content-type&lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; application/json
+    
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;{&lt;/span&gt;
+      &lt;span style="color: #61CE3C;"&gt;"state"&lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;:&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"mow"&lt;/span&gt;
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;}&lt;/span&gt;
+    &lt;/pre&gt;
+    &lt;/div&gt;
+    
+    &lt;p&gt;
+    We can issue a &lt;code&gt;mow&lt;/code&gt;  command to start the mower, and a &lt;code&gt;returnToDock&lt;/code&gt; command to stop it and have it
+    go back to the dock.
+    &lt;/p&gt;
+    
+    &lt;p&gt;
+    In HomeyScript this can be done like so:
+    &lt;/p&gt;
+    
+    &lt;div class="org-src-container"&gt;
+    &lt;pre class="src src-js"&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;// &lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;pull values from the flow editor&lt;/span&gt;
+    &lt;span style="color: #4c83ff;"&gt;const&lt;/span&gt; &lt;span style="color: #ff69b4;"&gt;contextId&lt;/span&gt; = args&lt;span style="color: #8b0000;"&gt;[&lt;/span&gt;&lt;span style="color: #96CBFE;"&gt;0&lt;/span&gt;&lt;span style="color: #8b0000;"&gt;]&lt;/span&gt;;
+    &lt;span style="color: #4c83ff;"&gt;const&lt;/span&gt; &lt;span style="color: #ff69b4;"&gt;serialNumber&lt;/span&gt; = args&lt;span style="color: #8b0000;"&gt;[&lt;/span&gt;&lt;span style="color: #96CBFE;"&gt;1&lt;/span&gt;&lt;span style="color: #8b0000;"&gt;]&lt;/span&gt;;
+    
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;// &lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;send the request to the api&lt;/span&gt;
+    &lt;span style="color: #4c83ff;"&gt;const&lt;/span&gt; &lt;span style="color: #ff69b4;"&gt;body&lt;/span&gt; = &lt;span style="color: #8b0000;"&gt;{&lt;/span&gt;
+        state: &lt;span style="color: #61CE3C;"&gt;"mow"&lt;/span&gt;
+    &lt;span style="color: #8b0000;"&gt;}&lt;/span&gt;;
+    
+    &lt;span style="color: #4c83ff;"&gt;const&lt;/span&gt; &lt;span style="color: #ff69b4;"&gt;result&lt;/span&gt; = &lt;span style="color: #4c83ff;"&gt;await&lt;/span&gt; fetch&lt;span style="color: #8b0000;"&gt;(&lt;/span&gt;&lt;span style="color: #61CE3C;"&gt;'https://api.indego.iot.bosch-si.com/api/v1/alms/'&lt;/span&gt; + serialNumber + &lt;span style="color: #61CE3C;"&gt;'/state'&lt;/span&gt;, &lt;span style="color: #006400;"&gt;{&lt;/span&gt;
+        method: &lt;span style="color: #61CE3C;"&gt;'PUT'&lt;/span&gt;,
+        body: JSON.stringify&lt;span style="color: #ff1493;"&gt;(&lt;/span&gt;body&lt;span style="color: #ff1493;"&gt;)&lt;/span&gt;,
+        headers: &lt;span style="color: #ff1493;"&gt;{&lt;/span&gt;
+            &lt;span style="color: #61CE3C;"&gt;'x-im-context-id'&lt;/span&gt;: contextId,
+            &lt;span style="color: #61CE3C;"&gt;'Content-Type'&lt;/span&gt;: &lt;span style="color: #61CE3C;"&gt;'application/json'&lt;/span&gt;
+        &lt;span style="color: #ff1493;"&gt;}&lt;/span&gt;
+    &lt;span style="color: #006400;"&gt;}&lt;/span&gt;&lt;span style="color: #8b0000;"&gt;)&lt;/span&gt;;
+    
+    &lt;span style="color: #4c83ff;"&gt;if&lt;/span&gt; &lt;span style="color: #8b0000;"&gt;(&lt;/span&gt;!result.ok&lt;span style="color: #8b0000;"&gt;)&lt;/span&gt; &lt;span style="color: #8b0000;"&gt;{&lt;/span&gt;
+        &lt;span style="color: #4c83ff;"&gt;throw&lt;/span&gt; &lt;span style="color: #4c83ff;"&gt;new&lt;/span&gt; &lt;span style="color: #afd8af;"&gt;Error&lt;/span&gt;&lt;span style="color: #006400;"&gt;(&lt;/span&gt;result.statusText&lt;span style="color: #006400;"&gt;)&lt;/span&gt;;
+    &lt;span style="color: #8b0000;"&gt;}&lt;/span&gt;
+    
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;// &lt;/span&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;this doesn't return a body, so as long as it didn't fail it should be good&lt;/span&gt;
+    &lt;/pre&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    
+    &lt;div id="outline-container-orgbd27984" class="outline-2"&gt;
+    &lt;h2 id="orgbd27984"&gt;Putting it together&lt;/h2&gt;
+    &lt;div class="outline-text-2" id="text-orgbd27984"&gt;
+    &lt;p&gt;
+    The code snippets in this post can be added to HomeyScript cards in the flow editor, and you can link up your
+    robot mower to anything else controlled by Homey.
+    &lt;/p&gt;
+    
+    &lt;p&gt;
+    The screenshot below shows examples of controlling the mower with a virtual device, and monitoring the
+    battery percentage with a virtual sensor.
+    &lt;/p&gt;
+    
+    
+    &lt;figure id="org878b8c8"&gt;
+    &lt;img src="./annotated-flow.png" alt="A screenshot of the Homey flow editor showing some ways of integrating the code from this post"&gt;
+    
+    &lt;/figure&gt;
+    
+    &lt;p&gt;
+    Happy Automating!
+    &lt;/p&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    
+  </description>
+  <pubDate>Fri, 26 Aug 2022 00:00:01 +0100</pubDate>
+  <guid>https://chamook.lol/indego-homey/</guid>
+  </item>
+
+<item>
+  <title>Literate Programming with Org Mode 🦄 </title>
+  <link>https://chamook.lol/literate-programming-with-org/</link>
+  <description>
+    &lt;div id="content" class="container"&gt;
+    &lt;p&gt;
+    Recently I've been writing &lt;a href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/overview?tabs=bicep"&gt;bicep&lt;/a&gt; for provisioning Azure services, the intent was to create a reusable template that could provision
+    different services for different projects. Having never worked with bicep before I wanted to ensure I wrote good documentation that I
+    could refer back to later, and decided to try out &lt;a href="https://orgmode.org/"&gt;Org Mode&lt;/a&gt; for its literate programming features to ensure that I kept the documentation
+    in sync with the code.
+    &lt;/p&gt;
+    
+    &lt;div id="outline-container-org2e9ad86" class="outline-2"&gt;
+    &lt;h2 id="org2e9ad86"&gt;Structured Code&lt;/h2&gt;
+    &lt;div class="outline-text-2" id="text-org2e9ad86"&gt;
+    &lt;p&gt;
+    Basic org syntax is a lot like markdown but using different special characters (&lt;code&gt;/&lt;/code&gt; for italics instead of &lt;code&gt;_&lt;/code&gt; etc) but a more significant
+    difference is the approach of using structural blocks for source code. Markdown uses &lt;code&gt;```&lt;/code&gt; to denote a block of code, and some
+    processors (like github's) can take a language argument (e.g. &lt;code&gt;``` csharp&lt;/code&gt;) to provide syntax highlighting. Org uses comparitively
+    clunky looking &lt;code&gt;#+begin_src&lt;/code&gt; and &lt;code&gt;#+end_src&lt;/code&gt; markers to surround code blocks, but it provides a much richer feature set for them.
+    &lt;/p&gt;
+    
+    &lt;p&gt;
+    Code blocks take a language parameter just like the one some markdown processors provide, but within emacs this provides access to
+    features from the language mode that you would use when editing a file of that type like syntax highlighting and autocompletion. 😀
+    &lt;/p&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    
+    &lt;div id="outline-container-orgcd16a31" class="outline-2"&gt;
+    &lt;h2 id="orgcd16a31"&gt;Execution&lt;/h2&gt;
+    &lt;div class="outline-text-2" id="text-orgcd16a31"&gt;
+    &lt;p&gt;
+    For some languages, it is also possible to execute the code directly inside the org file and have any output placed in a results block
+    similar to &lt;a href="https://jupyter.org/try-jupyter/lab/"&gt;Jupyter Notebooks&lt;/a&gt;.
+    &lt;/p&gt;
+    
+    &lt;p&gt;
+    A javascript block with this header line:
+    &lt;/p&gt;
+    
+    &lt;div class="org-src-container"&gt;
+    &lt;pre class="src src-org"&gt;#+begin_src js :results output replace :wrap src json
+    &lt;/pre&gt;
+    &lt;/div&gt;
+    
+    &lt;p&gt;
+    And this javascript code:
+    &lt;/p&gt;
+    
+    &lt;div class="org-src-container"&gt;
+    &lt;pre class="src src-js" id="orgd48066c"&gt;fetch&lt;span style="color: #8b0000;"&gt;(&lt;/span&gt;&lt;span style="color: #61CE3C;"&gt;'https://jsonplaceholder.typicode.com/todos/2'&lt;/span&gt;&lt;span style="color: #8b0000;"&gt;)&lt;/span&gt;
+      .then&lt;span style="color: #8b0000;"&gt;(&lt;/span&gt;x =&gt; x.json&lt;span style="color: #006400;"&gt;()&lt;/span&gt;&lt;span style="color: #8b0000;"&gt;)&lt;/span&gt;
+      .then&lt;span style="color: #8b0000;"&gt;(&lt;/span&gt;x =&gt; console.log&lt;span style="color: #006400;"&gt;(&lt;/span&gt;x&lt;span style="color: #006400;"&gt;)&lt;/span&gt;&lt;span style="color: #8b0000;"&gt;)&lt;/span&gt;;
+    &lt;/pre&gt;
+    &lt;/div&gt;
+    
+    &lt;p&gt;
+    Executing that code block will output a results section that wraps the result in a json source block:
+    &lt;/p&gt;
+    
+    &lt;div class="org-src-container"&gt;
+    &lt;pre class="src src-json"&gt;&lt;span style="color: #8b0000;"&gt;{&lt;/span&gt;
+      userId: &lt;span style="color: #96CBFE;"&gt;1&lt;/span&gt;,
+      id: &lt;span style="color: #96CBFE;"&gt;2&lt;/span&gt;,
+      title: 'quis ut nam facilis et officia qui',
+      completed: &lt;span style="color: #96CBFE;"&gt;false&lt;/span&gt;
+    &lt;span style="color: #8b0000;"&gt;}&lt;/span&gt;
+    &lt;/pre&gt;
+    &lt;/div&gt;
+    
+    
+    &lt;p&gt;
+    But code in org files isn't limited to staying within the file, with &lt;code&gt;org-babel-tangle&lt;/code&gt; you can create code files from your documentation.
+    &lt;/p&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    
+    &lt;div id="outline-container-org80a784f" class="outline-2"&gt;
+    &lt;h2 id="org80a784f"&gt;Tangling&lt;/h2&gt;
+    &lt;div class="outline-text-2" id="text-org80a784f"&gt;
+    &lt;p&gt;
+    By adding &lt;code&gt;:tangle&lt;/code&gt; and a filename to the start of a block, you can output code from an org documentation file into a file that only
+    contains code, and can even be part of a whole coding project.
+    &lt;/p&gt;
+    
+    &lt;p&gt;
+    Using &lt;code&gt;M-x org-babel-tangle&lt;/code&gt; from within emacs on a file containing a block like this:
+    &lt;/p&gt;
+    
+    &lt;div class="org-src-container"&gt;
+    &lt;pre class="src src-org"&gt;
+    &lt;span style="color: #008ED1; background-color: #2b2b2b;"&gt;#+begin_src csharp :tangle SampleClass.cs&lt;/span&gt;
+    &lt;span style="color: #4c83ff; background-color: #383838;"&gt;namespace&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #ff69b4; background-color: #383838;"&gt;Chamook&lt;/span&gt;&lt;span style="background-color: #383838;"&gt;.&lt;/span&gt;&lt;span style="color: #ff69b4; background-color: #383838;"&gt;Sample&lt;/span&gt;&lt;span style="background-color: #383838;"&gt;;&lt;/span&gt;
+    
+    &lt;span style="color: #4c83ff; background-color: #383838;"&gt;public&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #4c83ff; background-color: #383838;"&gt;sealed&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #4c83ff; background-color: #383838;"&gt;class&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #afd8af; background-color: #383838;"&gt;SampleClass&lt;/span&gt;
+    &lt;span style="color: #8b0000; background-color: #383838;"&gt;{&lt;/span&gt;
+    &lt;span style="background-color: #383838;"&gt;    &lt;/span&gt;&lt;span style="color: #4c83ff; background-color: #383838;"&gt;public&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #afd8af; background-color: #383838;"&gt;string&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #ff69b4; background-color: #383838;"&gt;Name&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #006400; background-color: #383838;"&gt;{&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #4c83ff; background-color: #383838;"&gt;get&lt;/span&gt;&lt;span style="background-color: #383838;"&gt;; &lt;/span&gt;&lt;span style="color: #006400; background-color: #383838;"&gt;}&lt;/span&gt;
+    
+    &lt;span style="background-color: #383838;"&gt;    &lt;/span&gt;&lt;span style="color: #4c83ff; background-color: #383838;"&gt;public&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #afd8af; background-color: #383838;"&gt;void&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #ff1493; background-color: #383838;"&gt;Greet&lt;/span&gt;&lt;span style="color: #006400; background-color: #383838;"&gt;()&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; =&gt; Console.&lt;/span&gt;&lt;span style="color: #ff1493; background-color: #383838;"&gt;WriteLine&lt;/span&gt;&lt;span style="color: #006400; background-color: #383838;"&gt;(&lt;/span&gt;&lt;span style="background-color: #383838;"&gt;$&lt;/span&gt;&lt;span style="color: #61CE3C; background-color: #383838;"&gt;"Hello, {Name}"&lt;/span&gt;&lt;span style="color: #006400; background-color: #383838;"&gt;)&lt;/span&gt;&lt;span style="background-color: #383838;"&gt;;&lt;/span&gt;
+    &lt;span style="color: #8b0000; background-color: #383838;"&gt;}&lt;/span&gt;
+    
+    &lt;span style="color: #008ED1; background-color: #2b2b2b;"&gt;#+end_src&lt;/span&gt;
+    &lt;/pre&gt;
+    &lt;/div&gt;
+    
+    &lt;p&gt;
+    Will output a file called &lt;code&gt;SampleClass.cs&lt;/code&gt; with the code as contents:
+    &lt;/p&gt;
+    
+    &lt;div class="org-src-container"&gt;
+    &lt;pre class="src src-csharp"&gt;&lt;span style="color: #4c83ff;"&gt;namespace&lt;/span&gt; &lt;span style="color: #ff69b4;"&gt;Chamook&lt;/span&gt;.&lt;span style="color: #ff69b4;"&gt;Sample&lt;/span&gt;;
+    
+    &lt;span style="color: #4c83ff;"&gt;public&lt;/span&gt; &lt;span style="color: #4c83ff;"&gt;sealed&lt;/span&gt; &lt;span style="color: #4c83ff;"&gt;class&lt;/span&gt; &lt;span style="color: #afd8af;"&gt;SampleClass&lt;/span&gt;
+    &lt;span style="color: #8b0000;"&gt;{&lt;/span&gt;
+        &lt;span style="color: #4c83ff;"&gt;public&lt;/span&gt; &lt;span style="color: #afd8af;"&gt;string&lt;/span&gt; &lt;span style="color: #ff69b4;"&gt;Name&lt;/span&gt; &lt;span style="color: #006400;"&gt;{&lt;/span&gt; &lt;span style="color: #4c83ff;"&gt;get&lt;/span&gt;; &lt;span style="color: #006400;"&gt;}&lt;/span&gt;
+    
+        &lt;span style="color: #4c83ff;"&gt;public&lt;/span&gt; &lt;span style="color: #afd8af;"&gt;void&lt;/span&gt; &lt;span style="color: #ff1493;"&gt;Greet&lt;/span&gt;&lt;span style="color: #006400;"&gt;()&lt;/span&gt; =&gt; Console.&lt;span style="color: #ff1493;"&gt;WriteLine&lt;/span&gt;&lt;span style="color: #006400;"&gt;(&lt;/span&gt;$&lt;span style="color: #61CE3C;"&gt;"Hello, {Name}"&lt;/span&gt;&lt;span style="color: #006400;"&gt;)&lt;/span&gt;;
+    &lt;span style="color: #8b0000;"&gt;}&lt;/span&gt;
+    &lt;/pre&gt;
+    &lt;/div&gt;
+    
+    &lt;p&gt;
+    This can be broken up across several source blocks and tangled to a single file:
+    &lt;/p&gt;
+    
+    &lt;div class="org-src-container"&gt;
+    &lt;pre class="src src-org"&gt;First declare a namespace:
+    
+    &lt;span style="color: #008ED1; background-color: #2b2b2b;"&gt;#+begin_src csharp :tangle SampleClass.cs&lt;/span&gt;
+    &lt;span style="color: #4c83ff; background-color: #383838;"&gt;namespace&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #ff69b4; background-color: #383838;"&gt;Chamook&lt;/span&gt;&lt;span style="background-color: #383838;"&gt;.&lt;/span&gt;&lt;span style="color: #ff69b4; background-color: #383838;"&gt;Sample&lt;/span&gt;&lt;span style="background-color: #383838;"&gt;;&lt;/span&gt;
+    &lt;span style="color: #008ED1; background-color: #2b2b2b;"&gt;#+end_src&lt;/span&gt;
+    
+    Then declare the class:
+    &lt;span style="color: #008ED1; background-color: #2b2b2b;"&gt;#+begin_src csharp :tangle SampleClass.cs&lt;/span&gt;
+    &lt;span style="color: #4c83ff; background-color: #383838;"&gt;public&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #4c83ff; background-color: #383838;"&gt;sealed&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #4c83ff; background-color: #383838;"&gt;class&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #afd8af; background-color: #383838;"&gt;SampleClass&lt;/span&gt;
+    &lt;span style="color: #8b0000; background-color: #383838;"&gt;{&lt;/span&gt;
+    &lt;span style="background-color: #383838;"&gt;    &lt;/span&gt;&lt;span style="color: #4c83ff; background-color: #383838;"&gt;public&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #afd8af; background-color: #383838;"&gt;string&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #ff69b4; background-color: #383838;"&gt;Name&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #006400; background-color: #383838;"&gt;{&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #4c83ff; background-color: #383838;"&gt;get&lt;/span&gt;&lt;span style="background-color: #383838;"&gt;; &lt;/span&gt;&lt;span style="color: #006400; background-color: #383838;"&gt;}&lt;/span&gt;
+    
+    &lt;span style="background-color: #383838;"&gt;    &lt;/span&gt;&lt;span style="color: #4c83ff; background-color: #383838;"&gt;public&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #afd8af; background-color: #383838;"&gt;void&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #ff1493; background-color: #383838;"&gt;Greet&lt;/span&gt;&lt;span style="color: #006400; background-color: #383838;"&gt;()&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; =&gt; Console.&lt;/span&gt;&lt;span style="color: #ff1493; background-color: #383838;"&gt;WriteLine&lt;/span&gt;&lt;span style="color: #006400; background-color: #383838;"&gt;(&lt;/span&gt;&lt;span style="background-color: #383838;"&gt;$&lt;/span&gt;&lt;span style="color: #61CE3C; background-color: #383838;"&gt;"Hello, {Name}"&lt;/span&gt;&lt;span style="color: #006400; background-color: #383838;"&gt;)&lt;/span&gt;&lt;span style="background-color: #383838;"&gt;;&lt;/span&gt;
+    &lt;span style="color: #8b0000; background-color: #383838;"&gt;}&lt;/span&gt;
+    &lt;span style="color: #008ED1; background-color: #2b2b2b;"&gt;#+end_src&lt;/span&gt;
+    &lt;/pre&gt;
+    &lt;/div&gt;
+    
+    &lt;p&gt;
+    Will tangle to a single &lt;code&gt;SampleClass.cs&lt;/code&gt; file containing code from all the source blocks that tangle to it in the order that they appear in the
+    org file.
+    &lt;/p&gt;
+    
+    &lt;p&gt;
+    One org file can also tangle to multiple code files by specifying different filenames in code blocks:
+    &lt;/p&gt;
+    
+    &lt;div class="org-src-container"&gt;
+    &lt;pre class="src src-org"&gt;Namespace for my C# file:
+    
+    &lt;span style="color: #008ED1; background-color: #2b2b2b;"&gt;#+begin_src csharp :tangle SampleClass.cs&lt;/span&gt;
+    &lt;span style="color: #4c83ff; background-color: #383838;"&gt;namespace&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #ff69b4; background-color: #383838;"&gt;Chamook&lt;/span&gt;&lt;span style="background-color: #383838;"&gt;.&lt;/span&gt;&lt;span style="color: #ff69b4; background-color: #383838;"&gt;Sample&lt;/span&gt;&lt;span style="background-color: #383838;"&gt;;&lt;/span&gt;
+    &lt;span style="color: #008ED1; background-color: #2b2b2b;"&gt;#+end_src&lt;/span&gt;
+    
+    Oh that reminds me of a funny javascript story:
+    
+    &lt;span style="color: #008ED1; background-color: #2b2b2b;"&gt;#+begin_src js :tangle hahaha.js&lt;/span&gt;
+    &lt;span style="color: #4c83ff; background-color: #383838;"&gt;function&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #ff1493; background-color: #383838;"&gt;pleaseLaugh&lt;/span&gt;&lt;span style="color: #8b0000; background-color: #383838;"&gt;()&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #8b0000; background-color: #383838;"&gt;{&lt;/span&gt;
+    &lt;span style="background-color: #383838;"&gt;  &lt;/span&gt;&lt;span style="color: #4c83ff; background-color: #383838;"&gt;return&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #61CE3C; background-color: #383838;"&gt;"hahaha"&lt;/span&gt;&lt;span style="background-color: #383838;"&gt;;&lt;/span&gt;
+    &lt;span style="color: #8b0000; background-color: #383838;"&gt;}&lt;/span&gt;
+    &lt;span style="color: #008ED1; background-color: #2b2b2b;"&gt;#+end_src&lt;/span&gt;
+    
+    Then declare a class in the C# file:
+    
+    &lt;span style="color: #008ED1; background-color: #2b2b2b;"&gt;#+begin_src csharp :tangle SampleClass.cs&lt;/span&gt;
+    &lt;span style="color: #4c83ff; background-color: #383838;"&gt;public&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #4c83ff; background-color: #383838;"&gt;sealed&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #4c83ff; background-color: #383838;"&gt;class&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #afd8af; background-color: #383838;"&gt;SampleClass&lt;/span&gt;
+    &lt;span style="color: #8b0000; background-color: #383838;"&gt;{&lt;/span&gt;
+    &lt;span style="background-color: #383838;"&gt;    &lt;/span&gt;&lt;span style="color: #4c83ff; background-color: #383838;"&gt;public&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #afd8af; background-color: #383838;"&gt;string&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #ff69b4; background-color: #383838;"&gt;Name&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #006400; background-color: #383838;"&gt;{&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #4c83ff; background-color: #383838;"&gt;get&lt;/span&gt;&lt;span style="background-color: #383838;"&gt;; &lt;/span&gt;&lt;span style="color: #006400; background-color: #383838;"&gt;}&lt;/span&gt;
+    
+    &lt;span style="background-color: #383838;"&gt;    &lt;/span&gt;&lt;span style="color: #4c83ff; background-color: #383838;"&gt;public&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #afd8af; background-color: #383838;"&gt;void&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #ff1493; background-color: #383838;"&gt;Greet&lt;/span&gt;&lt;span style="color: #006400; background-color: #383838;"&gt;()&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; =&gt; Console.&lt;/span&gt;&lt;span style="color: #ff1493; background-color: #383838;"&gt;WriteLine&lt;/span&gt;&lt;span style="color: #006400; background-color: #383838;"&gt;(&lt;/span&gt;&lt;span style="background-color: #383838;"&gt;$&lt;/span&gt;&lt;span style="color: #61CE3C; background-color: #383838;"&gt;"Hello, {Name}"&lt;/span&gt;&lt;span style="color: #006400; background-color: #383838;"&gt;)&lt;/span&gt;&lt;span style="background-color: #383838;"&gt;;&lt;/span&gt;
+    &lt;span style="color: #8b0000; background-color: #383838;"&gt;}&lt;/span&gt;
+    &lt;span style="color: #008ED1; background-color: #2b2b2b;"&gt;#+end_src&lt;/span&gt;
+    &lt;/pre&gt;
+    &lt;/div&gt;
+    
+    &lt;p&gt;
+    Will output both the &lt;code&gt;.cs&lt;/code&gt; and the &lt;code&gt;.js&lt;/code&gt; files specified.
+    &lt;/p&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    
+    &lt;div id="outline-container-org2b58f0e" class="outline-2"&gt;
+    &lt;h2 id="org2b58f0e"&gt;Conditional Tangling&lt;/h2&gt;
+    &lt;div class="outline-text-2" id="text-org2b58f0e"&gt;
+    &lt;p&gt;
+    For the templates I was creating from an org file, I wanted to be able to pick and choose which parts were included rather than just
+    outputting everything. Conveniently emacs can evaluate an emacs-lisp expression as part of the &lt;code&gt;:tangle&lt;/code&gt; definition on a code block,
+    meaning that I could check a condition and either return a filename or &lt;code&gt;"no"&lt;/code&gt; which disables tangling for that block. The check
+    could look at variables set within the org file, but as I was working on a template that other people might want to use I made it check
+    if some dotfiles existed in the same directory:
+    &lt;/p&gt;
+    
+    &lt;div class="org-src-container"&gt;
+    &lt;pre class="src src-org"&gt;#+begin_src bicep :tangle (if (file-exists-p ".Config1") "infra/main.bicep" "no")
+    &lt;/pre&gt;
+    &lt;/div&gt;
+    
+    &lt;p&gt;
+    This block will only be tangled with the &lt;code&gt;main.bicep&lt;/code&gt; file if there is a file called &lt;code&gt;.Config1&lt;/code&gt; in the same directory as the org file.
+    &lt;/p&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    
+    &lt;div id="outline-container-orgfce8a14" class="outline-2"&gt;
+    &lt;h2 id="orgfce8a14"&gt;Backfilling Values with Noweb&lt;/h2&gt;
+    &lt;div class="outline-text-2" id="text-orgfce8a14"&gt;
+    &lt;p&gt;
+    Building templates that were configurable in this way led to a scenario where sometimes I would need to include values in an earlier part of a
+    bicep file only if a later block was tangled. Source blocks in org mode support using &lt;a href="https://en.wikipedia.org/wiki/Noweb"&gt;noweb&lt;/a&gt; style markup to include either the contents
+    or the result of evaluating other blocks in the document, which provides a nice way of solving this problem.
+    &lt;/p&gt;
+    
+    &lt;p&gt;
+    In the initial block that may need a value from later, I can enable noweb replacements by specifying &lt;code&gt;:noweb yes&lt;/code&gt; and then add a
+    reference to the later contents:
+    &lt;/p&gt;
+    
+    &lt;div class="org-src-container"&gt;
+    &lt;pre class="src src-org"&gt;&lt;span style="color: #008ED1; background-color: #2b2b2b;"&gt;#+begin_src :noweb yes&lt;/span&gt;
+    &lt;span style="text-decoration: underline;"&gt;&lt;&lt;maybe-from-later()&gt;&gt;&lt;/span&gt;
+    &lt;span style="color: #008ED1; background-color: #2b2b2b;"&gt;#+end_src&lt;/span&gt;
+    &lt;/pre&gt;
+    &lt;/div&gt;
+    
+    &lt;p&gt;
+    Then later include a named block, that performs the check for the dotfile and returns a value if it is present, or an empty string otherwise:
+    &lt;/p&gt;
+    
+    &lt;div class="org-src-container"&gt;
+    &lt;pre class="src src-org"&gt;#name: maybe-from-later
+    &lt;span style="color: #008ED1; background-color: #2b2b2b;"&gt;#+begin_src emacs-lisp :cache no&lt;/span&gt;
+    &lt;span style="color: #8b0000; background-color: #383838;"&gt;(&lt;/span&gt;&lt;span style="color: #4c83ff; background-color: #383838;"&gt;if&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #006400; background-color: #383838;"&gt;(&lt;/span&gt;&lt;span style="background-color: #383838;"&gt;file-exists-p &lt;/span&gt;&lt;span style="color: #61CE3C; background-color: #383838;"&gt;".config2"&lt;/span&gt;&lt;span style="color: #006400; background-color: #383838;"&gt;)&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #61CE3C; background-color: #383838;"&gt;"// the file exists"&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #61CE3C; background-color: #383838;"&gt;""&lt;/span&gt;&lt;span style="color: #8b0000; background-color: #383838;"&gt;)&lt;/span&gt;
+    &lt;span style="color: #008ED1; background-color: #2b2b2b;"&gt;#+end_src&lt;/span&gt;
+    &lt;/pre&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    
+    &lt;div id="outline-container-orgac6dd24" class="outline-2"&gt;
+    &lt;h2 id="orgac6dd24"&gt;Tangling for the non-Emacs user&lt;/h2&gt;
+    &lt;div class="outline-text-2" id="text-orgac6dd24"&gt;
+    &lt;p&gt;
+    A template is less useful if it constrains people to use a specific editor (with a relatively steep learning curve) to be able to get any value from
+    it, but fortunately Emacs can be called from the command line to tangle a file so I included a shell script with my template. (I actually tangled
+    the shell script from the template itself 🤘):
+    &lt;/p&gt;
+    
+    &lt;div class="org-src-container"&gt;
+    &lt;pre class="src src-org"&gt;&lt;span style="color: #008ED1; background-color: #2b2b2b;"&gt;#+begin_src bash :tangle tangle.sh :shebang "#!/bin/bash"&lt;/span&gt;
+    &lt;span style="background-color: #383838;"&gt;emacs --batch &lt;/span&gt;&lt;span style="color: #61CE3C; background-color: #383838;"&gt;\&lt;/span&gt;
+    &lt;span style="background-color: #383838;"&gt;      --eval &lt;/span&gt;&lt;span style="color: #61CE3C; background-color: #383838;"&gt;"(require 'org)"&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #61CE3C; background-color: #383838;"&gt;\&lt;/span&gt;
+    &lt;span style="background-color: #383838;"&gt;      --eval &lt;/span&gt;&lt;span style="color: #61CE3C; background-color: #383838;"&gt;"(setq org-confirm-babel-evaluate nil)"&lt;/span&gt;&lt;span style="background-color: #383838;"&gt; &lt;/span&gt;&lt;span style="color: #61CE3C; background-color: #383838;"&gt;\&lt;/span&gt;
+    &lt;span style="background-color: #383838;"&gt;      --eval &lt;/span&gt;&lt;span style="color: #61CE3C; background-color: #383838;"&gt;'(org-babel-tangle-file "file.org")'&lt;/span&gt;
+    &lt;span style="color: #008ED1; background-color: #2b2b2b;"&gt;#+end_src&lt;/span&gt;
+    &lt;/pre&gt;
+    &lt;/div&gt;
+    
+    &lt;p&gt;
+    This passes several snippets of emacs-lisp for emacs to evaluate:
+    &lt;/p&gt;
+    
+    &lt;div class="org-src-container"&gt;
+    &lt;pre class="src src-emacs-lisp"&gt;&lt;span style="color: #8b0000;"&gt;(&lt;/span&gt;&lt;span style="color: #4c83ff;"&gt;require&lt;/span&gt; '&lt;span style="color: #96CBFE;"&gt;org&lt;/span&gt;&lt;span style="color: #8b0000;"&gt;)&lt;/span&gt;
+    &lt;/pre&gt;
+    &lt;/div&gt;
+    
+    &lt;p&gt;
+    First ensures that org-mode is loaded, then we edit the org-babel configuration slightly:
+    &lt;/p&gt;
+    
+    &lt;div class="org-src-container"&gt;
+    &lt;pre class="src src-emacs-lisp"&gt;&lt;span style="color: #8b0000;"&gt;(&lt;/span&gt;&lt;span style="color: #4c83ff;"&gt;setq&lt;/span&gt; org-confirm-babel-evaluate nil&lt;span style="color: #8b0000;"&gt;)&lt;/span&gt;
+    &lt;/pre&gt;
+    &lt;/div&gt;
+    
+    &lt;p&gt;
+    This disables the prompt before evaluating each code block so that a user doesn't have to type &lt;code&gt;yes&lt;/code&gt; for each block that is evaluated.
+    With that config change in place it's just a matter to call the function that will actually tangle our org file and tell it which file to operate on:
+    &lt;/p&gt;
+    
+    &lt;div class="org-src-container"&gt;
+    &lt;pre class="src src-emacs-lisp"&gt;&lt;span style="color: #8b0000;"&gt;(&lt;/span&gt;org-babel-tangle-file &lt;span style="color: #61CE3C;"&gt;"file.org"&lt;/span&gt;&lt;span style="color: #8b0000;"&gt;)&lt;/span&gt;
+    &lt;/pre&gt;
+    &lt;/div&gt;
+    
+    &lt;p&gt;
+    With this the org file is tangled and nobody had to open an emacs window or learn any keybindings 😅 
+    &lt;/p&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    
+    &lt;div id="outline-container-org7a1bd1a" class="outline-2"&gt;
+    &lt;h2 id="org7a1bd1a"&gt;Exporting&lt;/h2&gt;
+    &lt;div class="outline-text-2" id="text-org7a1bd1a"&gt;
+    &lt;p&gt;
+    After working with org files a bunch to create this template, I discovered that there is also a fairly customizable export functionality -
+    by setting a few config values:
+    &lt;/p&gt;
+    
+    &lt;div class="org-src-container"&gt;
+    &lt;pre class="src src-emacs-lisp"&gt;&lt;span style="color: #8b0000;"&gt;(&lt;/span&gt;&lt;span style="color: #4c83ff;"&gt;setq&lt;/span&gt; org-html-doctype &lt;span style="color: #61CE3C;"&gt;"html5"&lt;/span&gt;&lt;span style="color: #8b0000;"&gt;)&lt;/span&gt;
+    &lt;span style="color: #8b0000;"&gt;(&lt;/span&gt;&lt;span style="color: #4c83ff;"&gt;setq&lt;/span&gt; org-html-postamble-format '&lt;span style="color: #006400;"&gt;(&lt;/span&gt;&lt;span style="color: #ff1493;"&gt;(&lt;/span&gt;&lt;span style="color: #61CE3C;"&gt;"en"&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"&lt;footer class=\"page-footer\"&gt;&lt;/span&gt;
+    &lt;span style="color: #61CE3C;"&gt;&lt;div class=\"container\"&gt;&lt;/span&gt;
+    &lt;span style="color: #61CE3C;"&gt;  &lt;a href=\"../index.html\"&gt;&amp;lt;- M-x find-more-content&lt;/a&gt;&lt;/span&gt;
+    &lt;span style="color: #61CE3C;"&gt;&lt;/div&gt;&lt;/span&gt;
+    &lt;span style="color: #61CE3C;"&gt;&lt;/footer&gt;"&lt;/span&gt;&lt;span style="color: #ff1493;"&gt;)&lt;/span&gt;&lt;span style="color: #006400;"&gt;)&lt;/span&gt;&lt;span style="color: #8b0000;"&gt;)&lt;/span&gt;
+    &lt;span style="color: #8b0000;"&gt;(&lt;/span&gt;&lt;span style="color: #4c83ff;"&gt;setq&lt;/span&gt; org-html-postamble 't&lt;span style="color: #8b0000;"&gt;)&lt;/span&gt;
+    &lt;span style="color: #8b0000;"&gt;(&lt;/span&gt;&lt;span style="color: #4c83ff;"&gt;setq&lt;/span&gt; org-html-preamble-format '&lt;span style="color: #006400;"&gt;(&lt;/span&gt;&lt;span style="color: #ff1493;"&gt;(&lt;/span&gt;&lt;span style="color: #61CE3C;"&gt;"en"&lt;/span&gt; &lt;span style="color: #61CE3C;"&gt;"&lt;header&gt;&lt;/span&gt;
+    &lt;span style="color: #61CE3C;"&gt;&lt;div class=\"container\"&gt;&lt;/span&gt;
+    &lt;span style="color: #61CE3C;"&gt;  &lt;h1 class=\"glitch-text\" data-text=\"%t\"&gt;%t&lt;/h1&gt;&lt;/span&gt;
+    &lt;span style="color: #61CE3C;"&gt;  &lt;span class=\"subtitle\"&gt;%s&lt;/span&gt;&lt;/span&gt;
+    &lt;span style="color: #61CE3C;"&gt;&lt;/div&gt;&lt;/span&gt;
+    &lt;span style="color: #61CE3C;"&gt;&lt;div class=\"byline\"&gt;&lt;/span&gt;
+    &lt;span style="color: #61CE3C;"&gt;  &lt;div class=\"container\"&gt;&lt;/span&gt;
+    &lt;span style="color: #61CE3C;"&gt;    &lt;p&gt;By &lt;a href=\"https://twitter.com/chamooktweets\"&gt;Adam Guest&lt;/a&gt; - %d&lt;/p&gt;&lt;/span&gt;
+    &lt;span style="color: #61CE3C;"&gt;  &lt;/div&gt;&lt;/span&gt;
+    &lt;span style="color: #61CE3C;"&gt;&lt;/div&gt;&lt;/span&gt;
+    &lt;span style="color: #61CE3C;"&gt;&lt;/header&gt;"&lt;/span&gt;&lt;span style="color: #ff1493;"&gt;)&lt;/span&gt;&lt;span style="color: #006400;"&gt;)&lt;/span&gt;&lt;span style="color: #8b0000;"&gt;)&lt;/span&gt;
+    &lt;/pre&gt;
+    &lt;/div&gt;
+    
+    &lt;p&gt;
+    And adding some extra values to include in the html at the top of the document:
+    &lt;/p&gt;
+    
+    &lt;div class="org-src-container"&gt;
+    &lt;pre class="src src-org"&gt;&lt;span style="color: #8B8989; font-style: italic;"&gt;#+options: toc:nil num:nil html-style:nil html5-fancy:'t title:nil exports:both&lt;/span&gt;
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;#+html_content_class: container&lt;/span&gt;
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;#+html_head: &lt;link rel="stylesheet" href="../style.css"&gt;&lt;/span&gt;
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;#+html_head: &lt;meta charset="utf-8"&gt;&lt;/span&gt;
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;#+html_head:&lt;meta http-equiv="X-UA-Compatible" content="IE=edge"&gt;&lt;/span&gt;
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;#+html_head:&lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;&lt;/span&gt;
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;#+html_head:&lt;link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png"&gt;&lt;/span&gt;
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;#+html_head:&lt;link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png"&gt;&lt;/span&gt;
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;#+html_head:&lt;link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png"&gt;&lt;/span&gt;
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;#+html_head:&lt;meta property="og:url" content="&lt;a href="https://chamook.lol/literate-programming-with-org/"&gt;https://chamook.lol/literate-programming-with-org/&lt;/a&gt;" /&gt;&lt;/span&gt;
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;#+html_head:&lt;meta property="og:image" content="&lt;a href="https://chamook.lol/literate-programming-with-org/card.png"&gt;https://chamook.lol/literate-programming-with-org/card.png&lt;/a&gt;" /&gt;&lt;/span&gt;
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;#+html_head:&lt;meta property="og:type" content="article" /&gt;&lt;/span&gt;
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;#+html_head:&lt;meta property="article:published_time" content="2022-08-12T00:00:00+00:00" /&gt;&lt;/span&gt;
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;#+html_head:&lt;meta name="twitter:card" content="summary_large_image" /&gt;&lt;/span&gt;
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;#+html_head:&lt;meta property="twitter:image" content="&lt;a href="https://chamook.lol/literate-programming-with-org/card.png"&gt;https://chamook.lol/literate-programming-with-org/card.png&lt;/a&gt;" /&gt;&lt;/span&gt;
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;#+html_head:&lt;meta property="twitter:title" content="Literate Programming with Org Mode &#129412;" /&gt;&lt;/span&gt;
+    &lt;span style="color: #8B8989; font-style: italic;"&gt;#+html_head:&lt;meta property="twitter:description" content="Broke: Generate docs from code | Woke: Generate code from docs &#128526;" /&gt;&lt;/span&gt;
+    &lt;/pre&gt;
+    &lt;/div&gt;
+    
+    &lt;p&gt;
+    I can use &lt;code&gt;org-export-dispatch&lt;/code&gt; to generate this html page 😍 
+    &lt;/p&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    
+  </description>
+  <pubDate>Fri, 12 Aug 2022 00:00:01 +0100</pubDate>
+  <guid>https://chamook.lol/literate-programming-with-org/</guid>
+  </item>
+
+</channel>
+</rss>
