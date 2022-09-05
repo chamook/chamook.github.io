@@ -642,7 +642,7 @@ article>footer {
 .highlight .gd { color: #f92672; } /* Generic.Deleted & Diff Deleted */
 .highlight .gi { color: #a6e22e; } /* Generic.Inserted & Diff Inserted */
 
-.highlight pre::before, .datebox::before, .flicker::before {
+.org-src-container pre::before, .highlight pre::before, .datebox::before, .flicker::before {
     content: " ";
     display: block;
     position: absolute;
@@ -721,7 +721,7 @@ article>footer {
     }
 }
 
-.highlight pre::after, .datebox::after, .flicker::after {
+.org-src-container pre::after, .highlight pre::after, .datebox::after, .flicker::after {
     content: " ";
     display: block;
     position: absolute;
@@ -808,8 +808,8 @@ article>footer {
     animation: none;
 }
 
-.org-src-container:hover::before, .highlight pre:hover::before, .flicker:hover::before { display: none; }
-.org-src-container:hover::after, .highlight pre:hover::after, .flicker:hover::after { display:none; }
+.org-src-container:hover pre::before, .highlight pre:hover::before, .flicker:hover::before { display: none; }
+.org-src-container:hover pre::after, .highlight pre:hover::after, .flicker:hover::after { display:none; }
 
 
 table {
