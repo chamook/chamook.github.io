@@ -325,7 +325,7 @@ a.footnote-link {
 	vertical-align: super;
 }
 
-footer {
+footer, #footnotes{
     background-color: var(--background);
     filter: brightness(60%);
     margin: 0;
@@ -345,7 +345,38 @@ footer {
     grid-row: 2;
 }
 
-article>footer {
+#content blockquote { margin-bottom: 3rem; }
+
+#content blockquote p {
+    font-weight: 100;
+    padding: 1.2rem;
+    margin: 0rem;
+    border-radius: 0.5rem;
+    display: block;
+    position: relative;
+    background-color: #272822;
+}
+
+#content blockquote>p:last-child {
+    filter: unset;
+    padding: 0;
+    text-align: right;
+    z-index: 10;
+    position: relative;
+    background-color: transparent;
+    color: white;
+    background-color: var(--purple);
+    padding: 0.8rem;
+    text-transform: uppercase;
+    display: inline-block;
+    font-weight: 100;
+    transform:translate(-0.4rem, -1.7rem);
+    border-radius: 0;
+    float: right;
+    font-size: 1rem;
+}
+
+article>footer, #footnotes {
     filter: none;
     padding: 0;
 }
@@ -642,7 +673,7 @@ article>footer {
 .highlight .gd { color: #f92672; } /* Generic.Deleted & Diff Deleted */
 .highlight .gi { color: #a6e22e; } /* Generic.Inserted & Diff Inserted */
 
-.org-src-container pre::before, .highlight pre::before, .datebox::before, .flicker::before {
+.org-src-container pre::before, .highlight pre::before, .datebox::before, .flicker::before, #content blockquote p:not(:last-child)::before {
     content: " ";
     display: block;
     position: absolute;
@@ -721,7 +752,7 @@ article>footer {
     }
 }
 
-.org-src-container pre::after, .highlight pre::after, .datebox::after, .flicker::after {
+.org-src-container pre::after, .highlight pre::after, .datebox::after, .flicker::after, #content blockquote p:not(:last-child)::after {
     content: " ";
     display: block;
     position: absolute;
@@ -800,16 +831,16 @@ article>footer {
     text-shadow: 2.6208764473832513px 0 1px rgba(0,30,255,0.5), -2.6208764473832513px 0 1px rgba(255,0,80,0.3), 0 0 3px;
   }
 }
-.org-src-container, .highlight pre, .datebox, .flicker {
+.org-src-container, .highlight pre, .datebox, .flicker, #content blockquote p:not(:last-child) {
   animation: textShadow 1.6s infinite;
 }
 
-.org-src-container:hover, .highlight pre:hover, .flicker:hover {
+.org-src-container:hover, .highlight pre:hover, .flicker:hover, #content blockquote p:not(:last-child):hover {
     animation: none;
 }
 
-.org-src-container:hover pre::before, .highlight pre:hover::before, .flicker:hover::before { display: none; }
-.org-src-container:hover pre::after, .highlight pre:hover::after, .flicker:hover::after { display:none; }
+.org-src-container:hover pre::before, .highlight pre:hover::before, .flicker:hover::before, #content blockquote p:not(:last-child)::before { display: none; }
+.org-src-container:hover pre::after, .highlight pre:hover::after, .flicker:hover::after, #content blockquote p:not(:last-child)::after { display:none; }
 
 
 table {
