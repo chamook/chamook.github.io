@@ -1,6 +1,6 @@
 #+title: Business Value Isn't Real, Only Vibes Can Be Trusted
 #+subtitle: How do you know if you're working on something good?
-#+date: 18 November 2022
+#+date: 21 November 2022
 #+options: toc:nil num:nil html-style:nil html5-fancy:'t title:nil exports:both
 #+html_content_class: container
 #+html_head: <link rel="stylesheet" href="../style.css">
