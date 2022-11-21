@@ -416,7 +416,7 @@ so let's just enjoy when that happens eh? 🍹
     <description>
       <<value-post-content()>>
     </description>
-    <pubDate>Mon, 20 Nov 2022 00:00:01 +0100</pubDate>
+    <pubDate>Mon, 21 Nov 2022 00:00:01 +0100</pubDate>
     <guid>https://chamook.lol/value-vs-vibes/</guid>
     </item>
 #+end_src
