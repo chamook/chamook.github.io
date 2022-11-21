@@ -22,6 +22,9 @@ body {
     color: white;
     padding: 0;
     margin: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
 a {
@@ -865,4 +868,12 @@ tbody tr:nth-child(even) {
 td {
     font-family: var(--code-font);
     padding: 0.3rem;
+}
+
+.archive header {
+    padding-top: 6rem;
+}
+
+.archive > .container {
+    margin-top: 0;
 }
