@@ -64,7 +64,7 @@ Even if it were possible for a business to predict what actions would lead to th
 the best outcome for anyone connected to the business who wants something other than
 maximum profit. Consider these possible actions:
 
-- a company fires many workers from it's product team leading to savings on labour but the
+- a company fires many workers from its product team leading to savings on labour but the
   fired workers have now lost their employment, and the remaining team is left with more work
   to split among fewer members causing an increase in stess
 - adding extra data collection to an app allows a company to sell that user data to advertisers
