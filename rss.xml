@@ -34,9 +34,9 @@
     &lt;/p&gt;
     &lt;/blockquote&gt;
     
-    &lt;div id="outline-container-orgf532952" class="outline-2"&gt;
-    &lt;h2 id="orgf532952"&gt;What is valuable to a business anyways?&lt;/h2&gt;
-    &lt;div class="outline-text-2" id="text-orgf532952"&gt;
+    &lt;div id="outline-container-org5420cd6" class="outline-2"&gt;
+    &lt;h2 id="org5420cd6"&gt;What is valuable to a business anyways?&lt;/h2&gt;
+    &lt;div class="outline-text-2" id="text-org5420cd6"&gt;
     &lt;p&gt;
     Under capitalism a business exists to concentrate wealth into the possession of its owners by
     making money &lt;sup&gt;&lt;a id="fnr.1" class="footref" href="#fn.1" role="doc-backlink"&gt;1&lt;/a&gt;&lt;/sup&gt;. This can be a motivating system to spur innovation and the production of
@@ -75,7 +75,7 @@
     &lt;/p&gt;
     
     &lt;ul class="org-ul"&gt;
-    &lt;li&gt;a company fires many workers from it's product team leading to savings on labour but the
+    &lt;li&gt;a company fires many workers from its product team leading to savings on labour but the
     fired workers have now lost their employment, and the remaining team is left with more work
     to split among fewer members causing an increase in stess&lt;/li&gt;
     &lt;li&gt;adding extra data collection to an app allows a company to sell that user data to advertisers
@@ -98,9 +98,9 @@
     &lt;/div&gt;
     &lt;/div&gt;
     
-    &lt;div id="outline-container-orga25f7ba" class="outline-2"&gt;
-    &lt;h2 id="orga25f7ba"&gt;A business without value?&lt;/h2&gt;
-    &lt;div class="outline-text-2" id="text-orga25f7ba"&gt;
+    &lt;div id="outline-container-org5e5ed57" class="outline-2"&gt;
+    &lt;h2 id="org5e5ed57"&gt;A business without value?&lt;/h2&gt;
+    &lt;div class="outline-text-2" id="text-org5e5ed57"&gt;
     &lt;p&gt;
     Fine. Ok. A business has to make a profit or it can't exist. Maybe that's not a sensible way of
     organising our whole society given the nightmarish things we've seen it lead to. But fine,
@@ -132,9 +132,9 @@
     &lt;/div&gt;
     &lt;/div&gt;
     
-    &lt;div id="outline-container-org5b6ef12" class="outline-2"&gt;
-    &lt;h2 id="org5b6ef12"&gt;How do we decide what's valuable?&lt;/h2&gt;
-    &lt;div class="outline-text-2" id="text-org5b6ef12"&gt;
+    &lt;div id="outline-container-org20d5de8" class="outline-2"&gt;
+    &lt;h2 id="org20d5de8"&gt;How do we decide what's valuable?&lt;/h2&gt;
+    &lt;div class="outline-text-2" id="text-org20d5de8"&gt;
     &lt;p&gt;
     We don't need to throw out all of agile at least, so we can start with working in small increments
     that we immediately make available to get fast feedback. But we are left needing a method of
@@ -152,9 +152,9 @@
     &lt;/div&gt;
     &lt;/div&gt;
     
-    &lt;div id="outline-container-org2df7780" class="outline-2"&gt;
-    &lt;h2 id="org2df7780"&gt;Checking the Vibes&lt;/h2&gt;
-    &lt;div class="outline-text-2" id="text-org2df7780"&gt;
+    &lt;div id="outline-container-org7a039a3" class="outline-2"&gt;
+    &lt;h2 id="org7a039a3"&gt;Checking the Vibes&lt;/h2&gt;
+    &lt;div class="outline-text-2" id="text-org7a039a3"&gt;
     &lt;blockquote&gt;
     &lt;p&gt;
     Search your feelings, you know this code is bad
@@ -185,9 +185,9 @@
     &lt;/p&gt;
     &lt;/div&gt;
     
-    &lt;div id="outline-container-orgca19f18" class="outline-3"&gt;
-    &lt;h3 id="orgca19f18"&gt;Thinkin' about the future&lt;/h3&gt;
-    &lt;div class="outline-text-3" id="text-orgca19f18"&gt;
+    &lt;div id="outline-container-orgf6cc4a9" class="outline-3"&gt;
+    &lt;h3 id="orgf6cc4a9"&gt;Thinkin' about the future&lt;/h3&gt;
+    &lt;div class="outline-text-3" id="text-orgf6cc4a9"&gt;
     &lt;p&gt;
     Before we make a change or build a thing, let's take a moment to consider what it is we're aiming
     to do and if the thing we're doing furthers that goal. Consider that there are many options of things
@@ -229,9 +229,9 @@
     &lt;/div&gt;
     &lt;/div&gt;
     
-    &lt;div id="outline-container-org0b6d03a" class="outline-3"&gt;
-    &lt;h3 id="org0b6d03a"&gt;Conciously doing&lt;/h3&gt;
-    &lt;div class="outline-text-3" id="text-org0b6d03a"&gt;
+    &lt;div id="outline-container-orgc0cd3d2" class="outline-3"&gt;
+    &lt;h3 id="orgc0cd3d2"&gt;Conciously doing&lt;/h3&gt;
+    &lt;div class="outline-text-3" id="text-orgc0cd3d2"&gt;
     &lt;p&gt;
     As work progresses on any given feature/change/iteration we will learn more about what it is
     we're making. Hopefully, any new information we discover will simply confirm that we made a
@@ -276,9 +276,9 @@
     &lt;/div&gt;
     &lt;/div&gt;
     
-    &lt;div id="outline-container-org0629258" class="outline-3"&gt;
-    &lt;h3 id="org0629258"&gt;Spectating retroactively&lt;/h3&gt;
-    &lt;div class="outline-text-3" id="text-org0629258"&gt;
+    &lt;div id="outline-container-orgc87287e" class="outline-3"&gt;
+    &lt;h3 id="orgc87287e"&gt;Spectating retroactively&lt;/h3&gt;
+    &lt;div class="outline-text-3" id="text-orgc87287e"&gt;
     &lt;p&gt;
     Some things are never done. Whenever we deliver something we want to know how well it is
     actually received, how fit it turned out to be for its purpose, how it should impact our future
@@ -310,15 +310,16 @@
     &lt;a href="https://www.nngroup.com/articles/response-times-3-important-limits/"&gt;how fast something should respond&lt;/a&gt; when people are working with it so we can track the
     response times of our own systems to see if they fall into line. Other metrics are less useful,
     if we really want to get a feel for how a change is working out in the world, we need to seek out
-    qualitive information from people who actually use it - the ideal scenario being the opportunity
-    to watch people use the system and then talking with them afterwards.
+    qualitative information from people who actually use it - the ideal scenario being the opportunity
+    to watch people use the system and then talk with them afterwards.
     &lt;/p&gt;
     
     &lt;p&gt;
     The questions that you ask to users should be different to those that you ask yourselves, the goal
     when talking to them is to discover how they use a system and why they did it in that particular way -
     this can often give insights into how it could better work with them to gain a desired result, but it
-    can also provide things to consider about how you got here.
+    can also provide things to consider about how you got here. The following are some examples of
+    questions that we may want to ask ourselves:
     &lt;/p&gt;
     
     &lt;ul class="org-ul"&gt;
@@ -329,13 +330,42 @@
     &lt;li&gt;Is there anything we learned during this that we didn't immediately act upon, but now we should
     do something with it?&lt;/li&gt;
     &lt;/ul&gt;
+    
+    &lt;p&gt;
+    Asking questions at this stage is necessarily concerned with the past, and thus has some limited
+    scope for what we can impact - but it also has the most concrete information about what actually
+    happened that can serve to increase our confidence in future changes. Given a comparison between
+    our initial expectations and our actual measured outcomes, we can see the impact of any of our
+    earlier interventions and use discrepancies to guide any future changes we wish to make.
+    &lt;/p&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    
+    &lt;div id="outline-container-org60e7ca8" class="outline-3"&gt;
+    &lt;h3 id="org60e7ca8"&gt;Rinse and Repeat&lt;/h3&gt;
+    &lt;div class="outline-text-3" id="text-org60e7ca8"&gt;
+    &lt;p&gt;
+    As described earlier, work on a system should proceed in small increments where possible such
+    that we can pass through each of the stages above many times during the lifetime of a system. It
+    is important both to maintain the process of asking questions as we go, guarding against the
+    complacency that comes with repetition to ensure that we keep questioning what we are doing; and
+    to evaluate the process itself to ensure that our ways of working do not guide us into producing things
+    that go against our goals.
+    &lt;/p&gt;
+    
+    &lt;p&gt;
+    Like with learning another language, or trying to lift heavier weights this is a process that rewards
+    consistent effort over a long time rather than a single burst of herculean exertion. As we produce
+    more new things, and have more history to evaluate and draw lessons from we can improve our
+    every step towards the future.
+    &lt;/p&gt;
     &lt;/div&gt;
     &lt;/div&gt;
     &lt;/div&gt;
     
-    &lt;div id="outline-container-org4b1bc0e" class="outline-2"&gt;
-    &lt;h2 id="org4b1bc0e"&gt;What was all this about?&lt;/h2&gt;
-    &lt;div class="outline-text-2" id="text-org4b1bc0e"&gt;
+    &lt;div id="outline-container-orgef724c5" class="outline-2"&gt;
+    &lt;h2 id="orgef724c5"&gt;What was all this about?&lt;/h2&gt;
+    &lt;div class="outline-text-2" id="text-orgef724c5"&gt;
     &lt;blockquote&gt;
     &lt;p&gt;
     I tried so hard, and got so far, but in the end I didn't hit my KPIs
@@ -364,7 +394,7 @@
     &lt;/div&gt;
     &lt;/div&gt;
     &lt;div id="footnotes"&gt;
-    &lt;h2 class="footnotes"&gt;Footnotes&lt;/h2&gt;
+    &lt;h2 class="footnotes"&gt;Footnotes: &lt;/h2&gt;
     &lt;div id="text-footnotes"&gt;
     
     &lt;div class="footdef"&gt;&lt;sup&gt;&lt;a id="fn.1" class="footnum" href="#fnr.1" role="doc-backlink"&gt;1&lt;/a&gt;&lt;/sup&gt; &lt;div class="footpara" role="doc-footnote"&gt;&lt;p class="footpara"&gt;
@@ -393,7 +423,7 @@
     &lt;/div&gt;&lt;/div&gt;
     
   </description>
-  <pubDate>Mon, 21 Nov 2022 00:00:01 +0100</pubDate>
+  <pubDate>Mon, 28 Nov 2022 00:00:01 +0100</pubDate>
   <guid>https://chamook.lol/value-vs-vibes/</guid>
   </item>
 
