@@ -1,6 +1,6 @@
 #+title: Business Value Isn't Real, Only Vibes Can Be Trusted
 #+subtitle: How do you know if you're working on something good?
-#+date: 21 November 2022
+#+date: 28 November 2022
 #+options: toc:nil num:nil html-style:nil html5-fancy:'t title:nil exports:both
 #+html_content_class: container
 #+html_head: <link rel="stylesheet" href="../style.css">
@@ -230,13 +230,14 @@ everything is good! Some metrics are good and useful, for example we know
 [[https://www.nngroup.com/articles/response-times-3-important-limits/][how fast something should respond]] when people are working with it so we can track the
 response times of our own systems to see if they fall into line. Other metrics are less useful,
 if we really want to get a feel for how a change is working out in the world, we need to seek out
-qualitive information from people who actually use it - the ideal scenario being the opportunity
-to watch people use the system and then talking with them afterwards.
+qualitative information from people who actually use it - the ideal scenario being the opportunity
+to watch people use the system and then talk with them afterwards.
 
 The questions that you ask to users should be different to those that you ask yourselves, the goal
 when talking to them is to discover how they use a system and why they did it in that particular way -
 this can often give insights into how it could better work with them to gain a desired result, but it
-can also provide things to consider about how you got here.
+can also provide things to consider about how you got here. The following are some examples of
+questions that we may want to ask ourselves:
 
 - Did the results match our expectations?
 - Was our understanding of the problem domain complete?
@@ -244,6 +245,26 @@ can also provide things to consider about how you got here.
   our expectations for the future?
 - Is there anything we learned during this that we didn't immediately act upon, but now we should
   do something with it?
+
+Asking questions at this stage is necessarily concerned with the past, and thus has some limited
+scope for what we can impact - but it also has the most concrete information about what actually
+happened that can serve to increase our confidence in future changes. Given a comparison between
+our initial expectations and our actual measured outcomes, we can see the impact of any of our
+earlier interventions and use discrepancies to guide any future changes we wish to make.
+
+** Rinse and Repeat
+
+As described earlier, work on a system should proceed in small increments where possible such
+that we can pass through each of the stages above many times during the lifetime of a system. It
+is important both to maintain the process of asking questions as we go, guarding against the
+complacency that comes with repetition to ensure that we keep questioning what we are doing; and
+to evaluate the process itself to ensure that our ways of working do not guide us into producing things
+that go against our goals.
+
+Like with learning another language, or trying to lift heavier weights this is a process that rewards
+consistent effort over a long time rather than a single burst of herculean exertion. As we produce
+more new things, and have more history to evaluate and draw lessons from we can improve our
+every step towards the future.
 
 * What was all this about?
 
