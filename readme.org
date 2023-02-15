@@ -1,0 +1,3 @@
+#+title: chamook.lol
+
+This is my personal website, available at [[https://chamook.lol][chamook.lol]]
