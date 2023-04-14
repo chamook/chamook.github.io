@@ -1,0 +1,305 @@
+@import "font/IBMPlexSans/font.css";
+
+:root {
+    --main-font: "IBM Plex Sans";
+    --code-font: "Inconsolata";
+    --green: #48cc18;
+    --purple: #ca1aca;
+
+    --background: #121212;
+
+	  --time-anim: 12s;
+	  --delay-anim: 0s;
+}
+
+body {
+	  font-family: var(--main-font);
+    font-size: 1.5rem;
+    background-color: var(--background);
+    color: white;
+    padding: 0;
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+h1 {
+    color: var(--green);
+    font-weight: 700;
+    font-size: 5rem;
+    margin: 0;
+    padding: 0;
+    text-transform: uppercase;
+    line-height: 5.4rem;
+    display: block;
+    width: 100%;
+}
+
+h2 {
+    font-weight: 100;
+    font-size: 1.5rem;
+    color: white;
+    background-color: var(--purple);
+    padding: 0.8rem;
+}
+
+section {
+    display: flex;
+    opacity: 0;
+    /* position: absolute; */
+    height: 0;
+
+    transition: opacity 1s;
+    order: 1;
+    max-width: 90vw;
+}
+
+section div { margin: auto;}
+
+section h1 {  height: 0; }
+
+section.current {
+    min-height: 100vh;
+    box-sizing: border-box;
+    opacity: 1;
+    margin: auto;
+    order: 0;
+}
+section.current h1 {  height: unset; }
+
+section:last-child {
+    color: gray;
+    text-transform: lowercase;
+}
+
+code {
+    display: block;
+    margin: 1rem;
+}
+
+/* effects */
+
+/* verified badge */
+span.verified {
+    border: 1px solid #30336d;
+    border-radius: 24px;
+    padding-left: 22px;
+    padding-right: 22px;
+    line-height: 1.8rem;
+    color: rgb(63, 185, 80);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    transform: scale(5);
+    display: block;
+    box-shadow:
+      0 0 60px 30px #fff,
+      0 0 100px 60px #f0f,
+      0 0 140px 90px #0ff;
+}
+
+/* glitch */
+
+body.no-glitch .glitch-text::before, body.no-glitch .glitch-text::after { display: none !important; }
+
+.glitch-text {
+    position: relative;
+    overflow: hidden;
+    padding: 3px;
+}
+
+.glitch-text::after {
+    padding: 3px;
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 2px;
+    background: var(--background);
+    clip-path: inset(20% 0% 10% 0%);
+	  animation: glitch-anim-1 var(--time-anim) infinite linear alternate-reverse;
+}
+
+.glitch-text::before {
+    padding: 3px;
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: -2px;
+    background: var(--background);
+    clip-path: inset(20% 0% 20% 0%);
+	  animation: glitch-anim-2 var(--time-anim) infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim-1 {
+  0% {
+    clip-path: inset(95px 0 16px 0);
+    transform: skew(0.19deg);
+  }
+  5% {
+    clip-path: inset(58px 0 77px 0);
+    transform: skew(0.7deg);
+  }
+  10% {
+    clip-path: inset(40px 0 25px 0);
+    transform: skew(0.55deg);
+  }
+  15% {
+    clip-path: inset(34px 0 2px 0);
+    transform: skew(0.14deg);
+  }
+  20% {
+    clip-path: inset(8px 0 5px 0);
+    transform: skew(0.53deg);
+  }
+  25% {
+    clip-path: inset(90px 0 9px 0);
+    transform: skew(0.13deg);
+  }
+  30% {
+    clip-path: inset(40px 0 84px 0);
+    transform: skew(0.81deg);
+  }
+  35% {
+    clip-path: inset(22px 0 51px 0);
+    transform: skew(0.49deg);
+  }
+  40% {
+    clip-path: inset(11px 0 33px 0);
+    transform: skew(0.74deg);
+  }
+  45% {
+    clip-path: inset(75px 0 96px 0);
+    transform: skew(0.96deg);
+  }
+  50% {
+    clip-path: inset(33px 0 89px 0);
+    transform: skew(0.77deg);
+  }
+  55% {
+    clip-path: inset(21px 0 57px 0);
+    transform: skew(0.95deg);
+  }
+  60% {
+    clip-path: inset(34px 0 92px 0);
+    transform: skew(0.29deg);
+  }
+  65% {
+    clip-path: inset(17px 0 94px 0);
+    transform: skew(0.84deg);
+  }
+  70% {
+    clip-path: inset(93px 0 91px 0);
+    transform: skew(0.49deg);
+  }
+  75% {
+    clip-path: inset(19px 0 53px 0);
+    transform: skew(0.38deg);
+  }
+  80% {
+    clip-path: inset(71px 0 71px 0);
+    transform: skew(0.57deg);
+  }
+  85% {
+    clip-path: inset(1px 0 17px 0);
+    transform: skew(0.64deg);
+  }
+  90% {
+    clip-path: inset(76px 0 71px 0);
+    transform: skew(0.17deg);
+  }
+  95% {
+    clip-path: inset(99px 0 7px 0);
+    transform: skew(0.9deg);
+  }
+  100% {
+    clip-path: inset(79px 0 68px 0);
+    transform: skew(0.05deg);
+  }
+}
+
+@keyframes glitch-anim-2 {
+  0% {
+    clip-path: inset(95px 0 68px 0);
+    transform: skew(0.19deg);
+  }
+  5% {
+    clip-path: inset(58px 0 24px 0);
+    transform: skew(0.7deg);
+  }
+  10% {
+    clip-path: inset(40px 0 30px 0);
+    transform: skew(0.55deg);
+  }
+  15% {
+    clip-path: inset(34px 0 50px 0);
+    transform: skew(0.14deg);
+  }
+  20% {
+    clip-path: inset(8px 0 89px 0);
+    transform: skew(0.53deg);
+  }
+  25% {
+    clip-path: inset(90px 0 2px 0);
+    transform: skew(0.13deg);
+  }
+  30% {
+    clip-path: inset(40px 0 5px 0);
+    transform: skew(0.81deg);
+  }
+  35% {
+    clip-path: inset(22px 0 20px 0);
+    transform: skew(0.49deg);
+  }
+  40% {
+    clip-path: inset(11px 0 2px 0);
+    transform: skew(0.74deg);
+  }
+  45% {
+    clip-path: inset(75px 0 66px 0);
+    transform: skew(0.96deg);
+  }
+  50% {
+    clip-path: inset(33px 0 13px 0);
+    transform: skew(0.77deg);
+  }
+  55% {
+    clip-path: inset(21px 0 60px 0);
+    transform: skew(0.95deg);
+  }
+  60% {
+    clip-path: inset(34px 0 12px 0);
+    transform: skew(0.29deg);
+  }
+  65% {
+    clip-path: inset(17px 0 5px 0);
+    transform: skew(0.84deg);
+  }
+  70% {
+    clip-path: inset(93px 0 20px 0);
+    transform: skew(0.49deg);
+  }
+  75% {
+    clip-path: inset(19px 0 10px 0);
+    transform: skew(0.38deg);
+  }
+  80% {
+    clip-path: inset(71px 0 90px 0);
+    transform: skew(0.57deg);
+  }
+  85% {
+    clip-path: inset(1px 0 22px 0);
+    transform: skew(0.64deg);
+  }
+  90% {
+    clip-path: inset(76px 0 11px 0);
+    transform: skew(0.17deg);
+  }
+  95% {
+    clip-path: inset(99px 0 38px 0);
+    transform: skew(0.9deg);
+  }
+  100% {
+    clip-path: inset(79px 0 93px 0);
+    transform: skew(0.05deg);
+  }
+}

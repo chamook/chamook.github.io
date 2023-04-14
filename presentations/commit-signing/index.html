@@ -1,0 +1,186 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Signing Your Git Commits</title>
+        <script src="slideshow.js"></script>
+        <link href="style.css" rel="stylesheet" />
+    </head>
+    <body>
+        <section>
+            <div>
+                <h1
+                    class="glitch-text"
+                    data-text="you should sign your commits">
+                    You should sign your commits
+                </h1>
+            </div>
+        </section>
+        <section>
+            <div>
+                <h1
+                    class="glitch-text"
+                    data-text="why would I do that?">
+                    why would I do that?
+                </h1>
+            </div>
+        </section>
+        <section>
+            <div>
+            <span class="verified" >Verified</span>
+            </div>
+        </section>
+        <section>
+            <div>
+            <h1
+                class="glitch-text"
+                data-text="git without commit signing">
+                git without commit signing
+            </h1>
+            <img
+                src="diagrams/unsigned-commits.svg"
+                alt="Git flow without commit signing allows anyone to claim to be anyone else" />
+            </div>
+        </section>
+        <section>
+            <div>
+                <h1
+                    class="glitch-text"
+                    data-text="git with commit signing">
+                    git with commit signing
+                </h1>
+                <img src="diagrams/signed-commits.svg" alt="Commit signing stops people impersonating others" />
+            </div>
+        </section>
+        <section>
+            <div>
+                <h1
+                    class="glitch-text"
+                    data-text="git with enforced commit signing">
+                    git with enforced commit signing
+                </h1>
+                <img src="diagrams/enforced-commit-signing.svg" alt="Commit signing stops people impersonating others" />
+            </div>
+        </section>
+        <section>
+            <div>
+            <h1
+                class="glitch-text"
+                data-text="Signing commits verifies the author">
+                signing commits verifies the author
+            </h1>
+            </div>
+        </section>
+        <section>
+            <div>
+            <h1
+                class="glitch-text"
+                data-text="what's the deal with keys?">
+                What's the deal with keys?
+            </h1>
+            <p>
+            </p>
+            </div>
+        </section>
+        <section>
+            <div>
+                <h1
+                    class="glitch-text"
+                    data-text="How do we do this?">
+                    How do we do this?
+                </h1>
+            </div>
+        </section>
+        <section>
+            <div>
+                <ul>
+                    <li>Generate Keys (1 per identity)</li>
+                    <li>Generate Subkey (per device)</li>
+                    <li>Backup Keys</li>
+                    <li>Delete master keys from device(s)</li>
+                    <li>Configure git</li>
+                    <li>Share public keys</li>
+                </ul>
+            </div>
+        </section>
+        <section>
+            <div>
+                <code>
+gpg --full-generate-key
+                </code>
+                <code>
+kind: (4) RSA (sign only)
+                </code>
+                <code>
+keysize: 4096
+                </code>
+                <code>
+valid for: 1y
+                </code>
+            </div>
+        </section>
+        <section>
+            <div>
+                <code>
+gpg --list-keys youremail@example.org
+                </code>
+                <code>
+gpg --edit-key YOURMASTERKEYID
+                </code>
+                <code>
+addkey
+                </code>
+                <code>
+RSA (sign only) / 4096 / 1y
+                </code>
+                <code>
+save
+                </code>
+            </div>
+        </section>
+        <section>
+            <div>
+                <code>
+gpg --export --armor --output public.key youremail@example.org
+                </code>
+                <code>
+gpg --export-secret-keys --armor --output secret.key youremail@example.org
+                </code>
+            </div>
+        </section>
+        <section>
+            <div>
+                <code>
+gpg -K
+                </code>
+                <code>
+gpg --delete-secret-key YOURMASTERKEYID
+                </code>
+                <code>
+gpg --import secret.key
+                </code>
+                <code>
+gpg -K
+                </code>
+                <p>
+                    (your private key should show sec# instead of just sec now)
+                </p>
+            </div>
+        </section>
+        <section>
+            <div>
+                <p>.gitconfig</p>
+                <pre>
+[user]
+  signingKey = SUBKEYID!
+[commit]
+  gpgsign = true
+                </pre>
+            </div>
+        </section>
+        <section>
+            <div>
+            <p>This is the last slide</p>
+            </div>
+        </section>
+    </body>
+</html>
