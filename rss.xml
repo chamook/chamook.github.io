@@ -6,6 +6,236 @@
   <description>Posts from chamook.lol</description>
 
 <item>
+  <title>Stop Pretending To Be Stupid</title>
+  <link>https://chamook.lol/not-so-stupid/</link>
+  <description>
+    &lt;div id="content" class="container"&gt;
+    &lt;p&gt;
+    There's a tone in much of the writing that I have read about software development lately,
+    a tone that insists that we &lt;i&gt;mustn't be too smart&lt;/i&gt; and &lt;i&gt;we shouldn't do clever things&lt;/i&gt; in case
+    the creations we produce from applying our intellect become &lt;i&gt;too complex&lt;/i&gt; and thus
+    &lt;i&gt;too difficult to maintain&lt;/i&gt;.
+    &lt;/p&gt;
+    
+    &lt;p&gt;
+    I don't like it.
+    &lt;/p&gt;
+    
+    &lt;p&gt;
+    There are indeed merits to reducing complexity where possible - simpler things do
+    tend to be well&#x2026;simpler. However, I think this tendency to push away from complexity
+    and away from doing something that is arbitrarily decreed as &lt;i&gt;too smart&lt;/i&gt; is harmful both to the
+    process of creating software and to the software that is produced.
+    &lt;/p&gt;
+    
+    &lt;p&gt;
+    Complexity is inherent to software. Software should aid us in performing real world tasks,
+    those tasks have a level of complexity. So in order to manage those tasks, the law of
+    requisite complexity asserts that the software must be at least as complex. It is not
+    unreasonable to design software such that it can only manage a subset of operations
+    within a task - but this is an explicit choice that should have ramifications across the
+    software making it clear where it's limits lie, and providing necessary feedback and
+    information to allow humans to take over.
+    &lt;/p&gt;
+    
+    &lt;p&gt;
+    This attitude of avoiding &lt;i&gt;being clever&lt;/i&gt; extends to users as well. If we do not believe that
+    the genius developer can handle complexity, our estimation of an end user is lower still.
+    We do not expect that a lowly user could take over where the machine reaches its limit,
+    and thus do not equip them to do so.
+    &lt;/p&gt;
+    
+    &lt;div id="outline-container-org9c4291e" class="outline-2"&gt;
+    &lt;h2 id="org9c4291e"&gt;Stupidly Building&lt;/h2&gt;
+    &lt;div class="outline-text-2" id="text-org9c4291e"&gt;
+    &lt;p&gt;
+    When we build software, we must consider what it is intended to do. A deeper understanding
+    of the problem space allows us to create software that is correspondingly more able to
+    provide assistance in solving that problem. Building software that is effective in a problem
+    space also requires an understanding of the complexities in the software itself.
+    &lt;/p&gt;
+    
+    &lt;p&gt;
+    To reduce this overhead and to enable greater focus on the problem domain, we can learn
+    development techniques that allow for more expressive code, or for more succinct handling
+    of the required logic.
+    &lt;/p&gt;
+    
+    &lt;p&gt;
+    A quest for simplicity often stalls progress on both of these fronts. Problem spaces are not
+    thoroughly explored, instead preferring to cleave to the happy path with the minimum
+    amount of disruption from beginning to end. Software development is viewed in a similarly
+    restricted fashion: more advanced techniques are never explored (despite their potential
+    suitability for a problem space) and a lowest common denominator set of techniques is
+    seen as an outer boundary.
+    &lt;/p&gt;
+    &lt;/div&gt;
+    
+    &lt;div id="outline-container-org5244da9" class="outline-3"&gt;
+    &lt;h3 id="org5244da9"&gt;The Happy Path&lt;/h3&gt;
+    &lt;div class="outline-text-3" id="text-org5244da9"&gt;
+    &lt;p&gt;
+    The happy path is a seductive proposition when starting on a new piece of software
+    functionality. If we can focus just on what should happen when everything goes right
+    then we can show speedy progress and everyone will be happy. But software has to
+    operate in a world where everything doesn't always go as expected. Errors and outliers
+    must be considered at some point, but continuing to work on them after showing a
+    functioning system can easily be considered an unnecessary waste.
+    &lt;/p&gt;
+    
+    &lt;p&gt;
+    Avoiding errors at the start has more insidious ramifications than the obvious risk of
+    the work to handle them being delayed. Defining a model in software that doesn't consider
+    such outcomes can lead to a model that is incapable of handling them and difficult to
+    modify such that it would be capable of dealing with them. If such a model becomes the
+    source of truth for how a system should operate, it also hides any information about
+    error states from any future developers. This causes a significant increase in the amount
+    of work needed to even see the potential problems, never mind that needed to address
+    them.
+    &lt;/p&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    
+    &lt;div id="outline-container-org33be3e3" class="outline-3"&gt;
+    &lt;h3 id="org33be3e3"&gt;Using this hammer has really simplified all my problems&lt;/h3&gt;
+    &lt;div class="outline-text-3" id="text-org33be3e3"&gt;
+    &lt;p&gt;
+    Code is the most malleable substance that we have available to work with. With it we
+    can create and recreate systems of all sorts of shapes and sizes. This means that there
+    are a great many tools and techniques that can be used in a many different programming
+    paradigms from simple procedural scripts to total functional programming and everything
+    else.
+    &lt;/p&gt;
+    
+    &lt;p&gt;
+    This wealth of knowledge ensures that for any given problem that software should help
+    with, there is likely a technique that allows it to be represented clearly and worked with
+    gracefully.
+    &lt;/p&gt;
+    
+    &lt;p&gt;
+    But in a quest for simplicity at all costs many tools and techniques are ignored or
+    forbidden. We cannot adopt a new language/tool/framework/technique because we do
+    not all understand it. This greatly limits the suitability of code that is produced to the
+    problem at hand, and increases the chances that the complexities inherent in the problem
+    will not properly be accommodated.
+    &lt;/p&gt;
+    
+    &lt;p&gt;
+    I could use a hammer to bang screws into place, but it would be more effective to use a
+    screwdriver.
+    &lt;/p&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    
+    &lt;div id="outline-container-org7b580c4" class="outline-2"&gt;
+    &lt;h2 id="org7b580c4"&gt;Stupid Software&lt;/h2&gt;
+    &lt;div class="outline-text-2" id="text-org7b580c4"&gt;
+    &lt;p&gt;
+    Whether or not software complexity is considered during the building of software, it is
+    inevitably encountered during its use. Software that is unsuited to the task for which it was
+    intended harms those who rely on using it.
+    &lt;/p&gt;
+    
+    &lt;p&gt;
+    Even software that works as intended can still embody a lack of faith in any users that
+    disempowers them, removing tools that would enable them to work more effectively in
+    favour of more &lt;i&gt;simplicity&lt;/i&gt;.
+    &lt;/p&gt;
+    &lt;/div&gt;
+    
+    &lt;div id="outline-container-orgf64002a" class="outline-3"&gt;
+    &lt;h3 id="orgf64002a"&gt;Your Name is Invalid&lt;/h3&gt;
+    &lt;div class="outline-text-3" id="text-orgf64002a"&gt;
+    &lt;p&gt;
+    A frustrating flaw in many software systems is an encoding of rules about data that do not
+    reflect the realities of that data. Software routinely tells users that their names are incorrect,
+    their addresses cannot be found, their gender could only be one of two rigid options, or
+    that they are performing a feat that is clearly impossible and could they just stop lying about
+    it.
+    &lt;/p&gt;
+    
+    &lt;p&gt;
+    These deficiencies reflect a poor understanding of the data model on the part of the developers
+    that seek to eschew the complexities of reality in favour of a simpler model. In many cases,
+    they also show a missed opportunity for an even simpler solution - not collecting the data
+    in the first place. But where data relating to humans is essential to the function of a system,
+    it should be collected in a form that deals with the myriad complexities of human life.
+    To do any less is to exclude the lived experiences of real people.
+    &lt;/p&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    
+    &lt;div id="outline-container-orgf4f3f3b" class="outline-3"&gt;
+    &lt;h3 id="orgf4f3f3b"&gt;Dead Ends&lt;/h3&gt;
+    &lt;div class="outline-text-3" id="text-orgf4f3f3b"&gt;
+    &lt;p&gt;
+    When software is the only method by which a task can be accomplished, it must always
+    be possible to accomplish the task using the software. A poor model of the task and the
+    data involved can lead to dead ends, where no further steps can be taken because data
+    collected excludes all options to continue.
+    &lt;/p&gt;
+    
+    &lt;p&gt;
+    It is not unreasonable to allow software to fail in complex tasks, but allowing that failing
+    software to become a barrier to completion of the task is unacceptable. Software should
+    be capable of the tasks for which it is intended, and where it fails it must provide an
+    alternative path for a user.
+    &lt;/p&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    
+    &lt;div id="outline-container-org1c7bb42" class="outline-3"&gt;
+    &lt;h3 id="org1c7bb42"&gt;Power(less) Users&lt;/h3&gt;
+    &lt;div class="outline-text-3" id="text-org1c7bb42"&gt;
+    &lt;p&gt;
+    Even where software is capable of performing in its intended role, it may still lack flexibility
+    to offer users alternative ways of solving a problem.
+    &lt;/p&gt;
+    
+    &lt;p&gt;
+    Making software easy to use is a noble goal. The mantra that "you can't hold it wrong" is a
+    good one. However someone approaches software, it should seek to be accommodating to
+    them and guide them through performing the tasks that they need to complete with it.
+    But people learn and grow in capabilities. What is suitable for a novice who must learn how
+    to operate a system, is often limiting and slow for someone who has performed the same
+    task many times before.
+    &lt;/p&gt;
+    
+    &lt;p&gt;
+    Refusing to offer more advanced ways of working with a system robs them of the potential
+    to learn more about it. It operates as a sort of lock in that prevents them from learning more
+    general skills that could be transferred from task to task.
+    &lt;/p&gt;
+    
+    &lt;p&gt;
+    In these cases, simplicity can be good until it is no longer appropriate. Humans are capable
+    of handling complexities, and software ought to allow them to do so.
+    &lt;/p&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    
+    &lt;div id="outline-container-org9ba274b" class="outline-2"&gt;
+    &lt;h2 id="org9ba274b"&gt;TL;DR&lt;/h2&gt;
+    &lt;div class="outline-text-2" id="text-org9ba274b"&gt;
+    &lt;p&gt;
+    Software can be complex, but pretending that people are incapable of handling complexity
+    leads us to shy away from dealing with it and that causes problems down the line. Instead,
+    we must address that complexity head-on (even if that requires us to learn new things) in
+    order to build software that is fit for purpose and beneficial to those who use it.
+    &lt;/p&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;/div&gt;
+    
+  </description>
+  <pubDate>Fri, 06 Oct 2023 09:00:01 +0200</pubDate>
+  <guid>https://chamook.lol/not-so-stupid/</guid>
+  </item>
+
+<item>
   <title>Business Value Isn't Real, Only Vibes Can Be Trusted</title>
   <link>https://chamook.lol/value-vs-vibes/</link>
   <description>
@@ -34,9 +264,9 @@
     &lt;/p&gt;
     &lt;/blockquote&gt;
     
-    &lt;div id="outline-container-org5420cd6" class="outline-2"&gt;
-    &lt;h2 id="org5420cd6"&gt;What is valuable to a business anyways?&lt;/h2&gt;
-    &lt;div class="outline-text-2" id="text-org5420cd6"&gt;
+    &lt;div id="outline-container-orgc75626d" class="outline-2"&gt;
+    &lt;h2 id="orgc75626d"&gt;What is valuable to a business anyways?&lt;/h2&gt;
+    &lt;div class="outline-text-2" id="text-orgc75626d"&gt;
     &lt;p&gt;
     Under capitalism a business exists to concentrate wealth into the possession of its owners by
     making money &lt;sup&gt;&lt;a id="fnr.1" class="footref" href="#fn.1" role="doc-backlink"&gt;1&lt;/a&gt;&lt;/sup&gt;. This can be a motivating system to spur innovation and the production of
@@ -98,9 +328,9 @@
     &lt;/div&gt;
     &lt;/div&gt;
     
-    &lt;div id="outline-container-org5e5ed57" class="outline-2"&gt;
-    &lt;h2 id="org5e5ed57"&gt;A business without value?&lt;/h2&gt;
-    &lt;div class="outline-text-2" id="text-org5e5ed57"&gt;
+    &lt;div id="outline-container-orgd8538df" class="outline-2"&gt;
+    &lt;h2 id="orgd8538df"&gt;A business without value?&lt;/h2&gt;
+    &lt;div class="outline-text-2" id="text-orgd8538df"&gt;
     &lt;p&gt;
     Fine. Ok. A business has to make a profit or it can't exist. Maybe that's not a sensible way of
     organising our whole society given the nightmarish things we've seen it lead to. But fine,
@@ -132,9 +362,9 @@
     &lt;/div&gt;
     &lt;/div&gt;
     
-    &lt;div id="outline-container-org20d5de8" class="outline-2"&gt;
-    &lt;h2 id="org20d5de8"&gt;How do we decide what's valuable?&lt;/h2&gt;
-    &lt;div class="outline-text-2" id="text-org20d5de8"&gt;
+    &lt;div id="outline-container-orgb35602d" class="outline-2"&gt;
+    &lt;h2 id="orgb35602d"&gt;How do we decide what's valuable?&lt;/h2&gt;
+    &lt;div class="outline-text-2" id="text-orgb35602d"&gt;
     &lt;p&gt;
     We don't need to throw out all of agile at least, so we can start with working in small increments
     that we immediately make available to get fast feedback. But we are left needing a method of
@@ -152,9 +382,9 @@
     &lt;/div&gt;
     &lt;/div&gt;
     
-    &lt;div id="outline-container-org7a039a3" class="outline-2"&gt;
-    &lt;h2 id="org7a039a3"&gt;Checking the Vibes&lt;/h2&gt;
-    &lt;div class="outline-text-2" id="text-org7a039a3"&gt;
+    &lt;div id="outline-container-orgab30166" class="outline-2"&gt;
+    &lt;h2 id="orgab30166"&gt;Checking the Vibes&lt;/h2&gt;
+    &lt;div class="outline-text-2" id="text-orgab30166"&gt;
     &lt;blockquote&gt;
     &lt;p&gt;
     Search your feelings, you know this code is bad
@@ -185,9 +415,9 @@
     &lt;/p&gt;
     &lt;/div&gt;
     
-    &lt;div id="outline-container-orgf6cc4a9" class="outline-3"&gt;
-    &lt;h3 id="orgf6cc4a9"&gt;Thinkin' about the future&lt;/h3&gt;
-    &lt;div class="outline-text-3" id="text-orgf6cc4a9"&gt;
+    &lt;div id="outline-container-orgbe4f48f" class="outline-3"&gt;
+    &lt;h3 id="orgbe4f48f"&gt;Thinkin' about the future&lt;/h3&gt;
+    &lt;div class="outline-text-3" id="text-orgbe4f48f"&gt;
     &lt;p&gt;
     Before we make a change or build a thing, let's take a moment to consider what it is we're aiming
     to do and if the thing we're doing furthers that goal. Consider that there are many options of things
@@ -229,9 +459,9 @@
     &lt;/div&gt;
     &lt;/div&gt;
     
-    &lt;div id="outline-container-orgc0cd3d2" class="outline-3"&gt;
-    &lt;h3 id="orgc0cd3d2"&gt;Conciously doing&lt;/h3&gt;
-    &lt;div class="outline-text-3" id="text-orgc0cd3d2"&gt;
+    &lt;div id="outline-container-org4f7d5ff" class="outline-3"&gt;
+    &lt;h3 id="org4f7d5ff"&gt;Conciously doing&lt;/h3&gt;
+    &lt;div class="outline-text-3" id="text-org4f7d5ff"&gt;
     &lt;p&gt;
     As work progresses on any given feature/change/iteration we will learn more about what it is
     we're making. Hopefully, any new information we discover will simply confirm that we made a
@@ -276,9 +506,9 @@
     &lt;/div&gt;
     &lt;/div&gt;
     
-    &lt;div id="outline-container-orgc87287e" class="outline-3"&gt;
-    &lt;h3 id="orgc87287e"&gt;Spectating retroactively&lt;/h3&gt;
-    &lt;div class="outline-text-3" id="text-orgc87287e"&gt;
+    &lt;div id="outline-container-org1f0700f" class="outline-3"&gt;
+    &lt;h3 id="org1f0700f"&gt;Spectating retroactively&lt;/h3&gt;
+    &lt;div class="outline-text-3" id="text-org1f0700f"&gt;
     &lt;p&gt;
     Some things are never done. Whenever we deliver something we want to know how well it is
     actually received, how fit it turned out to be for its purpose, how it should impact our future
@@ -341,9 +571,9 @@
     &lt;/div&gt;
     &lt;/div&gt;
     
-    &lt;div id="outline-container-org60e7ca8" class="outline-3"&gt;
-    &lt;h3 id="org60e7ca8"&gt;Rinse and Repeat&lt;/h3&gt;
-    &lt;div class="outline-text-3" id="text-org60e7ca8"&gt;
+    &lt;div id="outline-container-org6bbb545" class="outline-3"&gt;
+    &lt;h3 id="org6bbb545"&gt;Rinse and Repeat&lt;/h3&gt;
+    &lt;div class="outline-text-3" id="text-org6bbb545"&gt;
     &lt;p&gt;
     As described earlier, work on a system should proceed in small increments where possible such
     that we can pass through each of the stages above many times during the lifetime of a system. It
@@ -363,9 +593,9 @@
     &lt;/div&gt;
     &lt;/div&gt;
     
-    &lt;div id="outline-container-orgef724c5" class="outline-2"&gt;
-    &lt;h2 id="orgef724c5"&gt;What was all this about?&lt;/h2&gt;
-    &lt;div class="outline-text-2" id="text-orgef724c5"&gt;
+    &lt;div id="outline-container-orgb2ec9fb" class="outline-2"&gt;
+    &lt;h2 id="orgb2ec9fb"&gt;What was all this about?&lt;/h2&gt;
+    &lt;div class="outline-text-2" id="text-orgb2ec9fb"&gt;
     &lt;blockquote&gt;
     &lt;p&gt;
     I tried so hard, and got so far, but in the end I didn't hit my KPIs
@@ -394,7 +624,7 @@
     &lt;/div&gt;
     &lt;/div&gt;
     &lt;div id="footnotes"&gt;
-    &lt;h2 class="footnotes"&gt;Footnotes: &lt;/h2&gt;
+    &lt;h2 class="footnotes"&gt;Footnotes&lt;/h2&gt;
     &lt;div id="text-footnotes"&gt;
     
     &lt;div class="footdef"&gt;&lt;sup&gt;&lt;a id="fn.1" class="footnum" href="#fnr.1" role="doc-backlink"&gt;1&lt;/a&gt;&lt;/sup&gt; &lt;div class="footpara" role="doc-footnote"&gt;&lt;p class="footpara"&gt;
