@@ -273,3 +273,57 @@ footer.cv-footer>div>p {
     }
 }
 
+@keyframes popIn {
+    0% { transform: scale(0); }
+    90% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+g#csharp {
+    animation: popIn 0.4s;
+    animation-fill-mode: both;
+    transform-origin: 150px 230px;
+}
+
+g#fsharp {
+    animation: popIn 0.4s;
+    animation-delay: 0.1s;
+    animation-fill-mode: both;
+    transform-origin: 370px 170px;
+}
+g#swift {
+    animation: popIn 0.4s;
+    animation-delay: 0.15s;
+    animation-fill-mode: both;
+    transform-origin: 270px 370px;
+}
+g#kotlin {
+    animation: popIn 0.4s;
+    animation-delay: 0.2s;
+    animation-fill-mode: both;
+    transform-origin: 170px 370px;
+}
+g#javascript {
+    animation: popIn 0.4s;
+    animation-delay: 0.3s;
+    animation-fill-mode: both;
+    transform-origin: 400px 270px;
+}
+g#rust {
+    animation: popIn 0.4s;
+    animation-delay: 0.35s;
+    animation-fill-mode: both;
+    transform-origin: 230px 370px;
+}
+g#powershell {
+    animation: popIn 0.4s;
+    animation-delay: 0.4s;
+    animation-fill-mode: both;
+    transform-origin: 350px 380px;
+}
+g#html {
+    animation: popIn 0.4s;
+    animation-delay: 0.45s;
+    animation-fill-mode: both;
+    transform-origin: 370px 370px;
+}
