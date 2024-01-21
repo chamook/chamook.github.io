@@ -47,6 +47,29 @@ h2 {
     grid-template-columns: 50% 50%;
 }
 
+#certifications {
+    grid-column: span 2;
+}
+
+#certifications > .cert {
+    display: grid;
+    grid-template-columns: 10% 1fr;
+    align-items: center;
+    grid-gap: 2rem;
+}
+
+#certifications > .cert > img {
+    width: 100%;
+}
+
+#languages {
+    grid-column: 1;
+}
+
+#technologies {
+    grid-column: 2;
+}
+
 dt {
     font-size: 1rem;
     text-transform: uppercase;
@@ -168,6 +191,11 @@ h2#skills, h2#testimonials {
     display: inline-block;
     font-weight: 100;
     transform:translate(-0.4rem, -1.7rem);
+}
+
+.testimonials blockquote footer p a {
+    font-weight: 200;
+    color: white;
 }
 
 footer.cv-footer>div>p {
