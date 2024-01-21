@@ -66,6 +66,10 @@ h2 {
     grid-column: 1;
 }
 
+#languages svg {
+    width: 100%;
+}
+
 #technologies {
     grid-column: 2;
 }
