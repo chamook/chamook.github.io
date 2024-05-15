@@ -810,7 +810,7 @@ article>footer, #footnotes {
     }
 }
 
-.org-src-container pre::after, .highlight pre::after, .datebox::after, .flicker::after, #content blockquote p:not(:last-child)::after {
+.org-src-container pre::after, .highlight pre::after, .datebox::after, .flicker::after, #content blockquote p:not(:last-child)::after, .video-list a:hover::after {
     content: " ";
     display: block;
     position: absolute;
