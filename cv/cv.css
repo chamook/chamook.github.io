@@ -87,29 +87,44 @@ li {
     grid-template-columns: 100fr auto auto;
     grid-template-rows: auto auto auto;
     display: grid;
-}
+    & h3  {
+        grid-row: 1;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        gap: 8px;
+        align-content: center;
 
-.job-header h3  {
-    grid-row: 1;
-    margin: 0;
-    padding: 0;
-}
+        &:nth-child(2) {
+            color: #ccc;
+            font-size: 80%;
+        }
 
-.job-header > span  {
-    grid-row: 2;
-}
+        & .title-range {
+            font-size: 70%;
+            background: #0b0b0b;
+            padding: 2px 6px;
+            height: 70%;
+        }
+    }
 
-job-header .pills {
-    grid-row: 3;
-}
+    & > span  {
+        grid-row: 2;
+    }
 
-.pills > span {
-    display: inline-block;
-    border: 1px solid var(--green);
-    border-radius: 8px;
-    font-size: 0.8rem;
-    padding: 0.2rem 0.5rem;
-    background-color: #006600;
+    & .pills {
+        grid-row: 3;
+
+        & > span {
+            display: inline-block;
+            border: 1px solid var(--green);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            padding: 0.2rem 0.5rem;
+            background-color: #006600;
+        }
+    }
+
 }
 
 .range-start  {
@@ -301,31 +316,25 @@ g#swift {
     animation-fill-mode: both;
     transform-origin: 270px 370px;
 }
-g#kotlin {
-    animation: popIn 0.4s;
-    animation-delay: 0.2s;
-    animation-fill-mode: both;
-    transform-origin: 170px 370px;
-}
-g#javascript {
+g#html {
     animation: popIn 0.4s;
     animation-delay: 0.3s;
     animation-fill-mode: both;
     transform-origin: 400px 270px;
 }
-g#rust {
+g#javascript {
     animation: popIn 0.4s;
     animation-delay: 0.35s;
     animation-fill-mode: both;
     transform-origin: 230px 370px;
 }
-g#powershell {
+g#rust {
     animation: popIn 0.4s;
     animation-delay: 0.4s;
     animation-fill-mode: both;
     transform-origin: 350px 380px;
 }
-g#html {
+g#css {
     animation: popIn 0.4s;
     animation-delay: 0.45s;
     animation-fill-mode: both;
