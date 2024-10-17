@@ -252,35 +252,39 @@ h2, h3, h4 {
     align-items: end;
     grid-template-columns: 100fr 8.3rem;
     column-gap: 0.5rem;
-}
-.project-item p {
-    grid-column-start: 1;
-}
 
+    & p {
+        grid-column-start: 1;
+    }
 
-.icon {
-	  width: 6rem;
-    height: 90%;
-    background-color: var(--background);
-    grid-column-start: 2;
-    grid-row-start: 1;
-    grid-row-end: span 2;
-    border-radius: 0.5rem;
-    display: grid;
-}
+    & .icon {
+	      width: 6rem;
+        height: 90%;
+        background-color: var(--background);
+        grid-column-start: 2;
+        grid-row-start: 1;
+        grid-row-end: span 2;
+        border-radius: 0.5rem;
+        display: grid;
 
-.icon :first-child {
-    filter: brightness(60%);
-}
+        & :first-child {
+            filter: brightness(60%);
+        }
 
-.project-item:hover .icon :first-child {
-    filter: brightness(100%);
-}
+        & img, & svg {
+            width: 80%;
+            margin: auto;
+            align-self: start;
+        }
+    }
 
-.icon img {
-    width: 80%;
-    margin: auto;
-    align-self: start;
+    &:hover {
+      & .icon {
+        & :first-child {
+          filter: brightness(100%);
+        }
+      }
+    }
 }
 
 .datebox {
