@@ -17,7 +17,12 @@ function showSlide(index) {
             continue;
         }
 
-        elements[i-1].className = "";
+        const e = elements[i-1];
+        const clearClass = () => {
+            const myE = e;
+            myE.className = "";
+        };
+        setTimeout(clearClass, 300);
     }
 
     slideIndex = index;
