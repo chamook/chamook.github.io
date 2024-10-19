@@ -24,7 +24,7 @@ body {
     flex-direction: column;
     overflow: hidden;
 
-    div.keybindings {
+    & div.keybindings {
         position: absolute;
         z-index: 10;
         background: var(--background);
@@ -36,7 +36,7 @@ body {
         animation: fade-out 5s both;
         animation-delay: 10s;
 
-        span.key {
+        & span.key {
             background: #0b0b0b;
             border: 1px solid white;
             border-radius: 3px;
@@ -44,7 +44,7 @@ body {
         }
     }
 
-    h1 {
+    & h1 {
         color: var(--green);
         font-weight: 700;
         font-size: 5rem;
@@ -56,7 +56,7 @@ body {
         width: 100%;
     }
 
-    h2 {
+    & h2 {
         font-weight: 100;
         font-size: 1.5rem;
         color: white;
@@ -64,7 +64,7 @@ body {
         padding: 0.8rem;
     }
 
-    section {
+    & section {
         display: none;
         position: absolute;
         height: 100vh;
@@ -94,7 +94,7 @@ body {
         }
     }
 
-    code {
+    & code {
         display: block;
         margin: 1rem;
     }
@@ -102,7 +102,7 @@ body {
     /* effects */
 
     /* verified badge */
-    span.verified {
+    & span.verified {
         border: 1px solid #30336d;
         border-radius: 24px;
         padding-left: 22px;
@@ -120,17 +120,7 @@ body {
 
     /* glitch */
 
-    body.no-glitch {
-        .glitch-text::before, .glitch-text::after {
-            display: none !important;
-        }
-
-        section {
-            animation: none;
-        }
-    }
-
-    .glitch-text {
+    & .glitch-text {
         position: relative;
         overflow: hidden;
         padding: 3px;
@@ -157,6 +147,16 @@ body {
             animation: glitch-anim-2 var(--time-anim) infinite linear alternate-reverse;
         }
     }
+    &.no-glitch {
+        & .glitch-text::before, .glitch-text::after {
+            display: none !important;
+        }
+
+        & section {
+            animation: none !important;
+        }
+    }
+
 }
 
 @keyframes glitch-anim-1 {
