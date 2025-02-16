@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 2025-02-16 Sun 15:33 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>An emacs macro to transform DTOs</title>
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" href="../style.css">
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<meta property="og:url" content="https://chamook.lol/emacs-macro-for-classes-to-records/" />
+<meta property="og:image" content="https://chamook.lol/emacs-macro-for-classes-to-records/card.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2025-02-16T15:30:00+02:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="twitter:image" content="https://chamook.lol/emacs-macro-for-classes-to-records/card.png" />
+<meta property="twitter:title" content="An emacs macro to transform DTO" />
+<meta property="twitter:description" content="TBH I just feel cool whenever I make a macro that works 😎" />
+</head>
+<body>
+<div id="preamble" class="status">
+<header>
+<div class="container">
+  <h1 class="glitch-text" data-text="An emacs macro to transform DTOs">An emacs macro to transform DTOs</h1>
+  <span class="subtitle">TBH I just feel cool whenever I make a macro that works 😎</span>
+</div>
+<div class="byline">
+  <div class="container">
+    <p>By <a href="https://hachyderm.io/@chamook">Adam Guest</a> - 16 February 2025</p>
+  </div>
+</div>
+</header>
+</div>
+<div id="content" class="container">
+<p>
+I really like how emacs macros let me capture and replay my own stupid approaches to problems.
+</p>
+
+<p>
+I had a bunch of DTO classes that looked like this:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-csharp"><span style="color: #4c83ff; font-weight: bold;">public</span> <span style="color: #4c83ff; font-weight: bold;">class</span> <span style="color: #afd8af; font-weight: bold;">ThingContainer</span>
+<span style="color: #8b0000;">{</span>
+    <span style="color: #006400;">[</span><span style="color: #ff1493; font-weight: bold;">JsonPropertyName</span><span style="color: #ff1493;">(</span><span style="color: #61CE3C;">"thing_one"</span><span style="color: #ff1493;">)</span><span style="color: #006400;">]</span>
+    <span style="color: #4c83ff; font-weight: bold;">public</span> <span style="color: #afd8af; font-weight: bold;">string</span> ThingOne <span style="color: #006400;">{</span> <span style="color: #4c83ff; font-weight: bold;">get</span>; <span style="color: #4c83ff; font-weight: bold;">set</span>; <span style="color: #006400;">}</span>
+
+    <span style="color: #006400;">[</span><span style="color: #ff1493; font-weight: bold;">JsonPropertyName</span><span style="color: #ff1493;">(</span><span style="color: #61CE3C;">"thing_two"</span><span style="color: #ff1493;">)</span><span style="color: #006400;">]</span>
+    <span style="color: #4c83ff; font-weight: bold;">public</span> <span style="color: #afd8af; font-weight: bold;">string</span> ThingTwo <span style="color: #006400;">{</span> <span style="color: #4c83ff; font-weight: bold;">get</span>; <span style="color: #4c83ff; font-weight: bold;">set</span>; <span style="color: #006400;">}</span>
+<span style="color: #8b0000;">}</span>
+</pre>
+</div>
+
+<p>
+and I wanted to convert them into records like this:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-csharp"><span style="color: #4c83ff; font-weight: bold;">public</span> <span style="color: #4c83ff; font-weight: bold;">sealed</span> <span style="color: #afd8af; font-weight: bold;">record</span> <span style="color: #ff1493; font-weight: bold;">ThingContainer</span><span style="color: #8b0000;">(</span>
+    <span style="color: #006400;">[</span>property: <span style="color: #ff1493; font-weight: bold;">JsonPropertyName</span><span style="color: #ff1493;">(</span><span style="color: #61CE3C;">"thing_one"</span><span style="color: #ff1493;">)</span><span style="color: #006400;">]</span> <span style="color: #afd8af; font-weight: bold;">string</span> ThingOne,
+    <span style="color: #006400;">[</span>property: <span style="color: #ff1493; font-weight: bold;">JsonPropertyName</span><span style="color: #ff1493;">(</span><span style="color: #61CE3C;">"thing_two"</span><span style="color: #ff1493;">)</span><span style="color: #006400;">]</span> <span style="color: #afd8af; font-weight: bold;">string</span> ThingTwo<span style="color: #8b0000;">)</span>;
+</pre>
+</div>
+
+<p>
+I'm sure Visual Studio or Rider has a feature for doing that, but I am just a simple country emacs user so
+I used some find and replace commands, and made a macro so it was easy to repeat. This is all using evil mode
+and some very vim commands.
+</p>
+
+<p>
+First off, change <code>class</code> to <code>sealed record</code>:
+</p>
+<div class="org-src-container">
+<pre class="src src-nil">:%s/class/sealed record
+</pre>
+</div>
+
+<p>
+This is a change that was easy enough to apply to all the classes at once, so it doesn't need to be part of a macro.
+</p>
+
+<p>
+Now to the fiddly bit, position the cursor on the opening curly boi and start a macro (<code>C-x (</code> in my config)
+then do the following:
+</p>
+
+<p>
+Select the whole body of the class
+</p>
+<div class="org-src-container">
+<pre class="src src-nil">V %
+</pre>
+</div>
+<p>
+Add the <code>property</code> prefix to the attributes:
+</p>
+<div class="org-src-container">
+<pre class="src src-nil">:'&lt;,'&gt;s/JsonProperty/property: JsonProperty/
+</pre>
+</div>
+
+<p>
+After each find/replace command the text is unselected so it needs to be selected again before running the next one.
+In this case, the cursor ends up on the last attribute, so moving down twice gets to the closing curly boi (<code>j j</code>)
+then selecting everything is the same as before:
+</p>
+<div class="org-src-container">
+<pre class="src src-nil">V %
+</pre>
+</div>
+
+<p>
+Remove <code>public</code> from all the properties:
+</p>
+<div class="org-src-container">
+<pre class="src src-nil">:'&lt;,'&gt;s/public //
+</pre>
+</div>
+
+<p>
+Select the whole class again by moving one line down <code>j</code> and then pressing <code>V %</code>
+</p>
+
+<p>
+Remove the get and set, and the blank line as well:
+</p>
+<div class="org-src-container">
+<pre class="src src-nil">:'&lt;,'&gt;s/ { get.*\n/,/
+</pre>
+</div>
+
+<p>
+Select the whole class again by pressing <code>V %</code>
+</p>
+
+<p>
+Remove the newline between the attributes and the properties:
+</p>
+<div class="org-src-container">
+<pre class="src src-nil">:'&lt;,'&gt;s/]\n */] /
+</pre>
+</div>
+
+<p>
+Move to the beginning of the class <code>A</code> to get to the end of the line <code>%</code> to jump to the opening curly boi
+</p>
+
+<p>
+<code>A</code> to edit at the end of the line, then backspace twice to delete the curly boi and newline, replace it with <code>(</code>,
+<code>esc</code> to go back to normal mode after typing.
+</p>
+
+<p>
+This change breaks the scope declaration so <code>%</code> won't work for getting to the end of the block anymore,
+instead use <code>}</code> to get to the next blank line, and <code>b</code> jumps backwards to the trailing comma. Select that and the
+closing curly boi with <code>v e</code> then <code>c</code> to replace it, type <code>);</code> as the last part of our record, then <code>esc</code> for
+back to normal mode.
+</p>
+
+<p>
+Finally <code>C-x )</code> to finish recording the macro.
+</p>
+
+<p>
+Now it can be used on all the other classes by moving the cursor to the right position and hitting <code>C-x e</code>
+</p>
+
+<p>
+Doing it this way let me work through the changes I wanted to make one at a time, and then have a simple command for all the
+other classes where I wanted to make the change 😃
+</p>
+</div>
+<div id="postamble" class="status">
+<footer class="page-footer"> <div class="container">
+  <a href="../index.html">&lt;- M-x go-to-homepage</a>
+</div>
+</footer>
+</div>
+</body>
+</html>

@@ -14,6 +14,163 @@ This document outputs the RSS feed for the site when tangled.
 #+end_src
 
 * Posts
+
+** An emacs macro to transform DTOS
+
+#+name: macro-post-content
+#+begin_src shell :results verbatim
+sed -n '/<div id="content" class="container">/,/<div id="postamble" class="status">/p' emacs-macro-for-classes-to-records/index.html | head -n-1 | sed 's/</\&lt;/g' | sed 's/>/\&gt;/g'
+#+end_src
+
+#+RESULTS: macro-post-content
+#+begin_example
+&lt;div id="content" class="container"&gt;
+&lt;p&gt;
+I really like how emacs macros let me capture and replay my own stupid approaches to problems.
+&lt;/p&gt;
+
+&lt;p&gt;
+I had a bunch of DTO classes that looked like this:
+&lt;/p&gt;
+
+&lt;div class="org-src-container"&gt;
+&lt;pre class="src src-csharp"&gt;&lt;span style="color: #4c83ff; font-weight: bold;"&gt;public&lt;/span&gt; &lt;span style="color: #4c83ff; font-weight: bold;"&gt;class&lt;/span&gt; &lt;span style="color: #afd8af; font-weight: bold;"&gt;ThingContainer&lt;/span&gt;
+&lt;span style="color: #8b0000;"&gt;{&lt;/span&gt;
+    &lt;span style="color: #006400;"&gt;[&lt;/span&gt;&lt;span style="color: #ff1493; font-weight: bold;"&gt;JsonPropertyName&lt;/span&gt;&lt;span style="color: #ff1493;"&gt;(&lt;/span&gt;&lt;span style="color: #61CE3C;"&gt;"thing_one"&lt;/span&gt;&lt;span style="color: #ff1493;"&gt;)&lt;/span&gt;&lt;span style="color: #006400;"&gt;]&lt;/span&gt;
+    &lt;span style="color: #4c83ff; font-weight: bold;"&gt;public&lt;/span&gt; &lt;span style="color: #afd8af; font-weight: bold;"&gt;string&lt;/span&gt; ThingOne &lt;span style="color: #006400;"&gt;{&lt;/span&gt; &lt;span style="color: #4c83ff; font-weight: bold;"&gt;get&lt;/span&gt;; &lt;span style="color: #4c83ff; font-weight: bold;"&gt;set&lt;/span&gt;; &lt;span style="color: #006400;"&gt;}&lt;/span&gt;
+
+    &lt;span style="color: #006400;"&gt;[&lt;/span&gt;&lt;span style="color: #ff1493; font-weight: bold;"&gt;JsonPropertyName&lt;/span&gt;&lt;span style="color: #ff1493;"&gt;(&lt;/span&gt;&lt;span style="color: #61CE3C;"&gt;"thing_two"&lt;/span&gt;&lt;span style="color: #ff1493;"&gt;)&lt;/span&gt;&lt;span style="color: #006400;"&gt;]&lt;/span&gt;
+    &lt;span style="color: #4c83ff; font-weight: bold;"&gt;public&lt;/span&gt; &lt;span style="color: #afd8af; font-weight: bold;"&gt;string&lt;/span&gt; ThingTwo &lt;span style="color: #006400;"&gt;{&lt;/span&gt; &lt;span style="color: #4c83ff; font-weight: bold;"&gt;get&lt;/span&gt;; &lt;span style="color: #4c83ff; font-weight: bold;"&gt;set&lt;/span&gt;; &lt;span style="color: #006400;"&gt;}&lt;/span&gt;
+&lt;span style="color: #8b0000;"&gt;}&lt;/span&gt;
+&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;
+and I wanted to convert them into records like this:
+&lt;/p&gt;
+
+&lt;div class="org-src-container"&gt;
+&lt;pre class="src src-csharp"&gt;&lt;span style="color: #4c83ff; font-weight: bold;"&gt;public&lt;/span&gt; &lt;span style="color: #4c83ff; font-weight: bold;"&gt;sealed&lt;/span&gt; &lt;span style="color: #afd8af; font-weight: bold;"&gt;record&lt;/span&gt; &lt;span style="color: #ff1493; font-weight: bold;"&gt;ThingContainer&lt;/span&gt;&lt;span style="color: #8b0000;"&gt;(&lt;/span&gt;
+    &lt;span style="color: #006400;"&gt;[&lt;/span&gt;property: &lt;span style="color: #ff1493; font-weight: bold;"&gt;JsonPropertyName&lt;/span&gt;&lt;span style="color: #ff1493;"&gt;(&lt;/span&gt;&lt;span style="color: #61CE3C;"&gt;"thing_one"&lt;/span&gt;&lt;span style="color: #ff1493;"&gt;)&lt;/span&gt;&lt;span style="color: #006400;"&gt;]&lt;/span&gt; &lt;span style="color: #afd8af; font-weight: bold;"&gt;string&lt;/span&gt; ThingOne,
+    &lt;span style="color: #006400;"&gt;[&lt;/span&gt;property: &lt;span style="color: #ff1493; font-weight: bold;"&gt;JsonPropertyName&lt;/span&gt;&lt;span style="color: #ff1493;"&gt;(&lt;/span&gt;&lt;span style="color: #61CE3C;"&gt;"thing_two"&lt;/span&gt;&lt;span style="color: #ff1493;"&gt;)&lt;/span&gt;&lt;span style="color: #006400;"&gt;]&lt;/span&gt; &lt;span style="color: #afd8af; font-weight: bold;"&gt;string&lt;/span&gt; ThingTwo&lt;span style="color: #8b0000;"&gt;)&lt;/span&gt;;
+&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;
+I'm sure Visual Studio or Rider has a feature for doing that, but I am just a simple country emacs user so
+I used some find and replace commands, and made a macro so it was easy to repeat. This is all using evil mode
+and some very vim commands.
+&lt;/p&gt;
+
+&lt;p&gt;
+First off, change &lt;code&gt;class&lt;/code&gt; to &lt;code&gt;sealed record&lt;/code&gt;:
+&lt;/p&gt;
+&lt;div class="org-src-container"&gt;
+&lt;pre class="src src-nil"&gt;:%s/class/sealed record
+&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;
+This is a change that was easy enough to apply to all the classes at once, so it doesn't need to be part of a macro.
+&lt;/p&gt;
+
+&lt;p&gt;
+Now to the fiddly bit, position the cursor on the opening curly boi and start a macro (&lt;code&gt;C-x (&lt;/code&gt; in my config)
+then do the following:
+&lt;/p&gt;
+
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;&lt;p&gt;
+Select the whole body of the class
+&lt;/p&gt;
+&lt;div class="org-src-container"&gt;
+&lt;pre class="src src-nil"&gt;V %
+&lt;/pre&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;
+Add the &lt;code&gt;property&lt;/code&gt; prefix to the attributes:
+&lt;/p&gt;
+&lt;div class="org-src-container"&gt;
+&lt;pre class="src src-nil"&gt;:'&lt;,'&gt;s/JsonProperty/property: JsonProperty/
+&lt;/pre&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;
+After each find/replace command the text is unselected so it needs to be selected again before running the next one.
+In this case, the cursor ends up on the last attribute, so moving down twice gets to the closing curly boi (&lt;code&gt;j j&lt;/code&gt;)
+then selecting everything is the same as before:
+&lt;/p&gt;
+&lt;div class="org-src-container"&gt;
+&lt;pre class="src src-nil"&gt;V %
+&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;&lt;p&gt;
+Remove &lt;code&gt;public&lt;/code&gt; from all the properties:
+&lt;/p&gt;
+&lt;div class="org-src-container"&gt;
+&lt;pre class="src src-nil"&gt;:'&lt;,'&gt;s/public //
+&lt;/pre&gt;
+&lt;/div&gt;&lt;/li&gt;
+
+&lt;li&gt;Select the whole class again by moving one line down &lt;code&gt;j&lt;/code&gt; and then pressing &lt;code&gt;V %&lt;/code&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;
+Remove the get and set, and the blank line as well:
+&lt;/p&gt;
+&lt;div class="org-src-container"&gt;
+&lt;pre class="src src-nil"&gt;:'&lt;,'&gt;s/ { get.*\n/,/
+&lt;/pre&gt;
+&lt;/div&gt;&lt;/li&gt;
+
+&lt;li&gt;Select the whole class again by pressing &lt;code&gt;V %&lt;/code&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;
+Remove the newline between the attributes and the properties:
+&lt;/p&gt;
+&lt;div class="org-src-container"&gt;
+&lt;pre class="src src-nil"&gt;:'&lt;,'&gt;s/]\n */] /
+&lt;/pre&gt;
+&lt;/div&gt;&lt;/li&gt;
+
+&lt;li&gt;Move to the beginning of the class &lt;code&gt;A&lt;/code&gt; to get to the end of the line &lt;code&gt;%&lt;/code&gt; to jump to the opening curly boi&lt;/li&gt;
+
+&lt;li&gt;&lt;code&gt;A&lt;/code&gt; to edit at the end of the line, then backspace twice to delete the curly boi and newline, replace it with &lt;code&gt;(&lt;/code&gt;,
+&lt;code&gt;esc&lt;/code&gt; to go back to normal mode after typing.&lt;/li&gt;
+
+&lt;li&gt;This change breaks the scope declaration so &lt;code&gt;%&lt;/code&gt; won't work for getting to the end of the block anymore,
+instead use &lt;code&gt;}&lt;/code&gt; to get to the next blank line, and &lt;code&gt;b&lt;/code&gt; jumps backwards to the trailing comma. Select that and the
+closing curly boi with &lt;code&gt;v e&lt;/code&gt; then &lt;code&gt;c&lt;/code&gt; to replace it, type &lt;code&gt;);&lt;/code&gt; as the last part of our record, then &lt;code&gt;esc&lt;/code&gt; for
+back to normal mode.&lt;/li&gt;
+
+&lt;li&gt;Finally &lt;code&gt;C-x )&lt;/code&gt; to finish recording the macro.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;
+Now it can be used on all the other classes by moving the cursor to the right position and hitting &lt;code&gt;C-x e&lt;/code&gt;
+&lt;/p&gt;
+
+&lt;p&gt;
+Doing it this way let me work through the changes I wanted to make one at a time, and then have a simple command for all the
+other classes where I wanted to make the change 😃
+&lt;/p&gt;
+&lt;/div&gt;
+#+end_example
+
+#+begin_src xml :tangle rss.xml :noweb yes
+  <item>
+    <title>An emacs macro to transform DTOs</title>
+    <link>https://chamook.lol/emacs-macro-for-classes-to-records/</link>
+    <description>
+      <<macro-post-content()>>
+    </description>
+    <pubDate>Sun, 16 Feb 2025 15:30:01 +0200</pubDate>
+    <guid>https://chamook.lol/emacs-macro-for-classes-to-records/</guid>
+    </item>
+#+end_src
+
 ** Stop Pretending To Be Stupid
 
 #+name: stupid-post-content
