@@ -1,0 +1,814 @@
+@import "font/IBMPlexSans/font.css";
+@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@200&display=swap');
+
+:root {
+    --main-font: "IBM Plex Sans";
+    --code-font: "Inconsolata";
+    --green: #48cc18;
+    --pink: #ca1aca;
+    --red: #f82d2d;
+    --off-white: #efefef;
+
+    --light-bg: #121212;
+    --bg: #121212;
+    --dark-bg: #010101;
+
+    --time-anim: 4s;
+}
+
+html {
+    height: 100vw;
+    width: 100vh;
+    overflow: hidden;
+}
+
+body {
+    font-family: var(--main-font);
+    color: white;
+    background: var(--bg);
+    overflow: hidden;
+    width: 100vw;
+
+    & a {
+        color: var(--green);
+        text-decoration: none;
+        transition: 0.3s;
+
+        &:hover {
+            color: var(--red);
+        }
+    }
+
+    & .frontpage {
+        height: 100vh;
+        width: 100vw;
+        overflow-y: scroll;
+        overflow-x: none;
+        scroll-snap-type: y proximity;
+
+        & > header {
+            height: 100vh;
+            margin: auto;
+            display: grid;
+            place-content: center;
+            align-content: center;
+            grid-template-areas:
+                "logo title"
+                "text text";
+            scroll-snap-align: center;
+
+            & svg {
+                height: 350px;
+                width: 350px;
+                grid-area: logo;
+                cursor: not-allowed;
+
+                & * {
+                    transition: 0.3s;
+                    opacity: 1;
+                }
+
+                & .eye {
+                    opacity: 0;
+                }
+
+                &:hover {
+                    & path {
+                        opacity: 0;
+                    }
+
+                    & .border {
+                        stroke: var(--red);
+                    }
+
+                    & .eye {
+                        opacity: 1;
+                    }
+
+                }
+            }
+
+            & div.title {
+                grid-area: title;
+                display: flex;
+                flex-direction: column;
+                align-content: center;
+                place-self: center;
+                gap: 3px;
+
+                & h1 {
+                    text-transform: uppercase;
+                    font-size: 6rem;
+                    padding: 0;
+                    padding-right: 5px;
+                    margin: 0;
+                    font-weight: 900;
+
+                    &, &::before, &::after {
+                        transition: 0.2s;
+                        color: var(--bg);
+                        background-color: var(--green);
+                    }
+
+                    &:hover {
+                      &, &::before, &::after {
+                          color: var(--green);
+                          background-color: var(--bg);
+                      }
+                    }
+                }
+
+                & h2 {
+                    width: fit-content;
+                    padding: 10px;
+                    margin: 0;
+                    font-weight: 700;
+                    font-size: 1.5rem;
+                    text-transform: uppercase;
+                    background-color: var(--red);
+                    color: var(--bg);
+                    transition: 0.2s;
+
+                    &:hover {
+                        background-color: var(--bg);
+                        color: var(--red);
+                    }
+                }
+            }
+
+            & div.intro {
+                grid-area: text;
+                font-size: 1rem;
+                width: fit-content;
+                place-self: center;
+                background-color: var(--dark-bg);
+                border: 1px solid var(--green);
+                padding: 10px;
+                margin: 0;
+                margin-top: 50px;
+                text-transform: uppercase;
+                font-weight: 600;
+                font-family: var(--code-font);
+                transition: 0.3s;
+
+                &:hover {
+                    box-shadow: var(--off-white) 0 0 20px 5px;
+                }
+            }
+        }
+
+        & section {
+            scroll-snap-align: start;
+            max-width: 120rem;
+            margin: auto;
+
+            & header {
+                & h1 {
+                    font-size: 4rem;
+                    width: fit-content;
+                    text-transform: uppercase;
+                    padding-right: 5px;
+
+                    &, &::before, &::after {
+                        background-color: var(--bg);
+                        color: var(--green);
+                        transition: 0.2s;
+                    }
+
+                    &:hover {
+                        &, &::before, &::after {
+                            color: var(--bg);
+                            background-color: var(--red);
+                            cursor: not-allowed;
+                        }
+                    }
+                }
+
+                & h2 {
+                    width: fit-content;
+                    padding: 10px;
+                    margin: 0;
+                    font-weight: 700;
+                    font-size: 1.5rem;
+                    text-transform: uppercase;
+                    background-color: var(--red);
+                    color: var(--bg);
+                    transition: 0.2s;
+
+                    &:hover {
+                        background-color: var(--bg);
+                        color: var(--red);
+                    }
+                }
+            }
+
+            & p {
+                font-size: 2rem;
+                font-weight: 100;
+            }
+
+            &.about {
+                width: 90%;
+                margin: auto;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+            &.videos {
+                width: 90%;
+                margin: auto;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+
+                & header {
+                }
+
+                & .video-list {
+                    display: grid;
+                    grid-columns-template: 1fr 1fr;
+                    list-style: none;
+                    width: 100%;
+
+                    & li {
+                       & a {
+                           display: flex;
+                           flex-direction: column;
+                           background-color: var(--bg);
+                           color: var(--green);
+                           text-align: center;
+                           width: 496px;
+                           transition: 0.3s;
+                           align-items: center;
+
+                           & span.title {
+                               width: fit-content;
+                               transition: 0.3s;
+                           }
+
+                           & span.image {
+                               transition: 0.3s;
+                               & img {
+                                   transition: 0.6s;
+                                   filter: brightness(60%);
+                                   width: 100%;
+                                   clip-path: url(#old-tv-path);
+                               }
+                           }
+
+
+                           &:hover {
+                               & span.title {
+                                   background-color: var(--green);
+                                   color: var(--bg);
+                               }
+
+                               & span.image {
+                                   filter:
+                                       drop-shadow(0px 3px var(--green))
+                                       drop-shadow(3px 0px var(--green))
+                                       drop-shadow(0px -3px var(--green))
+                                       drop-shadow(-3px 0px var(--green));
+                                   & img {
+                                       filter: brightness(150%);
+                                   }
+                               }
+                           }
+                       }
+                    }
+                }
+            }
+
+            &.posts {
+                display: flex;
+                flex-direction: column;
+                gap: 32px;
+                align-items: center;
+                width: 90%;
+
+                & header {
+                    width: 100%;
+                }
+
+                & .article-listing {
+                    background: var(--light-bg);
+                    display: grid;
+                    width: 100%;
+                    column-gap: 32px;
+                    justify-items: start;
+                    grid-template-columns: 8rem 1fr;
+                    grid-template-areas:
+                        "date link"
+                        "date link";
+
+                    & .datebox {
+                        grid-area: date;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        width: 8rem;
+                        color: var(--green);
+                        background: var(--dark-bg);
+                        padding: 10px 5px;
+                        border-radius: 20px;
+
+                        & .day {
+                            font-size: 4.5rem;
+                            font-weight: 800;
+                            line-height: 4.2rem;
+                        }
+
+                        & .month {
+                            font-size: 1.5rem;
+                        }
+
+                        & .year {
+                            font-size: 1.5rem;
+                        }
+                    }
+
+
+                    &>a {
+                        grid-area: link;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        color: var(--green);
+                        background-color: var(--light-bg);
+                        font-weight: 200;
+                        transition: 0.3s;
+                        padding-left: 20px;
+                        padding-right: 20px;
+                        border-radius: 20px;
+
+                        & h2 {
+                            text-transform: uppercase;
+                            font-size: 2.5rem;
+                            font-weight: 200;
+                            margin: 0;
+                        }
+
+                        & p {
+                            grid-area: text;
+                            font-size: 1.5rem;
+                            align-self: start;
+                            margin: 0;
+                            font-weight: 500;
+                            color: var(--off-white);
+                        }
+
+                        &:hover {
+                            background-color: var(--dark-bg);
+
+                            & h2 {
+                                color: var(--red);
+                            }
+
+                        }
+                    }
+
+                }
+
+                & > footer {
+
+                }
+            }
+
+            &.projects {
+                display: grid;
+                grid-columns-template: 1fr 1fr;
+                width: 90%;
+                margin: auto;
+                gap: 32px;
+                align-content: start;
+
+                & header {
+                    grid-column: 1 / span 2;
+                }
+
+                & .project-item {
+                    display: grid;
+                    background-color: var(--dark-bg);
+                    border-radius: 20px;
+                    padding: 20px;
+                    gap: 20px;
+                    grid-template-areas:
+                        "icon title"
+                        "text text";
+
+                    & h2 {
+                        text-transform: uppercase;
+                        font-size: 2.5rem;
+                        margin: 0;
+                        grid-area: title;
+                        align-content: center;
+
+                        & a {
+                            background-color: var(--dark-bg);
+                            color: var(--green);
+                            font-weight: 200;
+
+                            &:hover {
+                                background-color: var(--green);
+                                color: var(--dark-bg);
+                            }
+                        }
+                    }
+
+                    & p {
+                        grid-area: text;
+                    }
+
+                    & span.icon {
+                        grid-area: icon;
+                        height: 100px;
+                        & > img, & > svg {
+                            max-width: 100px;
+                            height: 100px;
+                        }
+                    }
+                }
+            }
+        }
+
+        & > footer {
+            min-height: 100px;
+            background-color: var(--dark-bg);
+            padding: 40px;
+            margin-top: 40px;
+        }
+    }
+}
+
+.flicker {
+    animation: textShadow 1.6s infinite;
+    position: relative;
+
+    &::before {
+        content: " ";
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background:
+            linear-gradient(
+                rgba(18, 16, 16, 0) 50%,
+                rgba(0, 0, 0, 0.25) 50%),
+            linear-gradient(
+                90deg,
+                rgba(255, 0, 0, 0.06),
+                rgba(0, 255, 0, 0.02),
+                rgba(0, 0, 255, 0.06));
+        z-index: 2;
+        background-size: 100% 2px, 3px 100%;
+        pointer-events: none;
+    }
+
+    &::after {
+        content: " ";
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background: rgba(18, 16, 16, 0.1);
+        opacity: 0;
+        z-index: 2;
+        pointer-events: none;
+        animation: flicker 0.15s infinite;
+    }
+}
+
+.glitch-text {
+    position: relative;
+    overflow: hidden;
+
+    &::after {
+        content: attr(data-text);
+        position: absolute;
+        top: 0;
+        left: 2px;
+        background: var(--bg);
+	      animation: glitch-anim-1 var(--time-anim) infinite linear alternate-reverse;
+    }
+
+    &::before {
+        content: attr(data-text);
+        position: absolute;
+        top: 0;
+        left: -2px;
+        background: var(--bg);
+	      animation: glitch-anim-2 var(--time-anim) infinite linear alternate-reverse;
+    }
+}
+
+@keyframes glitch-anim-1 {
+  0% {
+    clip: rect(95px, 9999px, 16px, 0);
+    transform: skew(0.19deg);
+  }
+  5% {
+    clip: rect(58px, 9999px, 77px, 0);
+    transform: skew(0.7deg);
+  }
+  10% {
+    clip: rect(40px, 9999px, 25px, 0);
+    transform: skew(0.55deg);
+  }
+  15% {
+    clip: rect(34px, 9999px, 2px, 0);
+    transform: skew(0.14deg);
+  }
+  20% {
+    clip: rect(8px, 9999px, 5px, 0);
+    transform: skew(0.53deg);
+  }
+  25% {
+    clip: rect(90px, 9999px, 9px, 0);
+    transform: skew(0.13deg);
+  }
+  30% {
+    clip: rect(40px, 9999px, 84px, 0);
+    transform: skew(0.81deg);
+  }
+  35% {
+    clip: rect(22px, 9999px, 51px, 0);
+    transform: skew(0.49deg);
+  }
+  40% {
+    clip: rect(11px, 9999px, 33px, 0);
+    transform: skew(0.74deg);
+  }
+  45% {
+    clip: rect(75px, 9999px, 96px, 0);
+    transform: skew(0.96deg);
+  }
+  50% {
+    clip: rect(33px, 9999px, 89px, 0);
+    transform: skew(0.77deg);
+  }
+  55% {
+    clip: rect(21px, 9999px, 57px, 0);
+    transform: skew(0.95deg);
+  }
+  60% {
+    clip: rect(34px, 9999px, 92px, 0);
+    transform: skew(0.29deg);
+  }
+  65% {
+    clip: rect(17px, 9999px, 94px, 0);
+    transform: skew(0.84deg);
+  }
+  70% {
+    clip: rect(93px, 9999px, 91px, 0);
+    transform: skew(0.49deg);
+  }
+  75% {
+    clip: rect(19px, 9999px, 53px, 0);
+    transform: skew(0.38deg);
+  }
+  80% {
+    clip: rect(71px, 9999px, 71px, 0);
+    transform: skew(0.57deg);
+  }
+  85% {
+    clip: rect(1px, 9999px, 17px, 0);
+    transform: skew(0.64deg);
+  }
+  90% {
+    clip: rect(76px, 9999px, 71px, 0);
+    transform: skew(0.17deg);
+  }
+  95% {
+    clip: rect(99px, 9999px, 7px, 0);
+    transform: skew(0.9deg);
+  }
+  100% {
+    clip: rect(79px, 9999px, 68px, 0);
+    transform: skew(0.05deg);
+  }
+}
+
+@keyframes glitch-anim-2 {
+  0% {
+    clip: rect(95px, 9999px, 68px, 0);
+    transform: skew(0.19deg);
+  }
+  5% {
+    clip: rect(58px, 9999px, 24px, 0);
+    transform: skew(0.7deg);
+  }
+  10% {
+    clip: rect(40px, 9999px, 30px, 0);
+    transform: skew(0.55deg);
+  }
+  15% {
+    clip: rect(34px, 9999px, 50px, 0);
+    transform: skew(0.14deg);
+  }
+  20% {
+    clip: rect(8px, 9999px, 89px, 0);
+    transform: skew(0.53deg);
+  }
+  25% {
+    clip: rect(90px, 9999px, 2px, 0);
+    transform: skew(0.13deg);
+  }
+  30% {
+    clip: rect(40px, 9999px, 5px, 0);
+    transform: skew(0.81deg);
+  }
+  35% {
+    clip: rect(22px, 9999px, 20px, 0);
+    transform: skew(0.49deg);
+  }
+  40% {
+    clip: rect(11px, 9999px, 2px, 0);
+    transform: skew(0.74deg);
+  }
+  45% {
+    clip: rect(75px, 9999px, 66px, 0);
+    transform: skew(0.96deg);
+  }
+  50% {
+    clip: rect(33px, 9999px, 13px, 0);
+    transform: skew(0.77deg);
+  }
+  55% {
+    clip: rect(21px, 9999px, 60px, 0);
+    transform: skew(0.95deg);
+  }
+  60% {
+    clip: rect(34px, 9999px, 12px, 0);
+    transform: skew(0.29deg);
+  }
+  65% {
+    clip: rect(17px, 9999px, 5px, 0);
+    transform: skew(0.84deg);
+  }
+  70% {
+    clip: rect(93px, 9999px, 20px, 0);
+    transform: skew(0.49deg);
+  }
+  75% {
+    clip: rect(19px, 9999px, 10px, 0);
+    transform: skew(0.38deg);
+  }
+  80% {
+    clip: rect(71px, 9999px, 90px, 0);
+    transform: skew(0.57deg);
+  }
+  85% {
+    clip: rect(1px, 9999px, 22px, 0);
+    transform: skew(0.64deg);
+  }
+  90% {
+    clip: rect(76px, 9999px, 11px, 0);
+    transform: skew(0.17deg);
+  }
+  95% {
+    clip: rect(99px, 9999px, 38px, 0);
+    transform: skew(0.9deg);
+  }
+  100% {
+    clip: rect(79px, 9999px, 93px, 0);
+    transform: skew(0.05deg);
+  }
+}
+
+@keyframes flicker {
+    0% {
+        opacity: 0.27861;
+    }
+    5% {
+        opacity: 0.34769;
+    }
+    10% {
+        opacity: 0.23604;
+    }
+    15% {
+        opacity: 0.90626;
+    }
+    20% {
+        opacity: 0.18128;
+    }
+    25% {
+        opacity: 0.83891;
+    }
+    30% {
+        opacity: 0.65583;
+    }
+    35% {
+        opacity: 0.67807;
+    }
+    40% {
+        opacity: 0.26559;
+    }
+    45% {
+        opacity: 0.84693;
+    }
+    50% {
+        opacity: 0.96019;
+    }
+    55% {
+        opacity: 0.08594;
+    }
+    60% {
+        opacity: 0.20313;
+    }
+    65% {
+        opacity: 0.71988;
+    }
+    70% {
+        opacity: 0.53455;
+    }
+    75% {
+        opacity: 0.37288;
+    }
+    80% {
+        opacity: 0.71428;
+    }
+    85% {
+        opacity: 0.70419;
+    }
+    90% {
+        opacity: 0.7003;
+    }
+    95% {
+        opacity: 0.36108;
+    }
+    100% {
+        opacity: 0.24387;
+    }
+}
+
+@keyframes textShadow {
+  0% {
+    text-shadow: 0.4389924193300864px 0 1px rgba(0,30,255,0.5), -0.4389924193300864px 0 1px rgba(255,0,80,0.3), 0 0 3px;
+  }
+  5% {
+    text-shadow: 2.7928974010788217px 0 1px rgba(0,30,255,0.5), -2.7928974010788217px 0 1px rgba(255,0,80,0.3), 0 0 3px;
+  }
+  10% {
+    text-shadow: 0.02956275843481219px 0 1px rgba(0,30,255,0.5), -0.02956275843481219px 0 1px rgba(255,0,80,0.3), 0 0 3px;
+  }
+  15% {
+    text-shadow: 0.40218538552878136px 0 1px rgba(0,30,255,0.5), -0.40218538552878136px 0 1px rgba(255,0,80,0.3), 0 0 3px;
+  }
+  20% {
+    text-shadow: 3.4794037899852017px 0 1px rgba(0,30,255,0.5), -3.4794037899852017px 0 1px rgba(255,0,80,0.3), 0 0 3px;
+  }
+  25% {
+    text-shadow: 1.6125630401149584px 0 1px rgba(0,30,255,0.5), -1.6125630401149584px 0 1px rgba(255,0,80,0.3), 0 0 3px;
+  }
+  30% {
+    text-shadow: 0.7015590085143956px 0 1px rgba(0,30,255,0.5), -0.7015590085143956px 0 1px rgba(255,0,80,0.3), 0 0 3px;
+  }
+  35% {
+    text-shadow: 3.896914047650351px 0 1px rgba(0,30,255,0.5), -3.896914047650351px 0 1px rgba(255,0,80,0.3), 0 0 3px;
+  }
+  40% {
+    text-shadow: 3.870905614848819px 0 1px rgba(0,30,255,0.5), -3.870905614848819px 0 1px rgba(255,0,80,0.3), 0 0 3px;
+  }
+  45% {
+    text-shadow: 2.231056963361899px 0 1px rgba(0,30,255,0.5), -2.231056963361899px 0 1px rgba(255,0,80,0.3), 0 0 3px;
+  }
+  50% {
+    text-shadow: 0.08084290417898504px 0 1px rgba(0,30,255,0.5), -0.08084290417898504px 0 1px rgba(255,0,80,0.3), 0 0 3px;
+  }
+  55% {
+    text-shadow: 2.3758461067427543px 0 1px rgba(0,30,255,0.5), -2.3758461067427543px 0 1px rgba(255,0,80,0.3), 0 0 3px;
+  }
+  60% {
+    text-shadow: 2.202193051050636px 0 1px rgba(0,30,255,0.5), -2.202193051050636px 0 1px rgba(255,0,80,0.3), 0 0 3px;
+  }
+  65% {
+    text-shadow: 2.8638780614874975px 0 1px rgba(0,30,255,0.5), -2.8638780614874975px 0 1px rgba(255,0,80,0.3), 0 0 3px;
+  }
+  70% {
+    text-shadow: 0.48874025155497314px 0 1px rgba(0,30,255,0.5), -0.48874025155497314px 0 1px rgba(255,0,80,0.3), 0 0 3px;
+  }
+  75% {
+    text-shadow: 1.8948491305757957px 0 1px rgba(0,30,255,0.5), -1.8948491305757957px 0 1px rgba(255,0,80,0.3), 0 0 3px;
+  }
+  80% {
+    text-shadow: 0.0833037308038857px 0 1px rgba(0,30,255,0.5), -0.0833037308038857px 0 1px rgba(255,0,80,0.3), 0 0 3px;
+  }
+  85% {
+    text-shadow: 0.09769827255241735px 0 1px rgba(0,30,255,0.5), -0.09769827255241735px 0 1px rgba(255,0,80,0.3), 0 0 3px;
+  }
+  90% {
+    text-shadow: 3.443339761481782px 0 1px rgba(0,30,255,0.5), -3.443339761481782px 0 1px rgba(255,0,80,0.3), 0 0 3px;
+  }
+  95% {
+    text-shadow: 2.1841838852799786px 0 1px rgba(0,30,255,0.5), -2.1841838852799786px 0 1px rgba(255,0,80,0.3), 0 0 3px;
+  }
+  100% {
+    text-shadow: 2.6208764473832513px 0 1px rgba(0,30,255,0.5), -2.6208764473832513px 0 1px rgba(255,0,80,0.3), 0 0 3px;
+  }
+}
