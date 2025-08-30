@@ -135,26 +135,6 @@ body {
                     }
                 }
             }
-
-            & div.intro {
-                grid-area: text;
-                font-size: 1rem;
-                width: fit-content;
-                place-self: center;
-                background-color: var(--dark-bg);
-                border: 1px solid var(--green);
-                padding: 10px;
-                margin: 0;
-                margin-top: 50px;
-                text-transform: uppercase;
-                font-weight: 600;
-                font-family: var(--code-font);
-                transition: 0.3s;
-
-                &:hover {
-                    box-shadow: var(--off-white) 0 0 20px 5px;
-                }
-            }
         }
 
         & section {
@@ -438,6 +418,90 @@ body {
             background-color: var(--dark-bg);
             padding: 40px;
             margin-top: 40px;
+        }
+    }
+}
+
+@media (max-width: 700px) {
+    body {
+        & .frontpage {
+            scroll-snap-type: none;
+            & header {
+                display: flex;
+                flex-direction: column;
+                height: auto;
+                align-items: flex-start;
+                justify-content: flex-start;
+                width: 90%;
+                margin: auto;
+
+                & svg {
+                    width: 40%;
+                    height: auto;
+                }
+
+                & div.title {
+                    & h1 {
+                        font-size: 2.5rem;
+                        width: 90%;
+                        background-color: var(--bg);
+                        color: var(--green);
+
+                        &::before, &::after {
+                            background-color: var(--bg);
+                            color: var(--green);
+                        }
+                    }
+
+                    & h2 {
+                        font-size: 1rem;
+                        width: 80%;
+                    }
+                }
+            }
+
+            & section {
+
+                & header {
+                    & h1 {
+                        font-size: 2rem;
+                    }
+                }
+
+                & p {
+                    font-size: 1.5rem;
+                }
+
+                &.videos {
+
+                    & .video-list {
+                        display: flex;
+
+                    & li {
+                       & a {
+                           width: 80%;
+                       }
+                    }
+                    }
+                }
+
+                &.posts {
+                    & .article-listing {
+                        display: flex;
+                        flex-direction: column;
+                    }
+                }
+
+                &.projects {
+                    display:flex;
+                    flex-direction: column;
+
+                    & .project-item {
+                        display: flex;
+                        flex-direction: column;
+                    }
+                }
+            }
         }
     }
 }
