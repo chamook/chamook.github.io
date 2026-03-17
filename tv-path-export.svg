@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="1"
+   height="1"
+   viewBox="0 0 1 1"
+   version="1.1"
+   id="svg1"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <defs
+     id="defs1">
+    <filter
+       height="1.0082423"
+       id="filter7051"
+       width="1.0060959"
+       x="-0.0030471301"
+       y="-0.0041216178">
+      <feTurbulence
+         baseFrequency="1"
+         numOctaves="3"
+         result="result0"
+         seed="0"
+         type="fractalNoise"
+         id="feTurbulence22" />
+      <feColorMatrix
+         result="result4"
+         type="saturate"
+         values="0"
+         id="feColorMatrix24" />
+      <feComposite
+         in="SourceGraphic"
+         in2="result4"
+         k1="1.25"
+         k2="0.5"
+         k3="0.5"
+         k4="0"
+         operator="arithmetic"
+         result="result2"
+         id="feComposite26" />
+      <feBlend
+         in="result2"
+         in2="SourceGraphic"
+         mode="normal"
+         result="result5"
+         id="feBlend28" />
+      <feComposite
+         in="result5"
+         in2="SourceGraphic"
+         operator="in"
+         result="result3"
+         id="feComposite30" />
+    </filter>
+  </defs>
+  <metadata
+     id="metadata1">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <path
+     d="m 300.70322,207.71613 c 294.10995,-31.63395 581.12649,-33.12094 859.99998,0 22.0053,2.61351 36.3391,18.14448 40,40 33.9803,202.86403 22.6756,399.69008 0,595 -2.5556,22.01214 -18.0402,37.02827 -40,40 -303.072,41.01339 -587.36545,35.08033 -859.99998,0 -21.9788,-2.82805 -36.75314,-18.07915 -40,-40 -28.84266,-194.728 -32.07414,-392.6574 0,-595 3.46935,-21.88674 17.96708,-37.63018 40,-40 z"
+     transform="matrix(0.00103233,0,0,0.00102623,-0.28224991,-0.16901137)"
+     id="path619"
+     style="opacity:0.133;fill:none;stroke:#000000;stroke-width:6;stroke-dasharray:none;filter:url(#filter7051)" />
+</svg>
