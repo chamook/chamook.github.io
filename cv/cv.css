@@ -51,6 +51,7 @@
         justify-content: flex-start;
         width: 100%;
         padding: 0;
+        flex-wrap: wrap;
 
         & li {
             width: fit-content;
@@ -205,12 +206,9 @@ article {
                         }
                     }
 
-                    & .range-start  {
-                        grid-column: 2;
-                    }
-
-                    & .range-end  {
-                        grid-column: 3;
+                    & .range {
+                        grid-column: 2/3;
+                        display: flex;
                     }
 
                     & .range-start, & .range-end {
@@ -306,29 +304,61 @@ footer.cv-footer {
         font-size: 3rem;
     }
 }
-@media all and (max-width: 900px) {
-    .range-start, .range-end {
-        width: 3rem;
-        font-size: 0.8rem;
-        margin: 0.2rem;
+@media all and (max-width: 780px) {
+    article {
+        & > section.skills {
+            grid-template-columns: 1fr;
+
+            & #technologies {
+                grid-column: 1;
+                grid-row: 2;
+            }
+        }
+
+        & > section.history {
+            & section {
+                & .job-header {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+
+                    & div.titles {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 10px;
+
+                        & h3 {
+                            display: flex;
+                            flex-direction: column;
+                            margin: 0;
+                            padding: 0;
+
+                            & span {
+                                font-size: 1.5rem;
+                            }
+
+                            & span.title-range {
+                                place-self: flex-start start;
+                                font-size: 1rem;
+                            }
+                        }
+                    }
+
+                    & h3 {
+                        font-size: 1.5rem;
+                    }
+
+                    & span {
+                        font-size: 1rem;
+                    }
+                }
+            }
+        }
     }
 
-    .range-start span span:first-child, .range-end span span:first-child{
-        font-weight: 600;
-        font-size: 1rem;
-    }
+    footer.cv-footer {
+        padding: 5px;
 
-    .present {
-        font-weight: 600;
-        font-size: 1.3rem;
-    }
-
-    #skills-section {
-        grid-template-columns: 100%;
-    }
-
-    #technologies {
-        grid-column: 1;
     }
 }
 
