@@ -201,13 +201,14 @@ article {
                             font-size: 0.8rem;
                             padding: 0.2rem 0.5rem;
                             background-color: #126712;
-                            /* color: var(--dark-bg); */
                             color: white;
                         }
                     }
 
                     & .range {
-                        grid-column: 2/3;
+                        grid-column: 2;
+                        grid-row: 1/span 2;
+                        align-self: center;
                         display: flex;
                     }
 
