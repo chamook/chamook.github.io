@@ -398,91 +398,6 @@ body {
                     width: 100%;
                 }
 
-                & .article-listing {
-                    width: 90%;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                    background-color: var(--dark-bg);
-                    transition: 0.3s;
-
-                    & a {
-                        position: relative;
-                        width: 100%;
-                        display: grid;
-                        grid-template-areas:
-                          "date title"
-                          "date preview";
-                        grid-template-columns: 8rem 1fr;
-                        gap: 10px;
-
-                        & .datebox {
-                            width: 8rem;
-                            display: flex;
-                            flex-direction: column;
-                            align-items: center;
-                            justify-content: center;
-                            color: var(--green);
-                            padding: 10px 5px;
-                            height: 8rem;
-                            grid-area: date;
-                            align-self: center;
-
-                            & .day {
-                                font-size: 4.5rem;
-                                font-weight: 800;
-                                line-height: 4.2rem;
-                            }
-
-                            & .month {
-                                font-size: 1.5rem;
-                            }
-
-                            & .year {
-                                font-size: 1.5rem;
-                            }
-                        }
-
-                        & h2 {
-                            text-transform: uppercase;
-                            font-size: 2rem;
-                            color: white;
-                            transition: 0.3s;
-                            grid-area: title;
-                            place-self: end start;
-                            margin: 0;
-                            padding: 0;
-                        }
-                        & p {
-                            transition: 0.3s;
-                            color: white;
-                            font-size: 1.5rem;
-                            grid-area: preview;
-                            place-self: start start;
-                            margin: 0;
-                            padding: 0;
-                            font-weight: 400;
-                        }
-                    }
-
-                    &:hover {
-                        transform: scale(1.1);
-                        box-shadow: 0 0 25px var(--green);
-                        background-color: var(--green);
-                        & a {
-                          & .datebox {
-                              color: var(--bg);
-                          }
-                          & h2 {
-                              color: var(--bg);
-                          }
-                          & p {
-                              color: var(--bg);
-                          }
-                      }
-                    }
-                 }
-
                 & footer {
                     width: 90%;
                     display: flex;
@@ -652,6 +567,67 @@ body {
                 text-align: center;
                 font-weight: 500;
                 font-size: 1.5rem;
+            }
+        }
+    }
+
+    &.archive {
+
+        &:before {
+            content: '';
+            top: 0;
+            left: 0;
+            z-index: 20000;
+            background: linear-gradient(
+                to bottom,
+                transparent 50%,
+                rgba(0,0,0, 0.3) 51%
+            );
+            background-size: 100% 4px;
+            animation: scanlines 1s steps(60) infinite;
+            position: fixed;
+            width: 100vw;
+            height: 120vh;
+            pointer-events: none;
+        }
+
+        & header {
+            & h1 {
+                text-align: center;
+                margin: 40px auto;
+                text-transform: uppercase;
+                color: var(--red);
+            }
+        }
+
+        & section {
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 32px;
+        }
+
+        & footer {
+            margin-top :40px;
+            display: flex;
+            justify-content: center;
+
+            & a {
+                width: 8rem;
+                height: 10rem;
+                background: var(--green) url('img/pixellated-hand-dark.png') top center no-repeat;
+                background-size: 70%;
+                display: flex;
+                align-items: flex-end;
+                font-size: 2rem;
+                color: var(--dark-bg);
+                transition: 0.2s;
+
+                &:hover {
+                    transform: scale(1.2);
+                    box-shadow: 0 0 3rem var(--green);
+                }
             }
         }
     }
@@ -860,6 +836,91 @@ body {
         pointer-events: none;
         animation: flicker 0.15s infinite;
     }
+}
+
+& .article-listing {
+   width: 90%;
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   background-color: var(--dark-bg);
+   transition: 0.3s;
+
+   & a {
+       position: relative;
+       width: 100%;
+       display: grid;
+       grid-template-areas:
+         "date title"
+         "date preview";
+       grid-template-columns: 8rem 1fr;
+       gap: 10px;
+
+       & .datebox {
+           width: 8rem;
+           display: flex;
+           flex-direction: column;
+           align-items: center;
+           justify-content: center;
+           color: var(--green);
+           padding: 10px 5px;
+           height: 8rem;
+           grid-area: date;
+           align-self: center;
+
+           & .day {
+               font-size: 4.5rem;
+               font-weight: 800;
+               line-height: 4.2rem;
+           }
+
+           & .month {
+               font-size: 1.5rem;
+           }
+
+           & .year {
+               font-size: 1.5rem;
+           }
+       }
+
+       & h2 {
+           text-transform: uppercase;
+           font-size: 2rem;
+           color: white;
+           transition: 0.3s;
+           grid-area: title;
+           place-self: end start;
+           margin: 0;
+           padding: 0;
+       }
+       & p {
+           transition: 0.3s;
+           color: white;
+           font-size: 1.5rem;
+           grid-area: preview;
+           place-self: start start;
+           margin: 0;
+           padding: 0;
+           font-weight: 400;
+       }
+   }
+
+   &:hover {
+       transform: scale(1.1);
+       box-shadow: 0 0 25px var(--green);
+       background-color: var(--green);
+       & a {
+         & .datebox {
+             color: var(--bg);
+         }
+         & h2 {
+             color: var(--bg);
+         }
+         & p {
+             color: var(--bg);
+         }
+     }
+   }
 }
 
 .glitch-text {
