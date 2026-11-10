@@ -1,0 +1,168 @@
+#+title: I have opinions about validation
+#+subtitle: So I wrote my own library
+
+Validation comes up a lot in the type of software development that I have done. Data comes in over the wire, and before we do anything with it, we need to make sure that it's the right kind of data.
+
+* I obviously wasn't the first person to consider this, that would be silly
+
+Not suprisingly, there is a popular library for validation on .NET: [[https://github.com/FluentValidation/FluentValidation][FluentValidation]]. I didn't make that one though. I don't like it.
+
+As the example in their readme[fn:1] shows:
+
+#+begin_src csharp
+using FluentValidation;
+
+public class CustomerValidator: AbstractValidator<Customer> {
+  public CustomerValidator() {
+    RuleFor(x => x.Surname).NotEmpty();
+    RuleFor(x => x.Forename).NotEmpty().WithMessage("Please specify a first name");
+    RuleFor(x => x.Discount).NotEqual(0).When(x => x.HasDiscount);
+    RuleFor(x => x.Address).Length(20, 250);
+    RuleFor(x => x.Postcode).Must(BeAValidPostcode).WithMessage("Please specify a valid postcode");
+  }
+
+  private bool BeAValidPostcode(string postcode) {
+    // custom postcode validating logic goes here
+  }
+}
+
+var customer = new Customer();
+var validator = new CustomerValidator();
+
+// Execute the validator
+ValidationResult results = validator.Validate(customer);
+
+// Inspect any validation failures.
+bool success = results.IsValid;
+List<ValidationFailure> failures = results.Errors;
+#+end_src
+
+FluentValidation is build around the idea of creating /Validators/ that allow us to check the constraints of a given type, and then deal with any failures if needed.
+
+That's...fine. I guess[fn:2].
+
+I don't like that the validation is separate from the type being validated.
+
+For me, a type should be defined with its own constraints. And it should enforce those constraints before you can even construct it. For such an approach we might not even bother with a library - you can just check values in a constructor and call it a day. But that's the easy approach, and I didn't go insane about validation because I liked the easy approach.
+
+* Building Blocks
+
+A lot of types repeat the same validation conditions. Where possible, we use types from the standard library to describe type constraints: whole numbers are ~int~, decimal numbers use ~decimal~ (or ~double~ or one of the others...), dates go in ~DateTimeOffset~ and so on... But these types are pretty limited, for example ~string~ doesn't guarantee that it will have a value - an empty ~string~ is still a ~string~. Requiring a value other than whitespace in a ~string~ is something that comes up quite regularly, the standard library offers us a convenient ~string.IsNullOrWhitespace~ method, but it's not something we can easily describe as a requirement of a bigger type.
+
+Or, well, it's not something we get out of the box, we could make something for it:
+
+#+begin_src csharp
+public class NonEmptyString
+{
+	private string _value;
+
+	public NonEmptyString(string? candidate)
+	{
+		if (string.IsNullOrWhitespace(candidate))
+			throw new ArgumentException("NonEmptyString cannot contain an empty value");
+
+		_value = candidate;
+	}
+
+	public override string ToString() => _value;
+}
+#+end_src
+
+This is crude, and would be annoying to work with - our only option being a throwing constructor makes it clunky. But, it does give us some safety - for the ~Customer~ type from the FluentValidation example we could declare the ~Surname~ and ~Forename~ properties using ~NonEmptyString~ and then we would be prevented from ever creating a ~Customer~ type with invalid data for those values.
+
+* Passing errors instead of throwing them
+
+If we're going to use this for anything we'd probably want to shine up that error handling though. Having a nice error to work with instead of having to wrap it in a ~try/catch~ would be better. We can add a type similar to [[https://learn.microsoft.com/en-us/dotnet/fsharp/language-reference/results][F# results]] to make returning /either[fn:3]/ a valid value or an error message straightforward without having to do exceptions. We'll call that type ~Validated<TSuccess, TError>~ [fn:4]and then update our ~NonEmptyString~ to offer a factory method returning that instead of just having a throwing constructor:
+
+#+begin_src csharp
+public class NonEmptyString
+{
+	private string _value;
+
+	private NonEmptyString(string candidate)
+	{
+		_value = candidate;
+	}
+
+	public static Validated<NonEmptyString, ErrorMessage> TryValidate(string? candidate)
+	{
+		if (string.IsNullOrWhitespace(candidate))
+			return new Validated<NonEmptyString, ErrorMessage>(new ErrorMessage("NonEmptyString cannot contain an empty value"));
+
+		return new Validated<NonEmptyString, ErrorMessage>(new NonEmptyString(candidate));
+	}
+
+	public override string ToString() => _value;
+}
+#+end_src
+
+Now our ~NonEmptyString~ type requires us to check if we got an error when we try to create it, but it doesn't throw and incur all the costs that come with that.
+
+* Building stuff with building blocks (I mean, what else are they for?)
+
+Ok, so assuming that all we ever need to validate is that strings aren't empty or blank we should be good to go right? Just define all our types using ~NonEmptyString~ as the property type. Job done.
+
+...
+
+Alas, no.
+
+Generally, our types are gonna have more than one property; and even if those properties only need the same validation - combining the checks is still a bit ugly:
+
+#+begin_src csharp
+var validatedForename = NonEmptyString.TryValidate(input.Forename);
+var validatedSurname = NonEmptyString.TryValidate(input.Surname);
+
+var errorList = new List<ErrorMessage>();
+
+if (!validatedForename.IsValid)
+	errorList.Add(validatedForename.Error);
+
+if (!validatedSurname.IsValid)
+	errorList.Add(validatedSurname.Error);
+
+if (errorList.Any())
+{
+	// return a combined error
+}
+else
+{
+	// now we can make our customer type
+}
+#+end_src
+
+If we want this to be something that doesn't suck to use, we need some way of combining these validations nicely.
+
+* Chamook.Validation
+
+Gosh, if only I already thought about that and wrapped it up in a library...
+
+The general idea of the library is as described above, but writ large. Instead of having specific but repetitive validations for each domain type, we can reuse smaller validations (like, ~NonEmptyString~) and have some nice[fn:5] library code to make combining it easier:
+
+#+begin_src csharp
+  public record CustomerName(NonEmptyString Forename, NonEmptyString Surname)
+  	{
+  		public static Validated<CustomerName, ErrorMessage> TryValidate(string? forename, string? surname) =>
+  			NonEmptyString.TryValidate(forename)
+  			.And(NonEmptyString.TryValidate(surname))
+  			.Map((f, s) => new CustomerName(f, s))
+  			.MapError(x => string.Join(", ", x));
+  }
+#+end_src
+
+That's it[fn:6]!
+
+You could [[https://github.com/chamook/Chamook.Validation][use it now if you wanted to]]...
+
+* Footnotes
+
+[fn:6] Ok, the actual library implementation of ~NonEmptyString~ is slightly more complicated because it takes a parameter to create the error value so you're not locked in to one specific error type, but it's still /pretty straight forward/!
+
+[fn:5] Just don't...read it.
+
+[fn:4] We'll do this because that's what I already did in the validation library that this is building up to. I did it there to avoid clashes with codebases that already have a ~Result~ type defined.
+
+[fn:3] SEE WHAT I DID THERE?!
+
+[fn:2] It is, it works for a lot of people, and there are plenty niceties in FluentValidation. This is not a callout post. Don't say I got mad on the internet - I did, but not about this.
+
+[fn:1] And props to the FluentValidation contributors here, that is a really concise and descriptive example that's very nicely done. We would be in a better state generally if all documentation was this good.
